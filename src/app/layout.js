@@ -1,3 +1,5 @@
+import GlobalStyles from "@/components/GlobalStyles";
+
 export const metadata = {
   title: "PosterTrace",
 };
@@ -5,6 +7,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <GlobalStyles/>
+      </head>
       <body>{children}</body>
     </html>
   );
