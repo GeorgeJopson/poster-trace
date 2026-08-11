@@ -116,6 +116,24 @@ const GlobalStyles = createGlobalStyle`
     
     --color-orange-950: hsl(12.88, 84.81%, 14.42%);
     --color-orange-950: oklch(26.6% 0.079 36.259);
+
+    --spacing-0: 0px;
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-5: 20px;
+    --spacing-6: 24px;
+    --spacing-7: 28px;
+    --spacing-8: 32px;
+    --spacing-9: 36px;
+    --spacing-10: 40px;
+    --spacing-12: 48px;
+    --spacing-14: 56px;
+    --spacing-16: 64px;
+    --spacing-20: 80px;
+    --spacing-24: 96px;
+    
   }
 `;
 
