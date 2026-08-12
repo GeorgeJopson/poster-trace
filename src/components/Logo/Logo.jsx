@@ -2,6 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 import {Aperture} from 'feather-icons-react';
 import Link from "next/link";
+import {QUERIES} from "@/constants";
 
 export default function Logo() {
   return (
@@ -30,4 +31,8 @@ const LogoTitle = styled.p`
   line-height: ${32/16}rem;
   font-weight: 900;
   font-family: var(--font-dm-sans), sans-serif;
+  
+  @media ${QUERIES.phoneAndDown} {
+    display:none;
+  }
 `
