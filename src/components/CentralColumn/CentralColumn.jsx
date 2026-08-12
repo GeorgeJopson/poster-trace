@@ -19,12 +19,12 @@ const Wrapper = styled.div`
 `
 
 const Spacer = styled.div`
-  width: 64px;
+  min-width: 64px;
   @media ${QUERIES.tabletAndDown} {
-    width: 32px;
+    min-width: 32px;
   }
   @media ${QUERIES.phoneAndDown} {
-    width: 16px;
+    min-width: 16px;
   }
 `
 

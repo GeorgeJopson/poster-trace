@@ -9,8 +9,8 @@ export default function NavBar() {
     <NavBarWrapper>
       <Logo/>
       <ButtonGroup>
-        <Button type={"transparent"}>Log In</Button>
-        <Button type={"filled"}>Sign Up</Button>
+        <Button type={"transparent"} fontSize={`${20/16}rem`}>Log In</Button>
+        <Button type={"filled"} fontSize={`${20/16}rem`}>Sign Up</Button>
       </ButtonGroup>
     </NavBarWrapper>
   );
