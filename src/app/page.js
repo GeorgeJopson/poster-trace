@@ -1,13 +1,12 @@
 import styled from "styled-components";
 
-import { Aperture } from 'feather-icons-react';
+import Logo from "@/components/Logo";
 
 export default function Home() {
   return (
     <main>
       <NavBar>
-        <Aperture size={28} strokeWidth={"1.5px"}/>
-        <p>PosterTrace</p>
+        <Logo/>
       </NavBar>
       <HeroWrapper>
       </HeroWrapper>
@@ -32,25 +31,21 @@ const HeroWrapper = styled.div`
   );
   padding: 0 64px;
 `
+
 const NavBar = styled.div`
   border-radius: 8px;
   padding: 0 4px;
-  gap: 8px;
+
   position: fixed;
   top: 16px;
   left: 64px;
   right: 64px;
-  font-size: calc(32 / 16 * 1rem);
-  font-weight:900;
-  font-family: var(--font-dm-sans),sans-serif;
+
   
   background-image: linear-gradient(
           to left,
           var(--color-orange-300-transparent) 0%,
           var(--color-orange-200-transparent) 100%
   );
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 
 `
