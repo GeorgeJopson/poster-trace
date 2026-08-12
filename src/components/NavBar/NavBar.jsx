@@ -2,6 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 import Logo from "@/components/Logo";
 import Button from "@/components/Button";
+import {QUERIES} from "@/constants";
 
 export default function NavBar() {
   return (
@@ -21,8 +22,6 @@ const NavBarWrapper = styled.div`
 
   position: fixed;
   top: 16px;
-  left: 64px;
-  right: 64px;
 
   display: flex;
   flex-direction: row;
@@ -33,6 +32,16 @@ const NavBarWrapper = styled.div`
           var(--color-orange-300-transparent) 0%,
           var(--color-orange-200-transparent) 100%
   );
+  
+  --side-margin: 64px;
+  @media ${QUERIES.tabletAndDown} {
+    --side-margin: 32px;
+  }
+  @media ${QUERIES.phoneAndDown} {
+    --side-margin: 16px;
+  }
+  left: var(--side-margin);
+  right: var(--side-margin);
 `
 
 const ButtonGroup = styled.div`
