@@ -29,7 +29,7 @@ img, picture, video, canvas, svg {
 }
 
 /* 7. Inherit fonts for form controls */
-input, button, textarea, select {
+input, textarea, select {
   font: inherit;
 }
 

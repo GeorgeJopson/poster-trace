@@ -26,7 +26,8 @@ const LogoWrapper = styled(Link)`
 `
 
 const LogoTitle = styled.p`
-  font-size: calc(32 / 16 * 1rem);
+  font-size: ${32/16}rem;
+  line-height: ${32/16}rem;
   font-weight: 900;
   font-family: var(--font-dm-sans), sans-serif;
 `
