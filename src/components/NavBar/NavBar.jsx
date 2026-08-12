@@ -1,18 +1,15 @@
 import React from 'react';
 import styled from "styled-components";
 import Logo from "@/components/Logo";
+import Button from "@/components/Button";
 
 export default function NavBar() {
   return (
     <NavBarWrapper>
       <Logo/>
       <ButtonGroup>
-        <ButtonWrapper>
-          <TransparentButton>Log In</TransparentButton>
-        </ButtonWrapper>
-        <ButtonWrapper>
-          <FilledButton>Sign Up</FilledButton>
-        </ButtonWrapper>
+        <Button type={"transparent"}>Log In</Button>
+        <Button type={"filled"}>Sign Up</Button>
       </ButtonGroup>
     </NavBarWrapper>
   );
@@ -42,28 +39,4 @@ const ButtonGroup = styled.div`
   display: flex;
   flex-direction: row;
   gap: 8px;
-`
-
-const ButtonWrapper = styled.div`
-  &:hover button {
-    transform: scale(0.95);
-  }
-`
-
-const Button = styled.button`
-  font-size: ${20/16}rem;
-  font-family: var(--font-dm-sans),sans-serif;
-  border-radius: 8px;
-
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  transition: transform 0.1s ease-in-out;
-`
-const FilledButton = styled(Button)`
-  background-color: var(--color-blue-950);
-`
-const TransparentButton = styled(Button)`
-  background-color: transparent;
-  color:black;
 `
