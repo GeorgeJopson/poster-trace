@@ -1,16 +1,12 @@
 import styled from "styled-components";
 
-import Logo from "@/components/Logo";
+import NavBar from "@/components/NavBar";
 
 export default function Home() {
   return (
     <main>
-      <NavBar>
-        <Logo/>
-      </NavBar>
-      <HeroWrapper>
-      </HeroWrapper>
-
+      <NavBar/>
+      <HeroWrapper></HeroWrapper>
       <Spacer/>
     </main>
   );
@@ -30,22 +26,4 @@ const HeroWrapper = styled.div`
           var(--color-orange-500) 100%
   );
   padding: 0 64px;
-`
-
-const NavBar = styled.div`
-  border-radius: 8px;
-  padding: 0 4px;
-
-  position: fixed;
-  top: 16px;
-  left: 64px;
-  right: 64px;
-
-  
-  background-image: linear-gradient(
-          to left,
-          var(--color-orange-300-transparent) 0%,
-          var(--color-orange-200-transparent) 100%
-  );
-
 `
