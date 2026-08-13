@@ -3,7 +3,7 @@ import styled from "styled-components";
 import NavBar from "@/components/NavBar";
 import CentralColumn from "@/components/CentralColumn";
 import Button from "@/components/Button";
-import {QUERIES} from "@/constants";
+import {QUERIES, ELEVATIONS} from "@/constants";
 
 // TODO: Add drop shadow to hero wrapper
 
@@ -64,6 +64,9 @@ const HeroWrapper = styled.div`
           var(--color-orange-500) 100%
   );
   padding: 66px 0 16px 0;
+  
+  --shadow-color: var(--color-orange-300-fragment);
+  box-shadow: ${ELEVATIONS.large};
 `
 
 const Title = styled.h1`
