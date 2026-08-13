@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
       <head>
         <title>PosterTrace</title>
       </head>
-      <body>{children}</body>
+      <body style={{fontFamily:"var(--font-dm-sans)"}}>{children}</body>
     </html>
   );
 }
