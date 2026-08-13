@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
 import {Clipboard, MapPin, Database} from "feather-icons-react";
 import React from "react";
+import {ELEVATIONS} from "@/constants";
 
 export default function Home() {
   return (
@@ -76,6 +77,9 @@ const ProblemCard = styled.div`
   border-radius: 8px;
   border: 1px solid var(--color-orange-900);
   padding: 12px 12px 12px 72px;
+
+  --shadow-color: var(--color-orange-200-fragment);
+  box-shadow: ${ELEVATIONS.medium};
 `
 
 const ProblemCardTitle = styled.h3`
