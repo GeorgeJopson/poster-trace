@@ -1,5 +1,5 @@
 import "./global.css";
-import {DM_Sans, Cascadia_Mono} from "next/font/google";
+import {DM_Sans, Inter} from "next/font/google";
 
 export const metadata = {
   title: "PosterTrace",
@@ -10,15 +10,15 @@ const dm_sans = DM_Sans({
   variable: '--font-dm-sans',
 })
 
-const cascadia_mono = Cascadia_Mono({
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-cascadia-mono',
+  variable: '--font-inter',
 })
 
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${dm_sans.variable} ${cascadia_mono.variable}`}>
+    <html lang="en" className={`${dm_sans.variable} ${inter.variable}`}>
       <head>
         <title>PosterTrace</title>
       </head>
