@@ -3,7 +3,7 @@ import {QUERIES} from "@/constants";
 
 const Header = styled.h2`
   font-weight: 400;
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-sora), sans-serif;
   text-align: center;
   
   font-size: ${64/16}rem;

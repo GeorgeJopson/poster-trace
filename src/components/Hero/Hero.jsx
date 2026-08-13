@@ -34,7 +34,7 @@ const HeroWrapper = styled.div`
 const Title = styled.h1`
   font-size: ${80/16}rem;
   font-weight: 500;
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-sora), sans-serif;
   text-align: center;
   line-height: ${(96+16)/16}rem;
 
