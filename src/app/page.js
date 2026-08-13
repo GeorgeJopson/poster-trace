@@ -6,16 +6,18 @@ import Hero from "@/components/Hero";
 import React from "react";
 import TheProblemMarketingSection from "@/components/TheProblemMarketingSection";
 import ContentGroup from "@/components/ContentGroup";
+import TheSolutionMarketingSection from "@/components/TheSolutionMarketingSection";
 
 export default function Home() {
   return (
     <main>
-      <NavBar/>
       <ContentGroup>
         <Hero/>
         <TheProblemMarketingSection/>
       </ContentGroup>
+      <TheSolutionMarketingSection/>
       <Spacer/>
+      <NavBar/>
     </main>
   );
 }
