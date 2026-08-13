@@ -4,6 +4,8 @@ import NavBar from "@/components/NavBar";
 import Hero from "@/components/Hero";
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
+import {Clipboard, MapPin, Database} from "feather-icons-react";
+import React from "react";
 
 export default function Home() {
   return (
@@ -16,14 +18,17 @@ export default function Home() {
             <Header>The Problem</Header>
             <ProblemCardGroup>
               <ProblemCard>
+                <ProblemCardIcon><Clipboard size={64} strokeWidth={"1.5px"} color={"var(--color-orange-700)"}/></ProblemCardIcon>
                 <ProblemCardTitle>No Information:</ProblemCardTitle>
                 <ProblemCardContent>You have no idea where your posters are actually working, and where people are just walking past.</ProblemCardContent>
               </ProblemCard>
               <ProblemCard>
+                <ProblemCardIcon><MapPin size={64} strokeWidth={"1.5px"} color={"var(--color-orange-700)"}/></ProblemCardIcon>
                 <ProblemCardTitle>No Record:</ProblemCardTitle>
                 <ProblemCardContent>If you find a great spot, you have no way of remembering where it is for your next poster campaign.</ProblemCardContent>
               </ProblemCard>
               <ProblemCard>
+                <ProblemCardIcon><Database size={64} strokeWidth={"1.5px"} color={"var(--color-orange-700)"}/></ProblemCardIcon>
                 <ProblemCardTitle>No Information:</ProblemCardTitle>
                 <ProblemCardContent>All your marketing information is spread across countless docs and websites.</ProblemCardContent>
               </ProblemCard>
@@ -36,12 +41,18 @@ export default function Home() {
   );
 }
 
+const ProblemCardIcon = styled.div`
+  position: absolute;
+  top: 16px;
+  left: 4px;
+`
+
 const ProblemSection = styled.section`
   padding-top: 32px;
 `
 
 const ContentGroup = styled.div`
-  padding-bottom: 64px;
+  padding-bottom: 48px;
   background-color: var(--color-orange-50);
 `
 
@@ -60,10 +71,11 @@ const ProblemCardGroup = styled.div`
 `
 
 const ProblemCard = styled.div`
+  position: relative;
   background-color: white;
   border-radius: 8px;
   border: 1px solid var(--color-orange-900);
-  padding: 12px;
+  padding: 12px 12px 12px 72px;
 `
 
 const ProblemCardTitle = styled.h3`
@@ -73,5 +85,5 @@ const ProblemCardTitle = styled.h3`
 
 const ProblemCardContent = styled.p`
   font-size: ${16/16}rem;
-  width: 260px;
+  max-width: 260px;
 `
