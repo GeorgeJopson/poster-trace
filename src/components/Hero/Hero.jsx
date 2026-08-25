@@ -10,7 +10,7 @@ export default function Hero() {
   return (
     <HeroWrapper>
       <CentralColumn>
-        <Title>Analytics for your Poster Campaign</Title>
+        <Title>Free Analytics for your Poster Campaign</Title>
         <HeroButtonGroup/>
       </CentralColumn>
     </HeroWrapper>
