@@ -22,7 +22,7 @@ const ProblemCardWrapper = styled.div`
   border: 1px solid var(--color-orange-900);
   padding: 12px 12px 12px 72px;
 
-  --shadow-color: var(--color-orange-200-fragment);
+  --shadow-color: var(--color-orange-300-fragment);
   box-shadow: ${ELEVATIONS.medium};
 `
 const ProblemCardIcon = styled.div`
