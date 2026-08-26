@@ -9,46 +9,42 @@ const scaleFactor = 0.65;
 
 export default function ButtonGroup() {
   return (
-    <Wrapper>
-      <TabletAndUpWrapper>
-        <Button type={"filled"} fontSize={`${36 / 16}rem`}>Sign Up</Button>
-        <Button type={"transparent"} fontSize={`${32 / 16}rem`}>Learn More <InlineImage width={36} height={36} src={"/arrow-right.svg"} alt={"right arrow"}/></Button>
-      </TabletAndUpWrapper>
-      <PhoneAndDownWrapper>
-        <Button type={"filled"} fontSize={`${36 / 16 * scaleFactor}rem`}>Sign Up</Button>
-        <Button type={"transparent"} fontSize={`${32 / 16 * scaleFactor}rem`}>Learn More <InlineImage width={36*scaleFactor} height={36*scaleFactor} src={"/arrow-right.svg"} alt={"right arrow"}/></Button>
-      </PhoneAndDownWrapper>
-    </Wrapper>
+      <ButtonWrapper>
+        <Button type={"filled"} fontSize={`var(--signup-btn-size)`}>Sign Up</Button>
+        <Button type={"transparent"} fontSize={`var(--learn-more-btn-size)`}>Learn More <InlineImage width={32} height={32} src={"/arrow-right.svg"} alt={"right arrow"}/></Button>
+      </ButtonWrapper>
   );
 }
 
 const InlineImage = styled(Image)`
   display: inline-block;
-`
+  
+  --image-size: ${32/16}rem;
+  width: var(--image-size);
+  height: var(--image-size);
+  @media ${QUERIES.phoneAndDown}{
+    --image-size: ${32/16*scaleFactor}rem;
+  }
 
-const Wrapper = styled.div`
-  margin: 8px 0;
 `
 
 const ButtonWrapper = styled.div`
+  margin: 8px 0;
+
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: left;
-`
-
-const TabletAndUpWrapper = styled(ButtonWrapper)`
+  
   gap: 24px;
-  
+  row-gap: 4px;
+  --signup-btn-size: ${36/16}rem;
+  --learn-more-btn-size: ${32/16}rem;
+
   @media ${QUERIES.phoneAndDown}{
-    display:none;
+    gap: 16px;
+    --signup-btn-size: ${36/16 * scaleFactor}rem;
+    --learn-more-btn-size: ${32/16 * scaleFactor}rem;
   }
-`
-const PhoneAndDownWrapper = styled(ButtonWrapper)`
-  gap: 16px;
   
-  display: none;
-  @media ${QUERIES.phoneAndDown}{
-    display:flex;
-  }
 `
