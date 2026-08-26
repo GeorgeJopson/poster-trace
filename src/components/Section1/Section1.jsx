@@ -13,34 +13,39 @@ const root2 = 1.414213562;
 function Section1() {
   return (
     <Wrapper>
+      <Posters>
+        <PosterThree>
+          <Image
+            src={"/poster-images/stock-poster-3.png"}
+            alt={
+              "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+              "There is a QR code in the bottom right hand corner."}
+            fill
+          />
+        </PosterThree>
+
+        <PosterTwo>
+          <Image
+            fill
+            src={"/poster-images/stock-poster-2.png"}
+            alt={
+              "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+              "There is a QR code in the bottom right hand corner."}
+          />
+        </PosterTwo>
+
+        <PosterOne>
+          <Image
+            fill
+            src={"/poster-images/stock-poster-1.png"}
+            alt={
+              "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+              "There is a QR code in the bottom right hand corner."}
+          />
+        </PosterOne>
+      </Posters>
+
       <CentralColumn>
-        <PosterThree
-          width={posterSize}
-          height={posterSize * root2}
-          src={"/poster-images/stock-poster-3.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
-        />
-
-        <PosterTwo
-          width={posterSize}
-          height={posterSize * root2}
-          src={"/poster-images/stock-poster-2.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
-        />
-
-        <PosterOne
-          width={posterSize}
-          height={posterSize * root2}
-          src={"/poster-images/stock-poster-1.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
-        />
-
         <Title>
           Poster&nbsp;Analytics,<br/>
           For&nbsp;Communities,<br/>
@@ -59,33 +64,39 @@ function Section1() {
 
 export default Section1;
 
-const PosterImage = styled(Image)`
-  position: absolute;
-  width: auto;
-  height: auto;
+const Posters = styled.div`
+  position: relative;
+  overflow-x: clip;
 `
 
-const PosterOne = styled(PosterImage)`
-  top: 0;
+const PosterWrapper = styled.div`
+  position: absolute;
+
+  width:${posterSize}px;
+  height:${posterSize * root2}px;
+`
+
+const PosterOne = styled(PosterWrapper)`
+  top: 16px;
   right: 10%;
-  
   rotate: 4deg;
 `
 
-const PosterTwo = styled(PosterImage)`
-  top: 30%;
+const PosterTwo = styled(PosterWrapper)`
+  top: 128px;
   right: 5%;
-  rotate: 8deg;
+  rotate: 16deg;
 `
 
-const PosterThree = styled(PosterImage)`
-  top: 15%;
+const PosterThree = styled(PosterWrapper)`
+  top: 48px;
   right: 20%;
-  rotate: -6deg;
+  rotate: -8deg;
 `
 
 const Wrapper = styled(ContentGroup)`
   padding-top: calc(48px);
+  position: relative;
 `
 
 const Introduction = styled.div`
