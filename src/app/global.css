@@ -47,6 +47,93 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 :root{
+  --color-green-50-fragment: 138.46 76.51% 96.68%;
+  --color-green-50: hsl(var(--color-green-50-fragment));
+  --color-green-50: oklch(98.2% 0.018 155.826);
+
+  --color-green-100-fragment: 140.65 84.38% 92.45%;
+  --color-green-100: hsl(var(--color-green-100-fragment));
+  --color-green-100: oklch(96.2% 0.044 156.743);
+
+  --color-green-200-fragment: 141.14 81.07% 84.82%;
+  --color-green-200: hsl(var(--color-green-200-fragment));
+  --color-green-200: oklch(92.5% 0.084 155.995);
+
+  --color-green-300-fragment: 142.66 81.25% 71.39%;
+  --color-green-300: hsl(var(--color-green-300-fragment));
+  --color-green-300: oklch(87.1% 0.15 154.449);
+
+  --color-green-400-fragment: 150.06 95.56% 44.76%;
+  --color-green-400: hsl(var(--color-green-400-fragment));
+  --color-green-400: oklch(79.2% 0.209 151.711);
+
+  --color-green-500-fragment: 144.06 100% 39.36%;
+  --color-green-500: hsl(var(--color-green-500-fragment));
+  --color-green-500: oklch(72.3% 0.219 149.579);
+
+  --color-green-600-fragment: 142.29 100% 32.57%;
+  --color-green-600: hsl(var(--color-green-600-fragment));
+  --color-green-600: oklch(62.7% 0.194 149.214);
+
+  --color-green-700-fragment: 144.68 100% 25.50%;
+  --color-green-700: hsl(var(--color-green-700-fragment));
+  --color-green-700: oklch(52.7% 0.154 150.069);
+
+  --color-green-800-fragment: 147.72 97.15% 20.36%;
+  --color-green-800: hsl(var(--color-green-800-fragment));
+  --color-green-800: oklch(44.8% 0.119 151.328);
+
+  --color-green-900-fragment: 145.73 73.08% 18.99%;
+  --color-green-900: hsl(var(--color-green-900-fragment));
+  --color-green-900: oklch(39.3% 0.095 152.535);
+
+  --color-green-950-fragment: 145.39 87.57% 9.65%;
+  --color-green-950: hsl(var(--color-green-950-fragment));
+  --color-green-950: oklch(26.6% 0.065 152.934);
+
+  --color-yellow-50-fragment: 54.55 90.61% 95.28%;
+  --color-yellow-50: hsl(var(--color-yellow-50-fragment));
+  --color-yellow-50: oklch(98.7% 0.026 102.212);
+
+  --color-yellow-100-fragment: 54.89 97.52% 87.84%;
+  --color-yellow-100: hsl(var(--color-yellow-100-fragment));
+  --color-yellow-100: oklch(97.3% 0.071 103.193);
+
+  --color-yellow-200-fragment: 52.74 99.45% 76.08%;
+  --color-yellow-200: hsl(var(--color-yellow-200-fragment));
+  --color-yellow-200: oklch(94.5% 0.129 101.54);
+
+  --color-yellow-300-fragment: 51.51 100% 56.29%;
+  --color-yellow-300: hsl(var(--color-yellow-300-fragment));
+  --color-yellow-300: oklch(90.5% 0.182 98.111);
+
+  --color-yellow-400-fragment: 47.25 100% 49.65%;
+  --color-yellow-400: hsl(var(--color-yellow-400-fragment));
+  --color-yellow-400: oklch(85.2% 0.199 91.936);
+
+  --color-yellow-500-fragment: 44.17 100% 47.07%;
+  --color-yellow-500: hsl(var(--color-yellow-500-fragment));
+  --color-yellow-500: oklch(79.5% 0.184 86.047);
+
+  --color-yellow-600-fragment: 38.87 100% 40.88%;
+  --color-yellow-600: hsl(var(--color-yellow-600-fragment));
+  --color-yellow-600: oklch(68.1% 0.162 75.834);
+
+  --color-yellow-700-fragment: 34.39 100% 32.55%;
+  --color-yellow-700: hsl(var(--color-yellow-700-fragment));
+  --color-yellow-700: oklch(55.4% 0.135 66.442);
+
+  --color-yellow-800-fragment: 32.77 100% 26.80%;
+  --color-yellow-800: hsl(var(--color-yellow-800-fragment));
+  --color-yellow-800: oklch(47.6% 0.114 61.907);
+
+  --color-yellow-900-fragment: 29.52 83.35% 24.57%;
+  --color-yellow-900: hsl(var(--color-yellow-900-fragment));
+  --color-yellow-900: oklch(42.1% 0.095 57.708);
+
+  --color-yellow-950-fragment: 26.16 87.52% 13.96%;
+  --color-yellow-950: hsl(var(--color-yellow-950-fragment));
+  --color-yellow-950: oklch(28.6% 0.066 53.813);
 
   --color-blue-50-fragment: 213.75 96.49% 96.79%;
   --color-blue-50: hsl(var(--color-blue-50-fragment));
