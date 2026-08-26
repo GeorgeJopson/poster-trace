@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from "styled-components";
-import {Aperture} from 'feather-icons-react';
 import Link from "next/link";
 import {QUERIES} from "@/constants";
+import Image from "next/image";
 
 export default function Logo() {
   return (
       <LogoWrapper href={"/"}>
-        <Aperture size={28} strokeWidth={"1.5px"}/>
+        <Image width={36} height={36} src={"/logo.svg"} alt={"Poster Trace Logo"}/>
         <LogoTitle>PosterTrace</LogoTitle>
       </LogoWrapper>
   );
@@ -22,15 +22,15 @@ const LogoWrapper = styled(Link)`
   gap: 8px;
   width: fit-content;
   
-  color: black;
+  color: var(--color-green-800);
   text-decoration: none;
 `
 
 const LogoTitle = styled.p`
   font-size: ${32/16}rem;
   line-height: ${32/16}rem;
-  font-weight: 900;
-  font-family: var(--font-dm-sans), sans-serif;
+  font-weight: bold;
+  font-family: var(--font-nunito), sans-serif;
   
   @media ${QUERIES.phoneAndDown} {
     display:none;
