@@ -4,6 +4,7 @@ import styled from "styled-components";
 import CentralColumn from "@/components/CentralColumn";
 import Title from "@/components/Section1/Title";
 import ButtonGroup from "@/components/Section1/ButtonGroup";
+import {QUERIES} from "@/constants";
 
 function Section1() {
   return (
@@ -39,4 +40,8 @@ const Introduction = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  
+  @media ${QUERIES.phoneAndDown}{
+    font-size: ${16/16}rem;
+  }
 `
