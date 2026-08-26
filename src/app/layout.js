@@ -1,5 +1,5 @@
 import "./global.css";
-import {DM_Sans, Sora, Nunito, Bungee} from "next/font/google";
+import {Nunito, Bungee} from "next/font/google";
 
 export const metadata = {
   title: "PosterTrace",
