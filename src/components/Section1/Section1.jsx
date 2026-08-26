@@ -4,58 +4,67 @@ import styled from "styled-components";
 import CentralColumn from "@/components/CentralColumn";
 import Title from "@/components/Section1/Title";
 import ButtonGroup from "@/components/Section1/ButtonGroup";
-import {QUERIES} from "@/constants";
+import {BREAKPOINTS, QUERIES} from "@/constants";
 import Image from "next/image";
 
 const posterSize = 256;
 const root2 = 1.414213562;
 
+const switchPoint =`(max-width: ${760 / 16}rem)`;
+
 function Section1() {
   return (
     <Wrapper>
-      <Posters>
-        <PosterThree>
-          <Image
-            src={"/poster-images/stock-poster-3.png"}
-            alt={
-              "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-              "There is a QR code in the bottom right hand corner."}
-            fill
-          />
-        </PosterThree>
 
-        <PosterTwo>
-          <Image
-            fill
-            src={"/poster-images/stock-poster-2.png"}
-            alt={
-              "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-              "There is a QR code in the bottom right hand corner."}
-          />
-        </PosterTwo>
-
-        <PosterOne>
-          <Image
-            fill
-            src={"/poster-images/stock-poster-1.png"}
-            alt={
-              "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-              "There is a QR code in the bottom right hand corner."}
-          />
-        </PosterOne>
-      </Posters>
 
       <CentralColumn>
-        <Title>
-          Poster&nbsp;Analytics,<br/>
-          For&nbsp;Communities,<br/>
-          For&nbsp;Free.
-        </Title>
-        <Introduction>
-          <p>Revolutionise your poster campaigns, by finally getting the data you need.</p>
-          <p>Generate posters, log their locations as you put them up, and let the analytics roll in.</p>
-          <ButtonGroup/>
-        </Introduction>
+        <FlexWrapper>
+          <Posters>
+            <PosterThree>
+              <Image
+                src={"/poster-images/stock-poster-3.png"}
+                alt={
+                  "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+                  "There is a QR code in the bottom right hand corner."}
+                fill
+              />
+            </PosterThree>
+
+            <PosterTwo>
+              <Image
+                fill
+                src={"/poster-images/stock-poster-2.png"}
+                alt={
+                  "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+                  "There is a QR code in the bottom right hand corner."}
+              />
+            </PosterTwo>
+
+            <PosterOne>
+              <Image
+                fill
+                src={"/poster-images/stock-poster-1.png"}
+                alt={
+                  "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+                  "There is a QR code in the bottom right hand corner."}
+              />
+            </PosterOne>
+          </Posters>
+          <LeftWrapper>
+            <Title>
+              Poster&nbsp;Analytics,<br/>
+              For&nbsp;Communities,<br/>
+              For&nbsp;Free.
+            </Title>
+            <Introduction>
+              <p>Revolutionise your poster campaigns, by finally getting the data you need.</p>
+              <p>Generate posters, log their locations as you put them up, and let the analytics roll in.</p>
+              <ButtonGroup/>
+            </Introduction>
+          </LeftWrapper>
+
+
+        </FlexWrapper>
       </CentralColumn>
     </Wrapper>
 
@@ -64,39 +73,77 @@ function Section1() {
 
 export default Section1;
 
+const LeftWrapper = styled.div`
+  position: relative;
+  
+`
+
+const FlexWrapper = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  @media  ${switchPoint}{
+    flex-direction: row;
+  }
+`
+
 const Posters = styled.div`
   position: relative;
-  overflow-x: clip;
+  flex:1;
+  @media  ${switchPoint}{
+    display: none;
+  }
+}
 `
 
 const PosterWrapper = styled.div`
   position: absolute;
+  
+  --scaleFactor: 1;
+  
+  width:calc(${posterSize}px * var(--scaleFactor));
+  height:calc(${posterSize * root2}px * var(--scaleFactor));
+  
+  @media ${QUERIES.laptopAndDown}{
+    --scaleFactor: 0.8;
+  }
 
-  width:${posterSize}px;
-  height:${posterSize * root2}px;
 `
 
 const PosterOne = styled(PosterWrapper)`
   top: 16px;
-  right: 10%;
+  left: 60%;
   rotate: 4deg;
+  transform: translateX(-50%);
+  @media ${QUERIES.tabletAndDown}{
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 `
 
 const PosterTwo = styled(PosterWrapper)`
-  top: 128px;
-  right: 5%;
+  top: 160px;
+  left: 60%;
   rotate: 16deg;
+  transform: translateX(calc(-50% + min(128px, 15vw - 100px)));
+  @media ${QUERIES.tabletAndDown}{
+    display: none;
+  }
 `
 
 const PosterThree = styled(PosterWrapper)`
-  top: 48px;
-  right: 20%;
+  top: 32px;
+  left: 60%;
   rotate: -8deg;
+  transform: translateX(calc(-50% - min(128px, 15vw - 100px)));
+  @media ${QUERIES.tabletAndDown}{
+    display: none;
+  }
 `
 
 const Wrapper = styled(ContentGroup)`
   padding-top: calc(48px);
   position: relative;
+  overflow-x: clip;
 `
 
 const Introduction = styled.div`
@@ -107,8 +154,10 @@ const Introduction = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  
   @media ${QUERIES.phoneAndDown}{
+    font-size: ${20/16}rem;
+  }
+  @media ${QUERIES.smallPhoneAndDown}{
     font-size: ${16/16}rem;
   }
 `

@@ -36,7 +36,10 @@ const TitleWrapper = styled.h1`
   text-align: left;
   
   color: var(--color-green-800);
-
+  
+  @media ${QUERIES.laptopAndDown}{
+   font-size: ${60/16}rem; 
+  }
   @media ${QUERIES.tabletAndDown} {
     font-size: ${48/16}rem;
   }
@@ -45,7 +48,7 @@ const TitleWrapper = styled.h1`
   }
   
   @media ${QUERIES.smallPhoneAndDown} {
-    font-size: ${24/16}rem;
+    font-size: ${26/16}rem;
     
   }
 `
