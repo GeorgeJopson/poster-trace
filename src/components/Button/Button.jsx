@@ -27,6 +27,8 @@ export default function Button({children, type, fontSize}) {
 }
 
 const ButtonWrapper = styled.div`
+  will-change: transform;
+
   &:hover button {
     transform: scale(0.95);
   }
@@ -43,11 +45,15 @@ const Btn = styled.button`
   text-wrap: nowrap;
   
   border: solid 2px white;
+  
+  display: flex;
+  align-items: center;
 `
 const FilledButton = styled(Btn)`
   background-color: var(--color-green-900);
   border-color: var(--color-green-900);
   color: white;
+  font-family: var(--font-bungee);
 `
 const TransparentButton = styled(Btn)`
   background-color: transparent;
