@@ -11,11 +11,6 @@ import TheSolutionMarketingSection from "@/components/TheSolutionMarketingSectio
 export default function Home() {
   return (
     <main>
-      <ContentGroup>
-        <Hero/>
-        <TheProblemMarketingSection/>
-      </ContentGroup>
-      <TheSolutionMarketingSection/>
       <Spacer/>
       <NavBar/>
     </main>
