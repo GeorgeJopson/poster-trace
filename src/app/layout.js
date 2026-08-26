@@ -1,27 +1,28 @@
 import "./global.css";
-import {DM_Sans, Sora} from "next/font/google";
+import {DM_Sans, Sora, Nunito, Bungee} from "next/font/google";
 
 export const metadata = {
   title: "PosterTrace",
 };
 
-const dm_sans = DM_Sans({
+const bungee = Bungee({
   subsets: ['latin'],
-  variable: '--font-dm-sans',
-})
+  weight: '400',
+  variable: '--font-bungee',
+});
 
-const sora = Sora({
+const nunito = Nunito({
   subsets: ['latin'],
-  variable: '--font-sora',
-})
+  variable: '--font-nunito',
+});
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${dm_sans.variable} ${sora.variable}`}>
+    <html lang="en" className={`${bungee.variable} ${nunito.variable}`}>
       <head>
         <title>PosterTrace</title>
       </head>
-      <body style={{fontFamily:"var(--font-dm-sans)"}}>{children}</body>
+      <body style={{fontFamily:"var(--font-nunito)"}}>{children}</body>
     </html>
   );
 }
