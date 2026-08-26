@@ -7,11 +7,12 @@ import React from "react";
 import TheProblemMarketingSection from "@/components/TheProblemMarketingSection";
 import ContentGroup from "@/components/ContentGroup";
 import TheSolutionMarketingSection from "@/components/TheSolutionMarketingSection";
+import Section1 from "@/components/Section1";
 
 export default function Home() {
   return (
     <main>
-      <Spacer/>
+      <Section1></Section1>
       <NavBar/>
     </main>
   );
