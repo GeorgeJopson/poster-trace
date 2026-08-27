@@ -50,6 +50,9 @@ function Section1() {
               />
             </PosterOne>
           </Posters>
+
+
+
           <LeftWrapper>
             <Title>
               Poster&nbsp;Analytics,<br/>
@@ -63,7 +66,35 @@ function Section1() {
             </Introduction>
           </LeftWrapper>
 
-
+          <PostersForSmall>
+            <PosterSmallWrapper>
+              <Image
+                src={"/poster-images/stock-poster-2.png"}
+                alt={
+                  "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+                  "There is a QR code in the bottom right hand corner."}
+                fill
+              />
+            </PosterSmallWrapper>
+            <PosterSmallWrapper>
+              <Image
+                src={"/poster-images/stock-poster-3.png"}
+                alt={
+                  "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+                  "There is a QR code in the bottom right hand corner."}
+                fill
+              />
+            </PosterSmallWrapper>
+            <PosterSmallWrapper>
+              <Image
+                src={"/poster-images/stock-poster-4.png"}
+                alt={
+                  "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
+                  "There is a QR code in the bottom right hand corner."}
+                fill
+              />
+            </PosterSmallWrapper>
+          </PostersForSmall>
         </FlexWrapper>
       </CentralColumn>
     </Wrapper>
@@ -78,11 +109,23 @@ const LeftWrapper = styled.div`
   
 `
 
+const PostersForSmall = styled.div`
+  display: none;
+  
+  padding: 16px 0;
+  
+  @media  ${switchPoint}{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+`
+
 const FlexWrapper = styled.div`
   display: flex;
   flex-direction: row-reverse;
   @media  ${switchPoint}{
-    flex-direction: row;
+    flex-direction: column;
   }
 `
 
@@ -93,6 +136,29 @@ const Posters = styled.div`
     display: none;
   }
 }
+`
+
+const PosterSmallWrapper = styled.div`
+  --scale-factor: 0.6;
+  @media ${QUERIES.phoneAndDown}{
+    --scale-factor: 0.4;
+  }
+  @media ${QUERIES.smallPhoneAndDown}{
+    --scale-factor: 0.35;
+  }
+  width: calc(${posterSize}px * var(--scale-factor));
+  height: calc(${posterSize*root2}px * var(--scale-factor));
+  position: relative;
+  
+  &:nth-of-type(1){
+    rotate: -8deg;
+  }
+  &:nth-of-type(2){
+    rotate: 4deg;
+  }
+  &:nth-of-type(3){
+    rotate: -6deg;
+  }
 `
 
 const PosterWrapper = styled.div`
