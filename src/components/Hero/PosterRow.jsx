@@ -49,7 +49,6 @@ export default function PosterRow() {
 }
 
 const Wrapper = styled.div`
-  padding: 16px 0;
   display: flex;
   flex-direction: row;
   justify-content: space-around;

@@ -15,16 +15,16 @@ function Hero() {
       <CentralColumn>
         <ContentWrapper>
 
-          <TopRow>
+          <HeaderSection>
             <PosterFanWrapper>
               <PosterFan/>
             </PosterFanWrapper>
             <HeaderContent/>
-          </TopRow>
+          </HeaderSection>
 
-          <BottomRow>
+          <PosterRowSection>
             <PosterRow/>
-          </BottomRow>
+          </PosterRowSection>
 
           <ProblemWrapper>
             <Header type={"heading"}>
@@ -51,11 +51,12 @@ const Wrapper = styled(ContentGroup)`
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 20px;
 `
 
 const posterFanHideBreakpoint =`(max-width: ${760 / 16}rem)`;
 
-const TopRow = styled.div`
+const HeaderSection = styled.header`
   display: flex;
   flex-direction: row-reverse;
   @media ${posterFanHideBreakpoint}{
@@ -72,7 +73,7 @@ const PosterFanWrapper = styled.div`
 }
 `
 
-const BottomRow = styled.div`
+const PosterRowSection = styled.div`
   display: none;
   @media  ${QUERIES.tabletAndDown}{
     display: revert;
