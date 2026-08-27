@@ -2,7 +2,18 @@ import React from 'react';
 import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
-import {posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
+import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
+
+const imageLargeScale = 0.45;
+const imageMediumScale = 0.4;
+const imageSmallScale = 0.35;
+
+const imageSizes = `
+  ${QUERIES.smallPhoneAndDown} ${posterSize*imageSmallScale}px,
+  ${QUERIES.phoneAndDown} ${posterSize*imageMediumScale}px,
+  ${posterSize*imageLargeScale}px
+ `;
+
 
 export default function PosterRow() {
   return (
@@ -14,6 +25,7 @@ export default function PosterRow() {
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
           fill
+          sizes={imageSizes}
         />
       </Poster1>
       <Poster2>
@@ -23,6 +35,7 @@ export default function PosterRow() {
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
           fill
+          sizes={imageSizes}
         />
       </Poster2>
       <Poster3>
@@ -32,6 +45,7 @@ export default function PosterRow() {
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
           fill
+          sizes={imageSizes}
         />
       </Poster3>
     </Wrapper>

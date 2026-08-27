@@ -2,7 +2,10 @@ import React from 'react';
 import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
-import {posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
+import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
+
+const imageSmallerScale = 0.8;
+const imageSizes = `${QUERIES.laptopAndDown} ${posterSize*imageSmallerScale}px, ${posterSize}px`;
 
 export default function PosterFan() {
   return (
@@ -14,7 +17,7 @@ export default function PosterFan() {
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
           fill
-          sizes={`${QUERIES.laptopAndDown} 204.8px, 256px`}
+          sizes={imageSizes}
         />
       </PosterThree>
 
@@ -25,7 +28,7 @@ export default function PosterFan() {
           alt={
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
-          sizes={`${QUERIES.laptopAndDown} 204.8px, 256px`}
+          sizes={imageSizes}
         />
       </PosterTwo>
 
@@ -36,7 +39,7 @@ export default function PosterFan() {
           alt={
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
-          sizes={`${QUERIES.laptopAndDown} 204.8px, 256px`}
+          sizes={imageSizes}
         />
       </PosterOne>
     </>
@@ -49,7 +52,7 @@ const PosterWrapper = styled.div`
 
   --scale-factor: 1;
   @media ${QUERIES.laptopAndDown} {
-    --scale-factor: 0.8;
+    --scale-factor: ${imageSmallerScale};
   }
 `
 

@@ -1,4 +1,4 @@
-const posterSize = 256;
+export const posterSize = 256;
 const root2 = 1.414213562;
 
 export const posterWrapperDefaults = `
