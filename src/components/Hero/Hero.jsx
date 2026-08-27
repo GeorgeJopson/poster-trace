@@ -42,6 +42,7 @@ const Wrapper = styled(ContentGroup)`
 `
 
 const ContentWrapper = styled.div`
+  padding-top: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
