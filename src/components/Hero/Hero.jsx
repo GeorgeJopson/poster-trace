@@ -6,6 +6,7 @@ import {QUERIES} from "@/constants";
 import PosterFan from "@/components/Hero/PosterFan";
 import HeaderContent from "@/components/Hero/HeaderContent";
 import PosterRow from "@/components/Hero/PosterRow";
+import Header from "@/components/Hero/Header";
 
 
 function Hero() {
@@ -25,6 +26,12 @@ function Hero() {
             <PosterRow/>
           </BottomRow>
 
+          <ProblemWrapper>
+            <Header type={"heading"}>
+              The&nbsp;Problem
+            </Header>
+          </ProblemWrapper>
+
         </ContentWrapper>
       </CentralColumn>
     </Wrapper>
@@ -33,6 +40,8 @@ function Hero() {
 }
 
 export default Hero;
+
+const ProblemWrapper = styled.div``
 
 const Wrapper = styled(ContentGroup)`
   padding-top: calc(48px);

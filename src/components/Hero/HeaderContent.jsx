@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from "styled-components";
-import Title from "@/components/Hero/Title";
+import Header from "@/components/Hero/Header";
 import HeaderButtonGroup from "@/components/Hero/HeaderButtonGroup";
 import {QUERIES} from "@/constants";
 
@@ -8,11 +8,11 @@ import {QUERIES} from "@/constants";
 export default function HeaderContent() {
   return (
     <div>
-      <Title>
+      <Header type={"title"}>
         Poster&nbsp;Analytics,<br/>
         For&nbsp;Communities,<br/>
         For&nbsp;Free.
-      </Title>
+      </Header>
       <Introduction>
         <p>Revolutionise your poster campaigns, by finally getting the data you need.</p>
         <p>Generate posters, log their locations as you put them up, and let the analytics roll in.</p>

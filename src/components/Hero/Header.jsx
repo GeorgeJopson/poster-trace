@@ -2,25 +2,31 @@ import React from 'react';
 import styled from "styled-components";
 import {QUERIES} from "@/constants";
 
-export default function Title({children}){
+export default function Header({children, type}){
   let output = [];
   for (const element of children) {
     if(typeof element === "string"){
       output.push(
         Array.from(element).map(
-          (character,index)=><TitleCharacter key={index}>{character}</TitleCharacter>)
+          (character,index)=><Character key={index}>{character}</Character>)
       );
     }else{
       output.push(element);
     }
   }
+  let Element;
+  if(type === "title"){
+    Element = TitleWrapper;
+  }else if(type==="heading"){
+    Element = HeaderWrapper;
+  }
 
   return(
-    <TitleWrapper>{output}</TitleWrapper>
+    <Element>{output}</Element>
   );
 }
 
-const TitleCharacter = styled.span`
+const Character = styled.span`
   display: inline-block;
   transition: scale 0.1s;
   &:hover{
@@ -28,15 +34,18 @@ const TitleCharacter = styled.span`
   }
 `
 
-const TitleWrapper = styled.h1`
-  font-size: ${76/16}rem;
+const defaults = `
   line-height: 1.1;
   font-weight: 500;
   font-family: var(--font-bungee), sans-serif;
   text-align: left;
   
   color: var(--color-green-800);
-  
+`
+
+const TitleWrapper = styled.h1`
+  ${defaults};
+  font-size: ${76/16}rem;
   @media ${QUERIES.laptopAndDown}{
    font-size: ${60/16}rem; 
   }
@@ -46,9 +55,23 @@ const TitleWrapper = styled.h1`
   @media ${QUERIES.phoneAndDown} {
     font-size: ${32/16}rem;
   }
-  
   @media ${QUERIES.smallPhoneAndDown} {
     font-size: ${26/16}rem;
-    
+  }
+`
+const HeaderWrapper = styled.h2`
+  ${defaults};
+  font-size: ${60/16}rem;
+  @media ${QUERIES.laptopAndDown}{
+    font-size: ${44/16}rem;
+  }
+  @media ${QUERIES.tabletAndDown} {
+    font-size: ${40/16}rem;
+  }
+  @media ${QUERIES.phoneAndDown} {
+    font-size: ${28/16}rem;
+  }
+  @media ${QUERIES.smallPhoneAndDown} {
+    font-size: ${26/16}rem;
   }
 `
