@@ -7,7 +7,7 @@ import Image from "next/image";
 
 const scaleFactor = 0.65;
 
-export default function ButtonGroup() {
+export default function HeaderButtonGroup() {
   return (
       <ButtonWrapper>
         <Button type={"filled"} fontSize={`var(--signup-btn-size)`}>Sign Up</Button>
