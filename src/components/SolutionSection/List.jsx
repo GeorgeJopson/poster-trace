@@ -18,12 +18,15 @@ export default function List({children}) {
 
 const ListWrapper = styled.ol`
   padding-left: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 `
 
 const ListItem = styled.li`
-
+  max-width: 60ch;
   &::marker{
-    color: var(--color-orange-950);
+    color: var(--color-green-950);
 
     font-size: ${64/16}rem;
   }
@@ -31,4 +34,5 @@ const ListItem = styled.li`
 const ListItemContent = styled.span`
   position: relative;
   top: -16px;
+  color: var(--color-green-950);
 `

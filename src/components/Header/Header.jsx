@@ -2,7 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 import {QUERIES} from "@/constants";
 
-export default function Header({children, type}){
+export default function Header({children, type, className}){
   let output = [];
   for (const element of children) {
     if(typeof element === "string"){
@@ -22,7 +22,7 @@ export default function Header({children, type}){
   }
 
   return(
-    <Element>{output}</Element>
+    <Element className={className}>{output}</Element>
   );
 }
 
