@@ -24,3 +24,24 @@ export const stockPoster6 = {
     src:"/poster-images/stock-poster-6.png",
     alt:"",
 }
+
+export const logoIcon = {
+  src:"/logo.svg",
+  alt:"Poster Trace Logo"
+}
+export const rightArrowIcon = {
+  src:"/right-arrow.svg",
+  alt:"Right arrow icon",
+}
+export const clipboardIcon = {
+  src:"/clipboard.svg",
+  alt:"Clipboard icon",
+}
+export const mapIcon = {
+  src:"/map.svg",
+  alt:"Map Icon",
+}
+export const databaseIcon = {
+  src:"/database.svg",
+  alt:"Database Icon",
+}

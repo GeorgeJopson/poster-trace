@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
 import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
-import {stockPoster1, stockPoster2, stockPoster3} from "../../../public/poster-images/imageDetails";
+import {stockPoster1, stockPoster2, stockPoster3} from "../../../public/imageDetails";
 
 const imageSmallerScale = 0.8;
 const imageSizes = `${QUERIES.laptopAndDown} ${posterSize*imageSmallerScale}px, ${posterSize}px`;

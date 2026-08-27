@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
 import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
-import {stockPoster2, stockPoster3, stockPoster4} from "../../../public/poster-images/imageDetails";
+import {stockPoster2, stockPoster3, stockPoster4} from "../../../public/imageDetails";
 
 const imageLargeScale = 0.45;
 const imageMediumScale = 0.4;

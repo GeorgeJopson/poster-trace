@@ -4,6 +4,7 @@ import Button from "@/components/Button";
 import {QUERIES} from "@/constants";
 import styled from "styled-components";
 import Image from "next/image";
+import {rightArrowIcon} from "../../../public/imageDetails";
 
 const scaleFactor = 0.65;
 
@@ -11,7 +12,7 @@ export default function HeaderButtonGroup() {
   return (
       <ButtonWrapper>
         <Button type={"filled"} fontSize={`var(--signup-btn-size)`}>Sign Up</Button>
-        <Button type={"transparent"} fontSize={`var(--learn-more-btn-size)`}>Learn More <InlineImage width={32} height={32} src={"/arrow-right.svg"} alt={"right arrow"}/></Button>
+        <Button type={"transparent"} fontSize={`var(--learn-more-btn-size)`}>Learn More <InlineImage width={32} height={32} src={rightArrowIcon.src} alt={rightArrowIcon.alt}/></Button>
       </ButtonWrapper>
   );
 }
