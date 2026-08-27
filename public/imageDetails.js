@@ -49,3 +49,16 @@ export const databaseIcon = {
   src:"/database.svg",
   alt:"Database Icon",
 }
+
+export const areaChartImage = {
+  src:"/analytics-images/area-chart.png",
+  alt: "An example of an area chart displaying analytics from poster QR code scans."
+}
+export const lineChartImage = {
+  src:"/analytics-images/line-chart.png",
+  alt:"An example of a line chart displaying analytics from poster QR code scans."
+}
+export const mapChartImage = {
+  src:"/analytics-images/map-chart.png",
+  alt:"An example of a map displaying analytics of where poster QR code scans have occurred."
+}

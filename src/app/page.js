@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import styled from "styled-components";
 import ProblemSection from "@/components/ProblemSection";
 import SolutionSection from "@/components/SolutionSection";
+import AnalyticsSection from "@/components/AnalyticsSection";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <Hero/>
       <ProblemSection/>
       <SolutionSection/>
+      <AnalyticsSection/>
       <Spacer/>
       <NavBar/>
     </main>
