@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
 import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
-import {stockPoster2, stockPoster3, stockPoster4} from "../../../public/imageDetails";
+import {stockPoster5, stockPoster6, stockPoster7} from "../../../public/imageDetails";
 
 const imageScaleDefault = 0.8;
 const imageScaleLaptop = 0.65;
@@ -25,24 +25,24 @@ export default function PosterRow() {
     <Wrapper>
       <Poster1>
         <Image
-          src={stockPoster2.src}
-          alt={stockPoster2.alt}
+          src={stockPoster5.src}
+          alt={stockPoster5.alt}
           fill
           sizes={imageSizes}
         />
       </Poster1>
       <Poster2>
         <Image
-          src={stockPoster3.src}
-          alt={stockPoster3.alt}
+          src={stockPoster6.src}
+          alt={stockPoster6.alt}
           fill
           sizes={imageSizes}
         />
       </Poster2>
       <Poster3>
         <Image
-          src={stockPoster4.src}
-          alt={stockPoster4.alt}
+          src={stockPoster7.src}
+          alt={stockPoster7.alt}
           fill
           sizes={imageSizes}
         />

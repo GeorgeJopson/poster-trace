@@ -24,6 +24,10 @@ export const stockPoster6 = {
     src:"/poster-images/stock-poster-6.png",
     alt:"",
 }
+export const stockPoster7 = {
+  src:"/poster-images/stock-poster-7.png",
+  alt:""
+}
 
 export const logoIcon = {
   src:"/logo.svg",
