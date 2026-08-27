@@ -58,25 +58,25 @@ const PosterWrapperForLargeScreens = styled(PosterWrapper)`
 `
 
 const PosterOne = styled(PosterWrapper)`
-  top: 16px;
+  top: 48px;
   left: 60%;
   rotate: 4deg;
   transform: translateX(-50%);
   @media ${QUERIES.tabletAndDown} {
-    top: 50%;
+    top: 45%;
     transform: translate(-50%, -50%);
   }
 `
 
 const PosterTwo = styled(PosterWrapperForLargeScreens)`
-  top: 160px;
+  top: 240px;
   left: 60%;
   rotate: 16deg;
   transform: translateX(calc(-50% + min(128px, 15vw - 100px)));
 `
 
 const PosterThree = styled(PosterWrapperForLargeScreens)`
-  top: 32px;
+  top: 96px;
   left: 60%;
   rotate: -8deg;
   transform: translateX(calc(-50% - min(128px, 15vw - 100px)));

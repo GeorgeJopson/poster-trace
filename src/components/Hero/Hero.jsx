@@ -6,7 +6,6 @@ import {QUERIES} from "@/constants";
 import PosterFan from "@/components/Hero/PosterFan";
 import HeaderContent from "@/components/Hero/HeaderContent";
 import PosterRow from "@/components/Hero/PosterRow";
-import Header from "@/components/Hero/Header";
 
 
 function Hero() {
@@ -26,12 +25,6 @@ function Hero() {
             <PosterRow/>
           </PosterRowSection>
 
-          <ProblemWrapper>
-            <Header type={"heading"}>
-              The&nbsp;Problem
-            </Header>
-          </ProblemWrapper>
-
         </ContentWrapper>
       </CentralColumn>
     </Wrapper>
@@ -41,17 +34,16 @@ function Hero() {
 
 export default Hero;
 
-const ProblemWrapper = styled.div``
-
 const Wrapper = styled(ContentGroup)`
   padding-top: calc(48px);
   overflow-x: clip;
+  margin-bottom: 36px;
 `
 
 const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 `
 
 const posterFanHideBreakpoint =`(max-width: ${760 / 16}rem)`;
@@ -74,6 +66,7 @@ const PosterFanWrapper = styled.div`
 `
 
 const PosterRowSection = styled.div`
+  margin-bottom: -32px;
   display: none;
   @media  ${QUERIES.tabletAndDown}{
     display: revert;
