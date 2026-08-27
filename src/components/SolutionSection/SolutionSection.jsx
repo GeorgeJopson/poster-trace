@@ -38,7 +38,10 @@ export default function SolutionSection() {
 
 const ProblemSection = styled.section`
   padding-top: 32px;
-  padding-bottom: 48px;
+  padding-bottom: 32px;
+  @media ${QUERIES.phoneAndDown}{
+    padding-bottom: 16px;
+  }
 `
 
 const ColumnLayoutWrapper = styled.div`
