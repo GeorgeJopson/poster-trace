@@ -14,6 +14,7 @@ export default function PosterFan() {
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
           fill
+          sizes={`${QUERIES.laptopAndDown} 204.8px, 256px`}
         />
       </PosterThree>
 
@@ -24,6 +25,7 @@ export default function PosterFan() {
           alt={
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
+          sizes={`${QUERIES.laptopAndDown} 204.8px, 256px`}
         />
       </PosterTwo>
 
@@ -34,6 +36,7 @@ export default function PosterFan() {
           alt={
             "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
             "There is a QR code in the bottom right hand corner."}
+          sizes={`${QUERIES.laptopAndDown} 204.8px, 256px`}
         />
       </PosterOne>
     </>
