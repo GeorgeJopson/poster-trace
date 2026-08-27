@@ -38,6 +38,7 @@ const Wrapper = styled(ContentGroup)`
   padding-top: calc(48px);
   overflow-x: clip;
   margin-bottom: 36px;
+  isolation: isolate;
 `
 
 const ContentWrapper = styled.div`
