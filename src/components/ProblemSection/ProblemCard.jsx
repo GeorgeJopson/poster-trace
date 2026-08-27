@@ -20,6 +20,7 @@ export default function ProblemCard({icon, title, children}) {
 const ProblemCardWrapper = styled.div`
   flex:1;
   min-width: 26ch;
+  max-width: 50ch;
   position: relative;
   background-color: white;
   border-radius: 8px;
@@ -29,6 +30,9 @@ const ProblemCardWrapper = styled.div`
 
   --shadow-color: var(--color-green-800-fragment);
   box-shadow: ${ELEVATIONS.small};
+  
+  display: flex;
+  justify-content: center;
 `
 const ProblemCardIcon = styled.div`
   position: absolute;
@@ -43,5 +47,5 @@ const ProblemCardTitle = styled.h3`
 
 const ProblemCardContent = styled.p`
   font-size: ${16 / 16}rem;
-  max-width: 260px;
+  max-width: 32ch;
 `

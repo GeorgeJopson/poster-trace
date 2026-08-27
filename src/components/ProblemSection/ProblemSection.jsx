@@ -31,8 +31,8 @@ const ProblemCardGroup = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 32px;
-  row-gap: 32px;
+  gap: 16px;
+  row-gap: 16px;
   align-items: stretch;
   padding-top: 16px;
 `
