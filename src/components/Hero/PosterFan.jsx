@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
 import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
+import {stockPoster1, stockPoster2, stockPoster3} from "../../../public/poster-images/imageDetails";
 
 const imageSmallerScale = 0.8;
 const imageSizes = `${QUERIES.laptopAndDown} ${posterSize*imageSmallerScale}px, ${posterSize}px`;
@@ -12,10 +13,8 @@ export default function PosterFan() {
     <>
       <PosterThree>
         <Image
-          src={"/poster-images/stock-poster-3.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
+          src={stockPoster3.src}
+          alt={stockPoster3.alt}
           fill
           sizes={imageSizes}
         />
@@ -23,22 +22,18 @@ export default function PosterFan() {
 
       <PosterTwo>
         <Image
+          src={stockPoster2.src}
+          alt={stockPoster2.alt}
           fill
-          src={"/poster-images/stock-poster-2.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
           sizes={imageSizes}
         />
       </PosterTwo>
 
       <PosterOne>
         <Image
+          src={stockPoster1.src}
+          alt={stockPoster1.alt}
           fill
-          src={"/poster-images/stock-poster-1.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
           sizes={imageSizes}
         />
       </PosterOne>

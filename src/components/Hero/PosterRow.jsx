@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {QUERIES} from "@/constants";
 import Image from "next/image";
 import {posterSize, posterWrapperDefaults} from "@/components/Hero/PosterWrapperConstants";
+import {stockPoster2, stockPoster3, stockPoster4} from "../../../public/poster-images/imageDetails";
 
 const imageLargeScale = 0.45;
 const imageMediumScale = 0.4;
@@ -20,30 +21,24 @@ export default function PosterRow() {
     <Wrapper>
       <Poster1>
         <Image
-          src={"/poster-images/stock-poster-2.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
+          src={stockPoster2.src}
+          alt={stockPoster2.alt}
           fill
           sizes={imageSizes}
         />
       </Poster1>
       <Poster2>
         <Image
-          src={"/poster-images/stock-poster-3.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
+          src={stockPoster3.src}
+          alt={stockPoster3.alt}
           fill
           sizes={imageSizes}
         />
       </Poster2>
       <Poster3>
         <Image
-          src={"/poster-images/stock-poster-4.png"}
-          alt={
-            "Poster Advertising Upcoming Events like a Grand Opening and Creative Gathering. " +
-            "There is a QR code in the bottom right hand corner."}
+          src={stockPoster4.src}
+          alt={stockPoster4.alt}
           fill
           sizes={imageSizes}
         />
