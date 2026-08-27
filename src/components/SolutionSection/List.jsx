@@ -17,14 +17,14 @@ export default function List({children}) {
 }
 
 const ListWrapper = styled.ol`
-  padding-left: 64px;
+  padding-left: 68px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 `
 
 const ListItem = styled.li`
-  max-width: 60ch;
+  max-width: 40ch;
   &::marker{
     color: var(--color-green-950);
 

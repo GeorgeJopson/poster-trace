@@ -5,7 +5,7 @@ import CentralColumn from "@/components/CentralColumn";
 import React from "react";
 import List from "@/components/SolutionSection/List";
 import {QUERIES} from "@/constants";
-import PosterImage from "@/components/SolutionSection/PosterImage";
+import PosterRow from "@/components/SolutionSection/PosterRow";
 
 export default function SolutionSection() {
   return (
@@ -14,7 +14,7 @@ export default function SolutionSection() {
         <ColumnLayoutWrapper>
 
           <ImageColumn>
-
+            <PosterRow/>
           </ImageColumn>
           <TextColumn>
             <SolutionHeader type={"heading"}>The&nbsp;Solution</SolutionHeader>
@@ -59,9 +59,13 @@ const TextColumn = styled(Column)`
 `
 
 const ImageColumn = styled(Column)`
-  min-height: 220px;
+  flex:1.5;
+  @media ${QUERIES.smallPhoneAndDown} {
+    display: none;
+  }
 `
 
 const SolutionHeader = styled(Header)`
   text-align: right;
+  min-width: 11ch;
 `
