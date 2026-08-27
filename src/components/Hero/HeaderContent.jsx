@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from "styled-components";
-import Header from "@/components/Hero/Header";
 import HeaderButtonGroup from "@/components/Hero/HeaderButtonGroup";
 import {QUERIES} from "@/constants";
+import Header from "@/components/Header";
 
 
 export default function HeaderContent() {

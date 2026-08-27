@@ -14,7 +14,7 @@ export const QUERIES = {
 
 export const ELEVATIONS = {
   small: `
-    0.5px 1px 1px hsl(var(--shadow-color) / 0.7)
+    1px 2px 2px hsl(var(--shadow-color) / 0.5)
   `,
   medium: `
     1px 2px 2px hsl(var(--shadow-color) / 0.333),

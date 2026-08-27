@@ -1,17 +1,77 @@
+import React from 'react';
 import styled from "styled-components";
 import {QUERIES} from "@/constants";
 
-const Header = styled.h2`
-  font-weight: 400;
-  font-family: var(--font-sora), sans-serif;
-  text-align: center;
+export default function Header({children, type}){
+  let output = [];
+  for (const element of children) {
+    if(typeof element === "string"){
+      output.push(
+        Array.from(element).map(
+          (character,index)=><Character key={index}>{character}</Character>)
+      );
+    }else{
+      output.push(element);
+    }
+  }
+  let Element;
+  if(type === "title"){
+    Element = TitleWrapper;
+  }else if(type==="heading"){
+    Element = HeaderWrapper;
+  }
+
+  return(
+    <Element>{output}</Element>
+  );
+}
+
+const Character = styled.span`
+  display: inline-block;
+  transition: scale 0.1s;
+  &:hover{
+    scale: 1.2;
+  }
+`
+
+const defaults = `
+  line-height: 1.1;
+  font-weight: 500;
+  font-family: var(--font-bungee), sans-serif;
+  text-align: left;
   
-  font-size: ${64/16}rem;
+  color: var(--color-green-800);
+`
+
+const TitleWrapper = styled.h1`
+  ${defaults};
+  font-size: ${76/16}rem;
+  @media ${QUERIES.laptopAndDown}{
+   font-size: ${60/16}rem; 
+  }
   @media ${QUERIES.tabletAndDown} {
     font-size: ${48/16}rem;
   }
   @media ${QUERIES.phoneAndDown} {
     font-size: ${32/16}rem;
   }
+  @media ${QUERIES.smallPhoneAndDown} {
+    font-size: ${26/16}rem;
+  }
 `
-export default Header;
+const HeaderWrapper = styled.h2`
+  ${defaults};
+  font-size: ${60/16}rem;
+  @media ${QUERIES.laptopAndDown}{
+    font-size: ${44/16}rem;
+  }
+  @media ${QUERIES.tabletAndDown} {
+    font-size: ${40/16}rem;
+  }
+  @media ${QUERIES.phoneAndDown} {
+    font-size: ${28/16}rem;
+  }
+  @media ${QUERIES.smallPhoneAndDown} {
+    font-size: ${26/16}rem;
+  }
+`
