@@ -1,49 +1,76 @@
 import React from 'react';
-import CentralColumn from "@/components/CentralColumn";
-
-import {QUERIES, ELEVATIONS} from "@/constants";
+import ContentGroup from "@/components/ContentGroup";
 import styled from "styled-components";
-import HeroButtonGroup from "@/components/Hero/HeroButtonGroup";
+import CentralColumn from "@/components/CentralColumn";
+import {QUERIES} from "@/constants";
+import PosterFan from "@/components/Hero/PosterFan";
+import HeaderContent from "@/components/Hero/HeaderContent";
+import PosterRow from "@/components/Hero/PosterRow";
 
 
-export default function Hero() {
+function Hero() {
   return (
-    <HeroWrapper>
+    <Wrapper>
       <CentralColumn>
-        <Title>Free Analytics for your Poster Campaign</Title>
-        <HeroButtonGroup/>
+        <ContentWrapper>
+
+          <HeaderSection>
+            <PosterFanWrapper>
+              <PosterFan/>
+            </PosterFanWrapper>
+            <HeaderContent/>
+          </HeaderSection>
+
+          <PosterRowSection>
+            <PosterRow/>
+          </PosterRowSection>
+
+        </ContentWrapper>
       </CentralColumn>
-    </HeroWrapper>
+    </Wrapper>
+
   );
 }
 
-const HeroWrapper = styled.div`
-  border-radius: 0 0 var(--spacing-10) var(--spacing-10);
+export default Hero;
 
-  background-image: linear-gradient(
-          135deg,
-          var(--color-orange-300) 0%,
-          var(--color-orange-500) 100%
-  );
-  padding: 66px 0 16px 0;
-  
-  --shadow-color: var(--color-orange-300-fragment);
-  box-shadow: ${ELEVATIONS.large};
+const Wrapper = styled(ContentGroup)`
+  padding-top: calc(48px);
+  overflow-x: clip;
+  margin-bottom: 36px;
+  isolation: isolate;
 `
 
-const Title = styled.h1`
-  font-size: ${80/16}rem;
-  font-weight: 500;
-  font-family: var(--font-sora), sans-serif;
-  text-align: center;
-  line-height: ${(96+16)/16}rem;
+const ContentWrapper = styled.div`
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`
 
-  @media ${QUERIES.tabletAndDown} {
-    font-size: ${52/16}rem;
-    line-height: ${(40+16)/16}rem;
+const posterFanHideBreakpoint =`(max-width: ${760 / 16}rem)`;
+
+const HeaderSection = styled.header`
+  display: flex;
+  flex-direction: row-reverse;
+  @media ${posterFanHideBreakpoint}{
+    flex-direction: row;
   }
-  @media ${QUERIES.phoneAndDown} {
-    font-size: ${40/16}rem;
-    line-height: ${(40+16)/16}rem;
+`
+
+const PosterFanWrapper = styled.div`
+  position: relative;
+  flex:1;
+  @media  ${posterFanHideBreakpoint}{
+    display: none;
+  }
+}
+`
+
+const PosterRowSection = styled.div`
+  margin-bottom: -32px;
+  display: none;
+  @media  ${QUERIES.tabletAndDown}{
+    display: revert;
   }
 `

@@ -1,10 +1,12 @@
 export const BREAKPOINTS = {
+  smallPhoneMax: 400,
   phoneMax: 600,
   tabletMax: 950,
   laptopMax: 1300,
 }
 
 export const QUERIES = {
+  'smallPhoneAndDown': `(max-width: ${BREAKPOINTS.smallPhoneMax / 16}rem)`,
   'phoneAndDown': `(max-width: ${BREAKPOINTS.phoneMax / 16}rem)`,
   'tabletAndDown': `(max-width: ${BREAKPOINTS.tabletMax / 16}rem)`,
   'laptopAndDown': `(max-width: ${BREAKPOINTS.laptopMax / 16}rem)`,
@@ -12,7 +14,7 @@ export const QUERIES = {
 
 export const ELEVATIONS = {
   small: `
-    0.5px 1px 1px hsl(var(--shadow-color) / 0.7)
+    1px 2px 2px hsl(var(--shadow-color) / 0.5)
   `,
   medium: `
     1px 2px 2px hsl(var(--shadow-color) / 0.333),

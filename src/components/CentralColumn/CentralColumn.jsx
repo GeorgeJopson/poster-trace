@@ -29,6 +29,6 @@ const Spacer = styled.div`
 `
 
 const CentralDiv = styled.div`
-  max-width: 1200px;
   flex:1;
+  position: relative;
 `

@@ -1,27 +1,23 @@
-import styled from "styled-components";
-
 import NavBar from "@/components/NavBar";
-import Hero from "@/components/Hero";
 
 import React from "react";
-import TheProblemMarketingSection from "@/components/TheProblemMarketingSection";
-import ContentGroup from "@/components/ContentGroup";
-import TheSolutionMarketingSection from "@/components/TheSolutionMarketingSection";
+import Hero from "@/components/Hero";
+import ProblemSection from "@/components/ProblemSection";
+import SolutionSection from "@/components/SolutionSection";
+import AnalyticsSection from "@/components/AnalyticsSection";
+import CallToAction from "@/components/CallToAction";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
     <main>
-      <ContentGroup>
-        <Hero/>
-        <TheProblemMarketingSection/>
-      </ContentGroup>
-      <TheSolutionMarketingSection/>
-      <Spacer/>
+      <Hero/>
+      <ProblemSection/>
+      <SolutionSection/>
+      <AnalyticsSection/>
+      <CallToAction/>
+      <Footer/>
       <NavBar/>
     </main>
   );
 }
-
-const Spacer = styled.div`
-  height: 300vh;
-`

@@ -27,6 +27,8 @@ export default function Button({children, type, fontSize}) {
 }
 
 const ButtonWrapper = styled.div`
+  will-change: transform;
+
   &:hover button {
     transform: scale(0.95);
   }
@@ -34,25 +36,29 @@ const ButtonWrapper = styled.div`
 
 const Btn = styled.button`
   font-size: ${({ fontSize }) => fontSize};
-  font-family: var(--font-dm-sans),sans-serif;
+  font-family: var(--font-nunito),sans-serif;
   border-radius: 8px;
   
-  padding: 4px 8px;
+  padding: 0 8px;
   transition: transform 0.1s ease-in-out;
   
   text-wrap: nowrap;
   
   border: solid 2px white;
+  
+  display: flex;
+  align-items: center;
 `
 const FilledButton = styled(Btn)`
-  background-color: var(--color-blue-950);
-  border-color: var(--color-blue-950);
+  background-color: var(--color-green-900);
+  border-color: var(--color-green-900);
   color: white;
+  font-family: var(--font-bungee);
 `
 const TransparentButton = styled(Btn)`
   background-color: transparent;
   border-color: transparent;
-  color:black;
+  color:var(--color-green-950);
 `
 
 const OutlineButton = styled(Btn)`
