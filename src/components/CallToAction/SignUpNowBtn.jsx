@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import styled from "styled-components";
+import {QUERIES} from "@/constants";
 
 function useShimmerCleanUp(shimmer, setShimmer) {
   React.useEffect(() => {
@@ -60,8 +61,6 @@ const Btn = styled.button`
   border-radius: 8px;
 
   padding: 0 8px;
-
-  text-wrap: nowrap;
   
   border: none;
 
@@ -72,7 +71,6 @@ const Btn = styled.button`
   color: white;
   
   font-family: var(--font-bungee),sans-serif;
-  font-size: ${64/16}rem;
   
   outline: var(--color-green-900) 4px solid;
   outline-offset: 8px;
@@ -80,5 +78,15 @@ const Btn = styled.button`
   transition: outline-offset 0.1s ease-in-out;
   &:hover {
     outline-offset: 4px;
+  }
+  
+  margin: 0 12px;
+
+  font-size: ${64/16}rem;
+  @media ${QUERIES.tabletAndDown} {
+    font-size: ${48/16}rem;
+  }
+  @media ${QUERIES.phoneAndDown} {
+    font-size: ${36/16}rem;
   }
 `

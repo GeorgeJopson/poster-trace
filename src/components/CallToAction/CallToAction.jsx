@@ -3,6 +3,7 @@ import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
 import styled from "styled-components";
 import SignUpNowBtn from "@/components/CallToAction/SignUpNowBtn";
+import {QUERIES} from "@/constants";
 
 export default function CallToAction() {
   return (
@@ -22,11 +23,11 @@ export default function CallToAction() {
 }
 
 const CallToActionWrapper = styled.div`
-  padding: 32px 0;
+  padding: 8px 0 16px;
 `
 const Box = styled.div`
   background-color: var(--color-green-950);
-  padding: 32px 0;
+  padding: 32px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,9 +37,22 @@ const Box = styled.div`
 
 const BoxHeader = styled.div`
   color: white;
-  font-size: ${64/16}rem;
   max-width: 23ch;
   text-align: center;
   line-height: 1.2;
+
+  font-size: ${60/16}rem;
+  @media ${QUERIES.laptopAndDown}{
+    font-size: ${56/16}rem;
+  }
+  @media ${QUERIES.tabletAndDown} {
+    font-size: ${44/16}rem;
+  }
+  @media ${QUERIES.phoneAndDown} {
+    font-size: ${40/16}rem;
+  }
+  @media ${QUERIES.smallPhoneAndDown} {
+    font-size: ${36/16}rem;
+  }
 `
 
