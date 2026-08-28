@@ -6,6 +6,7 @@ import styled from "styled-components";
 import ProblemSection from "@/components/ProblemSection";
 import SolutionSection from "@/components/SolutionSection";
 import AnalyticsSection from "@/components/AnalyticsSection";
+import CallToAction from "@/components/CallToAction";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <ProblemSection/>
       <SolutionSection/>
       <AnalyticsSection/>
+      <CallToAction/>
       <Spacer/>
       <NavBar/>
     </main>
