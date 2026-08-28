@@ -30,6 +30,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 16px 0;
+  gap: 8px;  
 `
 const LinkRow = styled.div`
   display: flex;
