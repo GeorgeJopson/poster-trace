@@ -1,69 +1,27 @@
 import React from 'react';
-import styled from "styled-components";
+import styles from "./Button.module.css";
 
 export default function Button({children, type, fontSize}) {
-  let BtnStyle;
+  let typeClass;
 
   switch (type) {
     case "filled":
-      BtnStyle = FilledButton;
+      typeClass = styles.filled;
       break;
     case "transparent":
-      BtnStyle=TransparentButton;
+      typeClass = styles.transparent;
       break;
     case "outline":
-      BtnStyle = OutlineButton;
+      typeClass = styles.outline;
       break;
     default:
-      BtnStyle = FilledButton;
+      typeClass = styles.filled;
       break;
   }
 
   return (
-    <ButtonWrapper>
-      <BtnStyle fontSize={fontSize}>{children}</BtnStyle>
-    </ButtonWrapper>
+    <div className={styles.buttonWrapper}>
+      <button className={`${styles.btn} ${typeClass}`} style={{fontSize}}>{children}</button>
+    </div>
   );
 }
-
-const ButtonWrapper = styled.div`
-  will-change: transform;
-
-  &:hover button {
-    transform: scale(0.95);
-  }
-`
-
-const Btn = styled.button`
-  font-size: ${({ fontSize }) => fontSize};
-  font-family: var(--font-nunito),sans-serif;
-  border-radius: 8px;
-  
-  padding: 0 8px;
-  transition: transform 0.1s ease-in-out;
-  
-  text-wrap: nowrap;
-  
-  border: solid 2px white;
-  
-  display: flex;
-  align-items: center;
-`
-const FilledButton = styled(Btn)`
-  background-color: var(--color-green-900);
-  border-color: var(--color-green-900);
-  color: white;
-  font-family: var(--font-bungee);
-`
-const TransparentButton = styled(Btn)`
-  background-color: transparent;
-  border-color: transparent;
-  color:var(--color-green-950);
-`
-
-const OutlineButton = styled(Btn)`
-  background-color: transparent;
-  color: white;
-  padding: -2px;
-  border: solid 2px var(--color-orange-200);
-`

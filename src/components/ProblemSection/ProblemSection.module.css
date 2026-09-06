@@ -1,0 +1,14 @@
+.wrapper {
+  padding: 16px 0;
+}
+
+.problemCardGroup {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  row-gap: 16px;
+  align-items: stretch;
+  padding-top: 16px;
+}

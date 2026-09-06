@@ -1,0 +1,50 @@
+.posterWrapper {
+  width: calc(256px * var(--scale-factor));
+  height: calc(362.038671872px * var(--scale-factor));
+  position: absolute;
+  transition: scale 0.1s;
+
+  --scale-factor: 1;
+}
+.posterWrapper:hover {
+  z-index: 1;
+  scale: 1.01;
+}
+@media (max-width: 81.25rem) {
+  .posterWrapper {
+    --scale-factor: 0.8;
+  }
+}
+
+@media (max-width: 59.375rem) {
+  .largeScreens {
+    display: none;
+  }
+}
+
+.posterOne {
+  top: 48px;
+  left: 60%;
+  rotate: 4deg;
+  transform: translateX(-50%);
+}
+@media (max-width: 59.375rem) {
+  .posterOne {
+    top: 45%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.posterTwo {
+  top: 240px;
+  left: 60%;
+  rotate: 16deg;
+  transform: translateX(calc(-50% + min(128px, 15vw - 100px)));
+}
+
+.posterThree {
+  top: 96px;
+  left: 60%;
+  rotate: -8deg;
+  transform: translateX(calc(-50% - min(128px, 15vw - 100px)));
+}

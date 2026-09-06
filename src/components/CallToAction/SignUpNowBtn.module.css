@@ -1,0 +1,63 @@
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+          to right,
+          transparent,
+          hsl(142deg 100% 90%),
+          transparent
+  );
+  opacity: 0.5;
+  animation: shimmer forwards 1000ms;
+}
+
+.btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+
+  padding: 0 8px;
+
+  border: none;
+
+  display: flex;
+  align-items: center;
+
+  background-color: var(--color-green-900);
+  color: white;
+
+  font-family: var(--font-bungee), sans-serif;
+
+  outline: var(--color-green-900) 4px solid;
+  outline-offset: 8px;
+
+  transition: outline-offset 0.1s ease-in-out;
+
+  margin: 0 12px;
+
+  font-size: 4rem;
+}
+.btn:hover {
+  outline-offset: 4px;
+}
+@media (max-width: 59.375rem) {
+  .btn {
+    font-size: 3rem;
+  }
+}
+@media (max-width: 37.5rem) {
+  .btn {
+    font-size: 2.25rem;
+  }
+}

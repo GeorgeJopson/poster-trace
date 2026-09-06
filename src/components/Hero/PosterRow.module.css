@@ -1,0 +1,38 @@
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.posterWrapper {
+  width: calc(256px * var(--scale-factor));
+  height: calc(362.038671872px * var(--scale-factor));
+  position: relative;
+  transition: scale 0.1s;
+
+  --scale-factor: 0.45;
+}
+.posterWrapper:hover {
+  z-index: 1;
+  scale: 1.01;
+}
+@media (max-width: 37.5rem) {
+  .posterWrapper {
+    --scale-factor: 0.4;
+  }
+}
+@media (max-width: 25rem) {
+  .posterWrapper {
+    --scale-factor: 0.35;
+  }
+}
+
+.poster1 {
+  rotate: -8deg;
+}
+.poster2 {
+  rotate: 4deg;
+}
+.poster3 {
+  rotate: -6deg;
+}

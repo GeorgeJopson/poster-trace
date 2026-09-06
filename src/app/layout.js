@@ -1,6 +1,5 @@
 import "./global.css";
 import {Nunito, Bungee} from "next/font/google";
-import StyledComponentsRegistry from "@/components/StyledComponentRegistry";
 
 export const metadata = {
   title: "PosterTrace",
@@ -24,9 +23,7 @@ export default function RootLayout({ children }) {
         <title>PosterTrace</title>
       </head>
       <body style={{fontFamily:"var(--font-nunito)"}}>
-        <StyledComponentsRegistry>
-          {children}
-        </StyledComponentsRegistry>
+        {children}
       </body>
     </html>
   );

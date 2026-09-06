@@ -1,38 +1,16 @@
-import styled from "styled-components";
-
 import React from "react";
+import styles from "./List.module.css";
 
 export default function List({children}) {
   return (
-      <ListWrapper>
+      <ol className={styles.listWrapper}>
         {children.map((child, index) =>
-          <ListItem key={index}>
-            <ListItemContent>
+          <li className={styles.listItem} key={index}>
+            <span className={styles.listItemContent}>
               {child}
-            </ListItemContent>
-          </ListItem>
+            </span>
+          </li>
         )}
-      </ListWrapper>
+      </ol>
   );
 }
-
-const ListWrapper = styled.ol`
-  padding-left: 68px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-`
-
-const ListItem = styled.li`
-  max-width: 40ch;
-  &::marker{
-    color: var(--color-green-950);
-
-    font-size: ${64/16}rem;
-  }
-`
-const ListItemContent = styled.span`
-  position: relative;
-  top: -16px;
-  color: var(--color-green-950);
-`

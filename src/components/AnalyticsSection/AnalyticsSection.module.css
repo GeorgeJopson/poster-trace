@@ -1,0 +1,35 @@
+.analyticsWrapper {
+  padding: 16px 0;
+}
+
+.cardRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  gap: 16px;
+  row-gap: 32px;
+  flex-wrap: wrap;
+  padding: 16px 0 0 0;
+}
+
+.cardText {
+  color: var(--color-green-950);
+}
+
+.imageCard {
+  padding: 12px;
+  background-color: white;
+  border-radius: 8px;
+  --shadow-color: var(--color-green-800-fragment);
+  box-shadow: var(--elevation-small);
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+}

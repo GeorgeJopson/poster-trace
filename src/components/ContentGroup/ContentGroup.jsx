@@ -1,7 +1,10 @@
-import styled from "styled-components";
+import React from "react";
+import styles from "./ContentGroup.module.css";
 
-const ContentGroup = styled.div`
-  background-color: var(--color-yellow-300);
-`
-
-export default ContentGroup;
+export default function ContentGroup({children, className}) {
+  return (
+    <div className={className ? `${styles.contentGroup} ${className}` : styles.contentGroup}>
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,43 @@
+.wrapper {
+  padding-top: calc(48px);
+  overflow-x: clip;
+  margin-bottom: 36px;
+  isolation: isolate;
+}
+
+.contentWrapper {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: row-reverse;
+}
+@media (max-width: 47.5rem) {
+  .headerSection {
+    flex-direction: row;
+  }
+}
+
+.posterFanWrapper {
+  position: relative;
+  flex: 1;
+}
+@media (max-width: 47.5rem) {
+  .posterFanWrapper {
+    display: none;
+  }
+}
+
+.posterRowSection {
+  margin-bottom: -32px;
+  display: none;
+}
+@media (max-width: 59.375rem) {
+  .posterRowSection {
+    display: revert;
+  }
+}

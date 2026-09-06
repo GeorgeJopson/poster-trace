@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
-import styled from "styled-components";
-import {QUERIES} from "@/constants";
+import styles from "./SignUpNowBtn.module.css";
 
 function useShimmerCleanUp(shimmer, setShimmer) {
   React.useEffect(() => {
@@ -20,73 +19,13 @@ export default function SignUpNowBtn() {
   const [shimmers, setShimmers] = React.useState([]);
   useShimmerCleanUp(shimmers, setShimmers);
   function addShimmer() {
-    setShimmers([...shimmers,<Shimmer key={crypto.randomUUID()}/>]);
+    setShimmers([...shimmers,<span key={crypto.randomUUID()} className={styles.shimmer}/>]);
   }
 
   return (
-    <Btn onMouseEnter={()=>addShimmer()}>
+    <button className={styles.btn} onMouseEnter={()=>addShimmer()}>
       {shimmers}
       Sign Up Now
-    </Btn>
+    </button>
   )
 }
-
-const Shimmer = styled.span`
-  @keyframes shimmer {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(100%);
-    }
-  }
-  
-  position: absolute;
-  inset: 0;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(
-          to right,
-          transparent,
-          hsl(142deg 100% 90%),
-          transparent
-  );
-  opacity: 0.5;
-  animation: shimmer forwards 1000ms;
-`
-
-const Btn = styled.button`
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-
-  padding: 0 8px;
-  
-  border: none;
-
-  display: flex;
-  align-items: center;
-  
-  background-color: var(--color-green-900);
-  color: white;
-  
-  font-family: var(--font-bungee),sans-serif;
-  
-  outline: var(--color-green-900) 4px solid;
-  outline-offset: 8px;
-  
-  transition: outline-offset 0.1s ease-in-out;
-  &:hover {
-    outline-offset: 4px;
-  }
-  
-  margin: 0 12px;
-
-  font-size: ${64/16}rem;
-  @media ${QUERIES.tabletAndDown} {
-    font-size: ${48/16}rem;
-  }
-  @media ${QUERIES.phoneAndDown} {
-    font-size: ${36/16}rem;
-  }
-`

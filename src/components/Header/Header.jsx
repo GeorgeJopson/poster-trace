@@ -1,6 +1,5 @@
 import React from 'react';
-import styled from "styled-components";
-import {QUERIES} from "@/constants";
+import styles from "./Header.module.css";
 
 export default function Header({children, type, className}){
   let output = [];
@@ -8,70 +7,26 @@ export default function Header({children, type, className}){
     if(typeof element === "string"){
       output.push(
         Array.from(element).map(
-          (character,index)=><Character key={index}>{character}</Character>)
+          (character,index)=><span className={styles.character} key={index}>{character}</span>)
       );
     }else{
       output.push(element);
     }
   }
+
   let Element;
+  let wrapperClass;
   if(type === "title"){
-    Element = TitleWrapper;
+    Element = "h1";
+    wrapperClass = styles.title;
   }else if(type==="heading"){
-    Element = HeaderWrapper;
+    Element = "h2";
+    wrapperClass = styles.heading;
   }
+
+  const combinedClassName = [styles.base, wrapperClass, className].filter(Boolean).join(" ");
 
   return(
-    <Element className={className}>{output}</Element>
+    <Element className={combinedClassName}>{output}</Element>
   );
 }
-
-const Character = styled.span`
-  display: inline-block;
-  transition: scale 0.1s;
-  &:hover{
-    scale: 1.2;
-  }
-`
-
-const defaults = `
-  line-height: 1.1;
-  font-weight: 500;
-  font-family: var(--font-bungee), sans-serif;
-  text-align: left;
-  
-  color: var(--color-green-800);
-`
-
-const TitleWrapper = styled.h1`
-  ${defaults};
-  font-size: ${76/16}rem;
-  @media ${QUERIES.laptopAndDown}{
-   font-size: ${60/16}rem; 
-  }
-  @media ${QUERIES.tabletAndDown} {
-    font-size: ${48/16}rem;
-  }
-  @media ${QUERIES.phoneAndDown} {
-    font-size: ${32/16}rem;
-  }
-  @media ${QUERIES.smallPhoneAndDown} {
-    font-size: ${26/16}rem;
-  }
-`
-const HeaderWrapper = styled.h2`
-  ${defaults};
-  font-size: ${60/16}rem;
-  @media ${QUERIES.laptopAndDown}{
-    font-size: ${44/16}rem;
-  }
-  @media ${QUERIES.tabletAndDown} {
-    font-size: ${40/16}rem;
-  }
-  @media ${QUERIES.phoneAndDown} {
-    font-size: ${28/16}rem;
-  }
-  @media ${QUERIES.smallPhoneAndDown} {
-    font-size: ${26/16}rem;
-  }
-`
