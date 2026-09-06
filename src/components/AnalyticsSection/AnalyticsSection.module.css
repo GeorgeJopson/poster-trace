@@ -20,8 +20,8 @@
   padding: 12px;
   background-color: white;
   border-radius: 8px;
-  --shadow-color: var(--color-green-800-fragment);
-  box-shadow: var(--shadow-yellow-background-elevation-medium);
+  --shadow-color: 52deg 90% 33%;
+  box-shadow: var(--shadow-elevation-medium);
   display: flex;
   justify-content: center;
 }
