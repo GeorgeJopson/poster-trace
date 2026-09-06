@@ -21,7 +21,7 @@
   background-color: white;
   border-radius: 8px;
   --shadow-color: var(--color-green-800-fragment);
-  box-shadow: var(--elevation-small);
+  box-shadow: var(--shadow-yellow-background-elevation-medium);
   display: flex;
   justify-content: center;
 }
