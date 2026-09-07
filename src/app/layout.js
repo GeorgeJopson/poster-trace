@@ -9,11 +9,13 @@ const bungee = Bungee({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-bungee',
+  fallback: ['sans-serif'],
 });
 
 const nunito = Nunito({
   subsets: ['latin'],
   variable: '--font-nunito',
+  fallback: ['sans-serif'],
 });
 
 export default function RootLayout({ children }) {
@@ -22,7 +24,7 @@ export default function RootLayout({ children }) {
       <head>
         <title>PosterTrace</title>
       </head>
-      <body style={{fontFamily:"var(--font-nunito)"}}>
+      <body>
         {children}
       </body>
     </html>
