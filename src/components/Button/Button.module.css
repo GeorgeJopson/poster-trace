@@ -25,7 +25,7 @@
   background-color: var(--color-green-900);
   border-color: var(--color-green-900);
   color: white;
-  font-family: var(--font-bungee);
+  font-family: var(--font-bungee), sans-serif;
 }
 
 .transparent {
