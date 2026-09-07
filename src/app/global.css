@@ -24,28 +24,39 @@ body {
   font-family: var(--font-nunito), sans-serif;
 }
 
-/* 6. Improve media defaults */
+/* 7. Improve media defaults */
 img, picture, video, canvas, svg {
   display: block;
   max-width: 100%;
 }
 
-/* 7. Inherit fonts for form controls */
+/* 8. Inherit fonts for form controls */
 input, textarea, select {
   font: inherit;
 }
 
-/* 8. Avoid text overflows */
+/* 9. Avoid text overflows */
 p, h1, h2, h3, h4, h5, h6 {
   overflow-wrap: break-word;
 }
 
-/* 9. Improve line wrapping */
+/* 10. Improve line wrapping */
 p {
   text-wrap: pretty;
 }
 h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
+}
+
+/*
+ * Font custom properties are supplied at runtime by next/font, via a class on
+ * <html> (see src/app/layout.js). These element-selector declarations are a
+ * lower-specificity fallback for when the webfonts fail to load, and give
+ * tooling a definition to resolve.
+ */
+html {
+  --font-bungee: sans-serif;
+  --font-nunito: sans-serif;
 }
 
 :root{
