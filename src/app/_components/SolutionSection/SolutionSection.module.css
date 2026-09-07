@@ -1,0 +1,43 @@
+.solutionSection {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  isolation: isolate;
+}
+@media (--phone-and-down) {
+  .solutionSection {
+    padding-bottom: 16px;
+  }
+}
+
+.columnLayoutWrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.column {
+  flex: 1;
+  position: relative;
+}
+
+.textColumn {
+  min-width: 21.25rem;
+}
+@media (--phone-and-down) {
+  .textColumn {
+    min-width: 18rem;
+  }
+}
+
+.imageColumn {
+  flex: 1.5;
+}
+@media (--small-phone-and-down) {
+  .imageColumn {
+    display: none;
+  }
+}
+
+.solutionHeader {
+  text-align: right;
+  min-width: 11ch;
+}

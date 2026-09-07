@@ -1,0 +1,8 @@
+.wrapper {
+  will-change: transform;
+}
+
+.wrapper:hover button,
+.wrapper:hover a {
+  transform: scale(0.95);
+}

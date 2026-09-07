@@ -1,0 +1,33 @@
+.character {
+  display: inline-block;
+  transition: scale 0.1s;
+}
+.character:hover {
+  scale: 1.2;
+}
+
+.word{
+  display: inline-block;
+}
+
+.base {
+  line-height: 1.1;
+  font-weight: 500;
+  font-family: var(--font-bungee), sans-serif;
+  text-align: left;
+
+  color: var(--color-green-800);
+}
+
+.title {
+  font-size: var(--font-size-title);
+}
+
+.heading {
+  font-size: var(--font-size-header);
+}
+
+.line{
+  display: block;
+  padding-bottom: 8px;
+}

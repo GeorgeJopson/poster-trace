@@ -1,0 +1,15 @@
+.btn {
+  font-family: var(--font-nunito), sans-serif;
+  border-radius: 8px;
+
+  padding: 0 8px;
+  transition: transform 0.1s ease-in-out;
+
+  text-wrap: nowrap;
+  text-decoration: none;
+
+  border: solid 2px white;
+
+  display: flex;
+  align-items: center;
+}

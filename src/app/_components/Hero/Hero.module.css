@@ -1,0 +1,43 @@
+.wrapper {
+  padding-top: calc(48px);
+  overflow-x: clip;
+  margin-bottom: 36px;
+  isolation: isolate;
+}
+
+.contentWrapper {
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.headerSection {
+  display: flex;
+  flex-direction: row-reverse;
+}
+@media (max-width: calc(760 / 16 * 1rem)) {
+  .headerSection {
+    flex-direction: row;
+  }
+}
+
+.posterFanWrapper {
+  position: relative;
+  flex: 1;
+}
+@media (max-width: calc(760 / 16 * 1rem)) {
+  .posterFanWrapper {
+    display: none;
+  }
+}
+
+.posterRowSection {
+  margin-bottom: -32px;
+  display: none;
+}
+@media (--tablet-and-down) {
+  .posterRowSection {
+    display: revert;
+  }
+}

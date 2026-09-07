@@ -1,0 +1,13 @@
+.introduction {
+  padding-top: 16px;
+  color: var(--color-green-950);
+  font-size: var(--font-size-important-body);
+  max-width: 36ch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wrapper{
+  position: relative;
+}

@@ -1,0 +1,53 @@
+.wrapper{
+  isolation: isolate;
+}
+
+.posterWrapper {
+  width: calc(256px * var(--scale-factor));
+  height: calc(256px * 1.414213562 * var(--scale-factor));
+  position: absolute;
+  transition: scale 0.1s;
+
+  --scale-factor: 1;
+}
+.posterWrapper:hover {
+  z-index: 1;
+  scale: 1.01;
+}
+@media (--laptop-and-down) {
+  .posterWrapper {
+    --scale-factor: 0.8;
+  }
+}
+
+@media (--tablet-and-down) {
+  .largeScreens {
+    display: none;
+  }
+}
+
+.posterOne {
+  --rotation: rotate(4deg);
+
+  top: 48px;
+  left: 60%;
+  transform: var(--rotation) translateX(-50%);
+}
+@media (--tablet-and-down) {
+  .posterOne {
+    top: 45%;
+    transform: var(--rotation) translate(-50%, -50%);
+  }
+}
+
+.posterTwo {
+  top: 240px;
+  left: 60%;
+  transform: rotate(16deg) translateX(calc(-50% + min(128px, 15vw - 100px)));
+}
+
+.posterThree {
+  top: 96px;
+  left: 60%;
+  transform: rotate(-8deg) translateX(calc(-50% - min(128px, 15vw - 100px)));
+}

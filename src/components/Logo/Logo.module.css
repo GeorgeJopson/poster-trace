@@ -1,0 +1,23 @@
+.logoWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 8px;
+  width: fit-content;
+
+  color: var(--color-green-800);
+  text-decoration: none;
+}
+
+.logoTitle {
+  font-size: 2rem;
+  line-height: 2rem;
+  font-weight: bold;
+  font-family: var(--font-nunito), sans-serif;
+}
+@media (--phone-and-down) {
+  .logoTitle {
+    display: none;
+  }
+}

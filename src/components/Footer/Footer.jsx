@@ -1,48 +1,29 @@
 import React from 'react';
-import styled from "styled-components";
 import Logo from "@/components/Logo";
 import Link from "next/link";
 import CentralColumn from "@/components/CentralColumn";
+import styles from "./Footer.module.css";
 
 export default function Footer() {
   return (
-    <CentralColumn>
-      <Wrapper>
-        <Logo/>
-        <LinkRow>
-          <FooterLink href="/">Log In</FooterLink>
-          <FooterLink href="/">Sign Up</FooterLink>
-          <FooterLink href="/">Campaign Manager</FooterLink>
-          <FooterLink href="/">Poster Activation</FooterLink>
-          <FooterLink href="/">Analytics Dashboard</FooterLink>
-        </LinkRow>
-        <LinkRow>
-          <FooterLink href="/">Contact</FooterLink>
-          <FooterLink href="/">Privacy</FooterLink>
-          <FooterLink href="/">Terms</FooterLink>
-        </LinkRow>
-      </Wrapper>
-    </CentralColumn>
+    <footer>
+      <CentralColumn>
+        <div className={styles.wrapper}>
+          <Logo/>
+          <nav className={styles.linkRow} aria-label="Product">
+            <Link className={styles.footerLink} href="/">Log In</Link>
+            <Link className={styles.footerLink} href="/">Sign Up</Link>
+            <Link className={styles.footerLink} href="/">Campaign Manager</Link>
+            <Link className={styles.footerLink} href="/">Poster Activation</Link>
+            <Link className={styles.footerLink} href="/">Analytics Dashboard</Link>
+          </nav>
+          <nav className={styles.linkRow} aria-label="Company">
+            <Link className={styles.footerLink} href="/">Contact</Link>
+            <Link className={styles.footerLink} href="/">Privacy</Link>
+            <Link className={styles.footerLink} href="/">Terms</Link>
+          </nav>
+        </div>
+      </CentralColumn>
+    </footer>
   );
 }
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px 0;
-  gap: 8px;  
-`
-const LinkRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 20px;
-  row-gap: 4px;
-`
-
-const FooterLink = styled(Link)`
-  font-size: ${16/16}rem;
-  color: var(--color-green-950);
-  text-decoration: none;
-`

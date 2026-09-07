@@ -1,69 +1,26 @@
-import React from 'react';
-import styled from "styled-components";
+import BaseButton from "./BaseButton";
+import ParticleButton from "./effects/ParticleButton";
+import ShrinkOnHoverWrapper from "./effects/ShrinkOnHoverWrapper";
+import styles from "./Button.module.css";
 
-export default function Button({children, type, fontSize}) {
-  let BtnStyle;
+const VARIANTS = {
+  filled:            {className: styles.filled,            particles: true,  shrink: true},
+  filledWithOutline: {className: styles.filledWithOutline, particles: true,  shrink: false},
+  outline:           {className: styles.outline,           particles: false, shrink: true},
+  transparent:       {className: styles.transparent,       particles: false, shrink: true},
+};
 
-  switch (type) {
-    case "filled":
-      BtnStyle = FilledButton;
-      break;
-    case "transparent":
-      BtnStyle=TransparentButton;
-      break;
-    case "outline":
-      BtnStyle = OutlineButton;
-      break;
-    default:
-      BtnStyle = FilledButton;
-      break;
-  }
+const FALLBACK = {className: styles.filled, particles: false, shrink: true};
 
-  return (
-    <ButtonWrapper>
-      <BtnStyle fontSize={fontSize}>{children}</BtnStyle>
-    </ButtonWrapper>
+export default function Button({children, variant, fontSize, ...props}) {
+  const {className, particles, shrink} = VARIANTS[variant] ?? FALLBACK;
+
+  const ButtonImplementation = particles ? ParticleButton : BaseButton;
+  const button = (
+    <ButtonImplementation className={className} fontSize={fontSize} {...props}>
+      {children}
+    </ButtonImplementation>
   );
+
+  return shrink ? <ShrinkOnHoverWrapper>{button}</ShrinkOnHoverWrapper> : button;
 }
-
-const ButtonWrapper = styled.div`
-  will-change: transform;
-
-  &:hover button {
-    transform: scale(0.95);
-  }
-`
-
-const Btn = styled.button`
-  font-size: ${({ fontSize }) => fontSize};
-  font-family: var(--font-nunito),sans-serif;
-  border-radius: 8px;
-  
-  padding: 0 8px;
-  transition: transform 0.1s ease-in-out;
-  
-  text-wrap: nowrap;
-  
-  border: solid 2px white;
-  
-  display: flex;
-  align-items: center;
-`
-const FilledButton = styled(Btn)`
-  background-color: var(--color-green-900);
-  border-color: var(--color-green-900);
-  color: white;
-  font-family: var(--font-bungee);
-`
-const TransparentButton = styled(Btn)`
-  background-color: transparent;
-  border-color: transparent;
-  color:var(--color-green-950);
-`
-
-const OutlineButton = styled(Btn)`
-  background-color: transparent;
-  color: white;
-  padding: -2px;
-  border: solid 2px var(--color-orange-200);
-`

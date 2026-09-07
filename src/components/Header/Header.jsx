@@ -1,77 +1,47 @@
 import React from 'react';
-import styled from "styled-components";
-import {QUERIES} from "@/constants";
+import styles from "./Header.module.css";
 
-export default function Header({children, type, className}){
-  let output = [];
-  for (const element of children) {
-    if(typeof element === "string"){
-      output.push(
-        Array.from(element).map(
-          (character,index)=><Character key={index}>{character}</Character>)
-      );
-    }else{
-      output.push(element);
-    }
-  }
-  let Element;
-  if(type === "title"){
-    Element = TitleWrapper;
-  }else if(type==="heading"){
-    Element = HeaderWrapper;
-  }
+const VARIANT_ELEMENTS = {
+  title: "h1",
+  heading: "h2",
+};
 
-  return(
-    <Element className={className}>{output}</Element>
+function HeaderLine({ text }) {
+  const words = text.split(" ");
+
+  return (
+    <span className={styles.line}>
+      {words.map((word, wordIndex) => (
+        <span className={styles.word} key={wordIndex}>
+          {Array.from(word).map((character, characterIndex) => (
+            <span className={styles.character} key={characterIndex}>{character}</span>
+          ))}
+          {wordIndex < words.length - 1 ? " " : null}
+        </span>
+      ))}
+    </span>
   );
 }
 
-const Character = styled.span`
-  display: inline-block;
-  transition: scale 0.1s;
-  &:hover{
-    scale: 1.2;
+export default function Header({ children, variant = "heading", className }) {
+  if (typeof children !== "string") {
+    throw new Error(
+      `Header expects a single string child; break lines with "\\n". Received ${typeof children}.`
+    );
   }
-`
 
-const defaults = `
-  line-height: 1.1;
-  font-weight: 500;
-  font-family: var(--font-bungee), sans-serif;
-  text-align: left;
-  
-  color: var(--color-green-800);
-`
+  const Element = VARIANT_ELEMENTS[variant];
+  if (!Element) {
+    throw new Error(`Unknown Header variant "${variant}".`);
+  }
 
-const TitleWrapper = styled.h1`
-  ${defaults};
-  font-size: ${76/16}rem;
-  @media ${QUERIES.laptopAndDown}{
-   font-size: ${60/16}rem; 
-  }
-  @media ${QUERIES.tabletAndDown} {
-    font-size: ${48/16}rem;
-  }
-  @media ${QUERIES.phoneAndDown} {
-    font-size: ${32/16}rem;
-  }
-  @media ${QUERIES.smallPhoneAndDown} {
-    font-size: ${26/16}rem;
-  }
-`
-const HeaderWrapper = styled.h2`
-  ${defaults};
-  font-size: ${60/16}rem;
-  @media ${QUERIES.laptopAndDown}{
-    font-size: ${44/16}rem;
-  }
-  @media ${QUERIES.tabletAndDown} {
-    font-size: ${40/16}rem;
-  }
-  @media ${QUERIES.phoneAndDown} {
-    font-size: ${28/16}rem;
-  }
-  @media ${QUERIES.smallPhoneAndDown} {
-    font-size: ${26/16}rem;
-  }
-`
+  const combinedClassName = [styles.base, styles[variant], className].filter(Boolean).join(" ");
+
+  return (
+    <Element className={combinedClassName}>
+      {children.split("\n").map((line, lineIndex) => (
+        <HeaderLine text={line} key={lineIndex} />
+      ))}
+    </Element>
+  );
+}

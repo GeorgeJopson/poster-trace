@@ -1,0 +1,21 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  gap: 8px;
+}
+
+.linkRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 20px;
+  row-gap: 4px;
+}
+
+.footerLink {
+  font-size: var(--font-size-body);
+  color: var(--color-green-950);
+  text-decoration: none;
+}

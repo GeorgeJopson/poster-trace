@@ -1,0 +1,24 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.spacer {
+  min-width: 64px;
+}
+@media (--tablet-and-down) {
+  .spacer {
+    min-width: 32px;
+  }
+}
+@media (--phone-and-down) {
+  .spacer {
+    min-width: 16px;
+  }
+}
+
+.centralDiv {
+  flex: 1;
+  position: relative;
+}

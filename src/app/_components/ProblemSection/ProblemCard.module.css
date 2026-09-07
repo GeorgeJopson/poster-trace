@@ -1,0 +1,31 @@
+.problemCardWrapper {
+  flex: 1;
+  min-width: 26ch;
+  position: relative;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid var(--color-green-950);
+  color: var(--color-green-950);
+  padding: 12px 12px 12px 72px;
+
+  box-shadow: var(--shadow-elevation-medium);
+
+  display: flex;
+  justify-content: center;
+}
+
+.problemCardIcon {
+  position: absolute;
+  top: 16px;
+  left: 4px;
+}
+
+.problemCardTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.problemCardContent {
+  font-size: var(--font-size-body);
+  max-width: 32ch;
+}

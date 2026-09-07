@@ -1,0 +1,19 @@
+/*
+ * Media breakpoints — single source of truth for CSS.
+ *
+ * postcss.config.mjs injects these `@custom-media` rules into every CSS file
+ * (via postcss-global-data) and resolves `@media (--name)` down to a plain
+ * `@media (max-width: ...)` query at build time (via postcss-custom-media), so
+ * there is no runtime cost and no per-file import.
+ *
+ * Keep in sync with src/breakpoints.js, which mirrors these values for the
+ * `sizes` prop of `next/image` (JS cannot read `@custom-media`).
+ *
+ * See README.md for the breakpoint reference.
+ */
+@custom-media --small-phone-and-down (max-width: calc(400 / 16 * 1rem));
+@custom-media --phone-and-down (max-width: calc(600 / 16 * 1rem));
+@custom-media --tablet-and-down (max-width: calc(950 / 16 * 1rem));
+@custom-media --laptop-and-down (max-width: calc(1300 / 16 * 1rem));
+
+@custom-media --tablet-and-up (min-width: calc(950 / 16 * 1rem));

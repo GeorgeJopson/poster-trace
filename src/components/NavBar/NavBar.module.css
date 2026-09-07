@@ -1,0 +1,26 @@
+.navBarWrapper {
+  padding: 4px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+
+  background-color: white;
+
+  border-bottom: 2px solid var(--color-green-800);
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
