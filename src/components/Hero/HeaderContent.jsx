@@ -6,7 +6,7 @@ import styles from "./HeaderContent.module.css";
 
 export default function HeaderContent() {
   return (
-    <div>
+    <div className={styles.wrapper}>
       <Header type={"title"}>
         Poster Analytics,<br/>
         For Communities,<br/>

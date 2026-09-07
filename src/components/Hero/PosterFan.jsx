@@ -9,7 +9,7 @@ const imageSizes = `(max-width: 81.25rem) ${posterSize*imageSmallerScale}px, ${p
 
 export default function PosterFan() {
   return (
-    <>
+    <div className={styles.wrapper}>
       <div className={`${styles.posterWrapper} ${styles.largeScreens} ${styles.posterThree}`}>
         <Image
           src={stockPoster3.src}
@@ -36,6 +36,6 @@ export default function PosterFan() {
           sizes={imageSizes}
         />
       </div>
-    </>
+    </div>
   );
 }

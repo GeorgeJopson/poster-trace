@@ -1,3 +1,7 @@
+.wrapper{
+  isolation: isolate;
+}
+
 .posterWrapper {
   width: calc(256px * var(--scale-factor));
   height: calc(256px * 1.414213562 * var(--scale-factor));
