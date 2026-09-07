@@ -26,3 +26,7 @@
 .heading {
   font-size: var(--font-size-header);
 }
+
+.line{
+  padding-bottom: 8px;
+}
