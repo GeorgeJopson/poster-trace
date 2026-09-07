@@ -8,9 +8,9 @@ export default function HeaderContent() {
   return (
     <div>
       <Header type={"title"}>
-        Poster&nbsp;Analytics,<br/>
-        For&nbsp;Communities,<br/>
-        For&nbsp;Free.
+        Poster Analytics,<br/>
+        For Communities,<br/>
+        For Free.
       </Header>
       <div className={styles.introduction}>
         <p>Revolutionise your poster campaigns, by finally getting the data you need.</p>
