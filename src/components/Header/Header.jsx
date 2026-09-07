@@ -1,23 +1,23 @@
 import React from 'react';
 import styles from "./Header.module.css";
-import {crypto} from "next/dist/compiled/@edge-runtime/primitives";
 
 function convertLineStringToElements(line) {
   const words = line.split(" ");
 
   let outputLine = []
-  for (const word of words) {
+  words.forEach((word, wordIndex) => {
     outputLine.push(
-      <div className={styles.word} key={crypto.randomUUID()}>
+      <div className={styles.word} key={wordIndex}>
         {Array.from(word).map(
-          (character, index) => <span className={styles.character} key={index}>{character}</span>)
+          (character, index) => <span className={styles.character} key={`${wordIndex} ${index}`}>{character}</span>)
         }
       </div>
     )
-    outputLine.push(<span key={crypto.randomUUID()}>&nbsp;</span>);
-  }
+    outputLine.push(<span key={`${wordIndex} space`}>&nbsp;</span>);
+  })
+
   outputLine.pop();
-  return <div className={styles.line} key={crypto.randomUUID()}>{outputLine}</div>;
+  return <div className={styles.line} key={line}>{outputLine}</div>;
 }
 
 export default function Header({children, type, className}){
