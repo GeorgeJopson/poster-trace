@@ -1,7 +1,6 @@
 .problemCardWrapper {
   flex: 1;
   min-width: 26ch;
-  max-width: 50ch;
   position: relative;
   background-color: white;
   border-radius: 8px;
