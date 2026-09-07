@@ -277,7 +277,8 @@ h1, h2, h3, h4, h5, h6 {
 
   --font-size-title: 4.5rem;
   --font-size-header: 3.75rem;
-  --font-size-text: 1rem;
+  --font-size-important-body: 1.5rem;
+  --font-size-body: 1rem;
 }
 
 @media (max-width: 81.25rem) {
@@ -296,6 +297,7 @@ h1, h2, h3, h4, h5, h6 {
   :root{
     --font-size-title: 2rem;
     --font-size-header: 1.5rem;
+    --font-size-important-body: 1rem;
   }
 }
 @media (max-width: 25rem) {

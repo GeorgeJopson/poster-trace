@@ -15,7 +15,7 @@
 }
 
 .footerLink {
-  font-size: 1rem;
+  font-size: var(--font-size-body);
   color: var(--color-green-950);
   text-decoration: none;
 }
