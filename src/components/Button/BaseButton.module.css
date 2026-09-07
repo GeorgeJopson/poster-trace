@@ -6,6 +6,7 @@
   transition: transform 0.1s ease-in-out;
 
   text-wrap: nowrap;
+  text-decoration: none;
 
   border: solid 2px white;
 

@@ -11,8 +11,8 @@ export default function NavBar() {
         <div className={styles.contentWrapper}>
           <Logo/>
           <div className={styles.buttonGroup}>
-            <Button type={"transparent"} fontSize={`${20/16}rem`}>Log In</Button>
-            <Button type={"filled"} fontSize={`${20/16}rem`}>Sign Up</Button>
+            <Button variant={"transparent"} href={"/"} fontSize={`${20/16}rem`}>Log In</Button>
+            <Button variant={"filled"} href={"/"} fontSize={`${20/16}rem`}>Sign Up</Button>
           </div>
         </div>
       </CentralColumn>

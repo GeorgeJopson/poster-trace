@@ -12,12 +12,12 @@ const VARIANTS = {
 
 const FALLBACK = {className: styles.filled, particles: false, shrink: true};
 
-export default function Button({children, type, fontSize}) {
-  const {className, particles, shrink} = VARIANTS[type] ?? FALLBACK;
+export default function Button({children, variant, fontSize, ...props}) {
+  const {className, particles, shrink} = VARIANTS[variant] ?? FALLBACK;
 
   const ButtonImplementation = particles ? ParticleButton : BaseButton;
   const button = (
-    <ButtonImplementation className={className} fontSize={fontSize}>
+    <ButtonImplementation className={className} fontSize={fontSize} {...props}>
       {children}
     </ButtonImplementation>
   );

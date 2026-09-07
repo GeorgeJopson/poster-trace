@@ -14,7 +14,7 @@ export default function CallToAction() {
               Take the guess work out of your posters.
             </h2>
             <div className={styles.btnWrapper}>
-              <Button type={"filledWithOutline"} fontSize={"var(--btn-font-size)"}>Sign Up Now</Button>
+              <Button variant={"filledWithOutline"} href={"/"} fontSize={"var(--btn-font-size)"}>Sign Up Now</Button>
             </div>
           </div>
         </div>

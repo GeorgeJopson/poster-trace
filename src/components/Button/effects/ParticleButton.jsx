@@ -6,7 +6,7 @@ import BaseButton from "../BaseButton";
 const SHIMMER_DURATION_MS = 1000;
 const SHIMMER_CLEANUP_MS = SHIMMER_DURATION_MS + 200;
 
-export default function ParticleButton({children, className, fontSize}) {
+export default function ParticleButton({children, className, fontSize, ...props}) {
   const [shimmerIds, setShimmerIds] = React.useState([]);
 
   React.useEffect(() => {
@@ -26,7 +26,7 @@ export default function ParticleButton({children, className, fontSize}) {
   }
 
   return (
-    <BaseButton className={`${styles.particleBtn} ${className}`} fontSize={fontSize} onMouseEnter={addShimmer}>
+    <BaseButton className={`${styles.particleBtn} ${className}`} fontSize={fontSize} {...props} onMouseEnter={addShimmer}>
       {shimmerIds.map((id) => (
         <span key={id} className={styles.shimmer} />
       ))}
