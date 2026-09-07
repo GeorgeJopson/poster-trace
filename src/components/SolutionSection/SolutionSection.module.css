@@ -1,6 +1,7 @@
 .solutionSection {
   padding-top: 32px;
   padding-bottom: 32px;
+  isolation: isolate;
 }
 @media (max-width: 37.5rem) {
   .solutionSection {
