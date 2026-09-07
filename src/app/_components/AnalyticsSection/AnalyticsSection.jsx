@@ -12,7 +12,7 @@ function AnalyticsSection() {
     <ContentGroup as="section" aria-label="The analytics">
       <CentralColumn>
         <div className={styles.analyticsWrapper}>
-          <Header type={"heading"}>The&nbsp;Analytics</Header>
+          <Header variant="heading">The Analytics</Header>
           <ul className={styles.cardRow}>
             <li className={styles.card} style={{minWidth: `${231 + 12 * 2}px`}}>
               <p className={styles.cardText}>Get real-time click through results, so you can see how interest is moving over time.</p>

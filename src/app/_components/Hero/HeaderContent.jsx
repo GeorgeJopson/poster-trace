@@ -7,10 +7,8 @@ import styles from "./HeaderContent.module.css";
 export default function HeaderContent() {
   return (
     <div className={styles.wrapper}>
-      <Header type={"title"}>
-        Poster Analytics,<br/>
-        For Communities,<br/>
-        For Free.
+      <Header variant="title">
+        {"Poster Analytics,\nFor Communities,\nFor Free."}
       </Header>
       <div className={styles.introduction}>
         <p>Revolutionise your poster campaigns, by finally getting the data you need.</p>

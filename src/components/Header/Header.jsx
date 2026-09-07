@@ -1,52 +1,47 @@
 import React from 'react';
 import styles from "./Header.module.css";
 
-function convertLineStringToElements(line) {
-  const words = line.split(" ");
+const VARIANT_ELEMENTS = {
+  title: "h1",
+  heading: "h2",
+};
 
-  let outputLine = []
-  words.forEach((word, wordIndex) => {
-    outputLine.push(
-      <div className={styles.word} key={wordIndex}>
-        {Array.from(word).map(
-          (character, index) => <span className={styles.character} key={`${wordIndex} ${index}`}>{character}</span>)
-        }
-      </div>
-    )
-    outputLine.push(<span key={`${wordIndex} space`}>&nbsp;</span>);
-  })
+function HeaderLine({ text }) {
+  const words = text.split(" ");
 
-  outputLine.pop();
-  return <div className={styles.line} key={line}>{outputLine}</div>;
+  return (
+    <span className={styles.line}>
+      {words.map((word, wordIndex) => (
+        <span className={styles.word} key={wordIndex}>
+          {Array.from(word).map((character, characterIndex) => (
+            <span className={styles.character} key={characterIndex}>{character}</span>
+          ))}
+          {wordIndex < words.length - 1 ? " " : null}
+        </span>
+      ))}
+    </span>
+  );
 }
 
-export default function Header({children, type, className}){
-  let output = [];
-  if(typeof children === "string"){
-    output.push(convertLineStringToElements(children));
-  }else if (Array.isArray(children)){
-    for (const line of children){
-      if(typeof line === "string"){
-        output.push(convertLineStringToElements(line))
-      }
-    }
-  }else{
-    throw new Error(`Unexpected type "${type}" for "${children}"`);
+export default function Header({ children, variant = "heading", className }) {
+  if (typeof children !== "string") {
+    throw new Error(
+      `Header expects a single string child; break lines with "\\n". Received ${typeof children}.`
+    );
   }
 
-  let Element;
-  let wrapperClass;
-  if(type === "title"){
-    Element = "h1";
-    wrapperClass = styles.title;
-  }else if(type==="heading"){
-    Element = "h2";
-    wrapperClass = styles.heading;
+  const Element = VARIANT_ELEMENTS[variant];
+  if (!Element) {
+    throw new Error(`Unknown Header variant "${variant}".`);
   }
 
-  const combinedClassName = [styles.base, wrapperClass, className].filter(Boolean).join(" ");
+  const combinedClassName = [styles.base, styles[variant], className].filter(Boolean).join(" ");
 
-  return(
-    <Element className={combinedClassName}>{output}</Element>
+  return (
+    <Element className={combinedClassName}>
+      {children.split("\n").map((line, lineIndex) => (
+        <HeaderLine text={line} key={lineIndex} />
+      ))}
+    </Element>
   );
 }

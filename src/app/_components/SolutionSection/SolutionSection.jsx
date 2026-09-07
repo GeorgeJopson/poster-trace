@@ -16,7 +16,7 @@ export default function SolutionSection() {
             <PosterRow variant="showcase" posters={stockPosters.slice(4, 7)}/>
           </div>
           <div className={`${styles.column} ${styles.textColumn}`}>
-            <Header type={"heading"} className={styles.solutionHeader}>The&nbsp;Solution</Header>
+            <Header variant="heading" className={styles.solutionHeader}>The Solution</Header>
             <List>
               <>Create a campaign, give us a link for what you’re trying to advertise, and position the created QR code
                 on your poster page!

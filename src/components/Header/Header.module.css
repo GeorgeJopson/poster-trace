@@ -28,5 +28,6 @@
 }
 
 .line{
+  display: block;
   padding-bottom: 8px;
 }
