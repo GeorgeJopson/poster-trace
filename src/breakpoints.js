@@ -6,18 +6,21 @@
  * sync. See README.md for the breakpoint reference.
  */
 
-/** Max-width values, keyed by breakpoint name. */
+/** Breakpoint widths in pixels, keyed by name. */
 export const breakpoints = {
-  smallPhoneAndDown: "25rem", // 400 / 16
-  phoneAndDown: "37.5rem", // 600 / 16
-  tabletAndDown: "59.375rem", // 950 / 16
-  laptopAndDown: "81.25rem", // 1300 / 16
+  smallPhoneAndDown: 400,
+  phoneAndDown: 600,
+  tabletAndDown: 950,
+  laptopAndDown: 1300,
 };
+
+/** `px` as a rem `calc()` expression, keeping the conversion visible. */
+const rem = (px) => `calc(${px} / 16 * 1rem)`;
 
 /** Ready-to-use media conditions for `next/image` `sizes` strings. */
 export const media = {
-  smallPhoneAndDown: `(max-width: ${breakpoints.smallPhoneAndDown})`,
-  phoneAndDown: `(max-width: ${breakpoints.phoneAndDown})`,
-  tabletAndDown: `(max-width: ${breakpoints.tabletAndDown})`,
-  laptopAndDown: `(max-width: ${breakpoints.laptopAndDown})`,
+  smallPhoneAndDown: `(max-width: ${rem(breakpoints.smallPhoneAndDown)})`,
+  phoneAndDown: `(max-width: ${rem(breakpoints.phoneAndDown)})`,
+  tabletAndDown: `(max-width: ${rem(breakpoints.tabletAndDown)})`,
+  laptopAndDown: `(max-width: ${rem(breakpoints.laptopAndDown)})`,
 };

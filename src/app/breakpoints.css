@@ -11,9 +11,9 @@
  *
  * See README.md for the breakpoint reference.
  */
-@custom-media --small-phone-and-down (max-width: 25rem); /* 400 / 16 */
-@custom-media --phone-and-down (max-width: 37.5rem); /* 600 / 16 */
-@custom-media --tablet-and-down (max-width: 59.375rem); /* 950 / 16 */
-@custom-media --laptop-and-down (max-width: 81.25rem); /* 1300 / 16 */
+@custom-media --small-phone-and-down (max-width: calc(400 / 16 * 1rem));
+@custom-media --phone-and-down (max-width: calc(600 / 16 * 1rem));
+@custom-media --tablet-and-down (max-width: calc(950 / 16 * 1rem));
+@custom-media --laptop-and-down (max-width: calc(1300 / 16 * 1rem));
 
-@custom-media --tablet-and-up (min-width: 59.375rem); /* 950 / 16 */
+@custom-media --tablet-and-up (min-width: calc(950 / 16 * 1rem));

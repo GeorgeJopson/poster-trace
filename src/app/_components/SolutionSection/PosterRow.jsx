@@ -12,8 +12,8 @@ const imageScale475 = 0.4;
 const imageScale435 = 0.3;
 
 const imageSizes = `
-  (max-width: 27.1875rem) ${posterSize * imageScale435}px,
-  (max-width: 29.6875rem) ${posterSize * imageScale475}px,
+  (max-width: calc(435 / 16 * 1rem)) ${posterSize * imageScale435}px,
+  (max-width: calc(475 / 16 * 1rem)) ${posterSize * imageScale475}px,
   ${media.tabletAndDown} ${posterSize * imageScaleTablet}px,
   ${media.laptopAndDown} ${posterSize * imageScaleLaptop}px,
   ${posterSize * imageScaleDefault}px
