@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from "@/components/Button";
 import Image from "next/image";
-import {rightArrowIcon} from "../../../public/imageDetails";
+import {rightArrowIcon} from "../../../../public/imageDetails";
 import styles from "./HeaderButtonGroup.module.css";
 
 export default function HeaderButtonGroup() {

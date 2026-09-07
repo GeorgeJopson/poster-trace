@@ -1,9 +1,9 @@
 import React from 'react';
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
-import ProblemCard from "@/components/ProblemSection/ProblemCard";
+import ProblemCard from "@/app/_components/ProblemSection/ProblemCard";
 import Image from "next/image";
-import {clipboardIcon, databaseIcon, mapIcon} from "../../../public/imageDetails";
+import {clipboardIcon, databaseIcon, mapIcon} from "../../../../public/imageDetails";
 import styles from "./ProblemSection.module.css";
 
 export default function ProblemSection() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from "next/image";
-import {posterSize} from "@/components/Hero/PosterWrapperConstants";
-import {stockPoster1, stockPoster2, stockPoster3} from "../../../public/imageDetails";
+import {posterSize} from "@/app/_components/Hero/PosterWrapperConstants";
+import {stockPoster1, stockPoster2, stockPoster3} from "../../../../public/imageDetails";
 import styles from "./PosterFan.module.css";
 
 const imageSmallerScale = 0.8;

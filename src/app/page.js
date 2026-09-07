@@ -1,11 +1,11 @@
 import NavBar from "@/components/NavBar";
 
 import React from "react";
-import Hero from "@/components/Hero";
-import ProblemSection from "@/components/ProblemSection";
-import SolutionSection from "@/components/SolutionSection";
-import AnalyticsSection from "@/components/AnalyticsSection";
-import CallToAction from "@/components/CallToAction";
+import Hero from "@/app/_components/Hero";
+import ProblemSection from "@/app/_components/ProblemSection";
+import SolutionSection from "@/app/_components/SolutionSection";
+import AnalyticsSection from "@/app/_components/AnalyticsSection";
+import CallToAction from "@/app/_components/CallToAction";
 import Footer from "@/components/Footer";
 
 export default function Home() {

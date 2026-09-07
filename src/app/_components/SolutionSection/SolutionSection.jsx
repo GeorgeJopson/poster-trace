@@ -1,8 +1,8 @@
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
 import React from "react";
-import List from "@/components/SolutionSection/List";
-import PosterRow from "@/components/SolutionSection/PosterRow";
+import List from "@/app/_components/SolutionSection/List";
+import PosterRow from "@/app/_components/SolutionSection/PosterRow";
 import styles from "./SolutionSection.module.css";
 
 export default function SolutionSection() {

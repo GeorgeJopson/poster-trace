@@ -1,9 +1,9 @@
 import React from 'react';
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
-import PosterFan from "@/components/Hero/PosterFan";
-import HeaderContent from "@/components/Hero/HeaderContent";
-import PosterRow from "@/components/Hero/PosterRow";
+import PosterFan from "@/app/_components/Hero/PosterFan";
+import HeaderContent from "@/app/_components/Hero/HeaderContent";
+import PosterRow from "@/app/_components/Hero/PosterRow";
 import styles from "./Hero.module.css";
 
 

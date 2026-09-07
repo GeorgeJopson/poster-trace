@@ -1,7 +1,7 @@
 import React from 'react';
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
-import {areaChartImage, lineChartImage, mapChartImage} from "../../../public/imageDetails";
+import {areaChartImage, lineChartImage, mapChartImage} from "../../../../public/imageDetails";
 import Image from "next/image";
 import Header from "@/components/Header";
 import styles from "./AnalyticsSection.module.css";

@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from "next/image";
-import {posterSize} from "@/components/Hero/PosterWrapperConstants";
-import {stockPoster5, stockPoster6, stockPoster7} from "../../../public/imageDetails";
+import {posterSize} from "@/app/_components/Hero/PosterWrapperConstants";
+import {stockPoster5, stockPoster6, stockPoster7} from "../../../../public/imageDetails";
 import styles from "./PosterRow.module.css";
 
 const imageScaleDefault = 0.8;

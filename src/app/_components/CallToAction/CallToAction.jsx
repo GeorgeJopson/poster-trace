@@ -1,7 +1,7 @@
 import React from 'react';
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
-import SignUpNowBtn from "@/components/CallToAction/SignUpNowBtn";
+import SignUpNowBtn from "@/app/_components/CallToAction/SignUpNowBtn";
 import styles from "./CallToAction.module.css";
 
 export default function CallToAction() {
