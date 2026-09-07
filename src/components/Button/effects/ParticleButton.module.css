@@ -1,0 +1,30 @@
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+          to right,
+          transparent,
+          hsl(142deg 100% 90%),
+          transparent
+  );
+  opacity: 0.5;
+
+  animation: shimmer forwards 1000ms;
+}
+
+.particleBtn {
+  position: relative;
+  overflow: hidden;
+  border:none;
+}

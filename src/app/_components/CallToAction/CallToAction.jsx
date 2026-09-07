@@ -1,8 +1,8 @@
 import React from 'react';
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
-import SignUpNowBtn from "@/app/_components/CallToAction/SignUpNowBtn";
 import styles from "./CallToAction.module.css";
+import Button from "@/components/Button";
 
 export default function CallToAction() {
   return (
@@ -13,7 +13,9 @@ export default function CallToAction() {
             <div className={styles.boxHeader}>
               Take the guess work out of your posters.
             </div>
-            <SignUpNowBtn>Sign Up Now</SignUpNowBtn>
+            <div className={styles.btnWrapper}>
+              <Button type={"filledWithOutline"} fontSize={"var(--btn-font-size)"}>Sign Up Now</Button>
+            </div>
           </div>
         </div>
       </CentralColumn>
