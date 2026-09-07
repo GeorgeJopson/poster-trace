@@ -23,13 +23,13 @@ function AnalyticsSection() {
             <div className={styles.card} style={{minWidth: `${260 + 12 * 2}px`}}>
               <p className={styles.cardText}>Gather A/B poster test results, so you can understand how different designs are performing with your audience.</p>
               <div className={styles.imageCard}>
-                <Image src={areaChartImage.src} alt={areaChartImage.alt} width={328} height={192}/>
+                <Image src={areaChartImage.src} alt={areaChartImage.alt} width={260} height={192}/>
               </div>
             </div>
             <div className={styles.card} style={{minWidth: `${260 + 12 * 2}px`}}>
               <p className={styles.cardText}>Find out which areas are hotspots where your posters perform the best.</p>
               <div className={styles.imageCard}>
-                <Image src={mapChartImage.src} alt={mapChartImage.alt} width={270} height={192}/>
+                <Image src={mapChartImage.src} alt={mapChartImage.alt} width={260} height={192}/>
               </div>
             </div>
           </div>
