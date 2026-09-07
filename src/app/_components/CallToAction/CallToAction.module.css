@@ -25,12 +25,12 @@
   --btn-font-size: var(--font-size-title);
 }
 
-@media (min-width: 59.375rem) {
+@media (--tablet-and-up) {
   .btnWrapper {
     --btn-font-size: 4rem;
   }
 }
-@media (max-width: 25rem) {
+@media (--small-phone-and-down) {
   .btnWrapper {
     --btn-font-size: 2rem;
   }

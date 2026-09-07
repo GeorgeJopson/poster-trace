@@ -2,10 +2,11 @@ import React from 'react';
 import Image from "next/image";
 import {posterSize} from "@/app/_components/Hero/PosterWrapperConstants";
 import {stockPoster1, stockPoster2, stockPoster3} from "../../../../public/imageDetails";
+import {media} from "@/breakpoints";
 import styles from "./PosterFan.module.css";
 
 const imageSmallerScale = 0.8;
-const imageSizes = `(max-width: 81.25rem) ${posterSize*imageSmallerScale}px, ${posterSize}px`;
+const imageSizes = `${media.laptopAndDown} ${posterSize*imageSmallerScale}px, ${posterSize}px`;
 
 export default function PosterFan() {
   return (

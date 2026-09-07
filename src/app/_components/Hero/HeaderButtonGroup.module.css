@@ -5,7 +5,7 @@
   width: var(--image-size);
   height: var(--image-size);
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   .inlineImage {
     --image-size: 1.3rem;
   }
@@ -24,7 +24,7 @@
   --signup-btn-size: 2.25rem;
   --learn-more-btn-size: 2rem;
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   .buttonWrapper {
     gap: 16px;
     --signup-btn-size: 1.4625rem;

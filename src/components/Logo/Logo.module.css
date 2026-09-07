@@ -16,7 +16,7 @@
   font-weight: bold;
   font-family: var(--font-nunito), sans-serif;
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   .logoTitle {
     display: none;
   }

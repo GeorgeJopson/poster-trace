@@ -2,6 +2,7 @@ import React from 'react';
 import Image from "next/image";
 import {posterSize} from "@/app/_components/Hero/PosterWrapperConstants";
 import {stockPoster5, stockPoster6, stockPoster7} from "../../../../public/imageDetails";
+import {media} from "@/breakpoints";
 import styles from "./PosterRow.module.css";
 
 const imageScaleDefault = 0.8;
@@ -13,8 +14,8 @@ const imageScale435 = 0.3;
 const imageSizes = `
   (max-width: 27.1875rem) ${posterSize * imageScale435}px,
   (max-width: 29.6875rem) ${posterSize * imageScale475}px,
-  (max-width: 59.375rem) ${posterSize * imageScaleTablet}px,
-  (max-width: 81.25rem) ${posterSize * imageScaleLaptop}px,
+  ${media.tabletAndDown} ${posterSize * imageScaleTablet}px,
+  ${media.laptopAndDown} ${posterSize * imageScaleLaptop}px,
   ${posterSize * imageScaleDefault}px
 `;
 

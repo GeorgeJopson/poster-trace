@@ -281,25 +281,25 @@ h1, h2, h3, h4, h5, h6 {
   --font-size-body: 1rem;
 }
 
-@media (max-width: 81.25rem) {
+@media (--laptop-and-down) {
   :root{
     --font-size-title: 4rem;
     --font-size-header: 3rem;
   }
 }
-@media (max-width: 59.375rem) {
+@media (--tablet-and-down) {
   :root{
     --font-size-title: 3rem;
     --font-size-header: 2rem;
   }
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   :root{
     --font-size-title: 2.5rem;
     --font-size-important-body: 1rem;
   }
 }
-@media (max-width: 25rem) {
+@media (--small-phone-and-down) {
   :root{
     --font-size-title: 2rem;
     --font-size-header: 1.5rem;

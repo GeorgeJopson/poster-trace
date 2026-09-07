@@ -16,12 +16,12 @@
   z-index: 1;
   scale: 1.01;
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   .posterWrapper {
     --scale-factor: 0.4;
   }
 }
-@media (max-width: 25rem) {
+@media (--small-phone-and-down) {
   .posterWrapper {
     --scale-factor: 0.35;
   }

@@ -3,7 +3,7 @@
   padding-bottom: 32px;
   isolation: isolate;
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   .solutionSection {
     padding-bottom: 16px;
   }
@@ -22,7 +22,7 @@
 .textColumn {
   min-width: 21.25rem;
 }
-@media (max-width: 37.5rem) {
+@media (--phone-and-down) {
   .textColumn {
     min-width: 18rem;
   }
@@ -31,7 +31,7 @@
 .imageColumn {
   flex: 1.5;
 }
-@media (max-width: 25rem) {
+@media (--small-phone-and-down) {
   .imageColumn {
     display: none;
   }
