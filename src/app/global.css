@@ -274,4 +274,32 @@ h1, h2, h3, h4, h5, h6 {
           11.2px 22.3px 28.1px -1.8px hsl(var(--shadow-color) / 0.34),
           17px 33.9px 42.7px -2.1px hsl(var(--shadow-color) / 0.34),
           25px 50px 62.9px -2.5px hsl(var(--shadow-color) / 0.34);
+
+  --font-size-title: 4.5rem;
+  --font-size-header: 3.75rem;
+  --font-size-text: 1rem;
+}
+
+@media (max-width: 81.25rem) {
+  :root{
+    --font-size-title: 3.75rem;
+    --font-size-header: 3rem;
+  }
+}
+@media (max-width: 59.375rem) {
+  :root{
+    --font-size-title: 3rem;
+    --font-size-header: 2rem;
+  }
+}
+@media (max-width: 37.5rem) {
+  :root{
+    --font-size-title: 2rem;
+    --font-size-header: 1.5rem;
+  }
+}
+@media (max-width: 25rem) {
+  :root{
+    --font-size-title: 1.5rem;
+  }
 }
