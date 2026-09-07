@@ -276,14 +276,14 @@ h1, h2, h3, h4, h5, h6 {
           25px 50px 62.9px -2.5px hsl(var(--shadow-color) / 0.34);
 
   --font-size-title: 4.5rem;
-  --font-size-header: 3.75rem;
+  --font-size-header: 4rem;
   --font-size-important-body: 1.5rem;
   --font-size-body: 1rem;
 }
 
 @media (max-width: 81.25rem) {
   :root{
-    --font-size-title: 3.75rem;
+    --font-size-title: 4rem;
     --font-size-header: 3rem;
   }
 }
@@ -295,13 +295,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 37.5rem) {
   :root{
-    --font-size-title: 2rem;
-    --font-size-header: 1.5rem;
+    --font-size-title: 2.5rem;
     --font-size-important-body: 1rem;
   }
 }
 @media (max-width: 25rem) {
   :root{
-    --font-size-title: 1.5rem;
+    --font-size-title: 2rem;
+    --font-size-header: 1.5rem;
   }
 }
