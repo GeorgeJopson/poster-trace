@@ -3,7 +3,8 @@ import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
 import PosterFan from "@/app/_components/Hero/PosterFan";
 import HeaderContent from "@/app/_components/Hero/HeaderContent";
-import PosterRow from "@/app/_components/Hero/PosterRow";
+import PosterRow from "@/components/PosterRow";
+import { stockPosters } from "@/imageDetails";
 import styles from "./Hero.module.css";
 
 
@@ -21,7 +22,7 @@ function Hero() {
           </header>
 
           <div className={styles.posterRowSection}>
-            <PosterRow/>
+            <PosterRow variant="compact" posters={stockPosters.slice(1, 4)}/>
           </div>
 
         </div>

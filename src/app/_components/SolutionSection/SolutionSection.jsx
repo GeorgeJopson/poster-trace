@@ -2,7 +2,8 @@ import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
 import React from "react";
 import List from "@/app/_components/SolutionSection/List";
-import PosterRow from "@/app/_components/SolutionSection/PosterRow";
+import PosterRow from "@/components/PosterRow";
+import { stockPosters } from "@/imageDetails";
 import styles from "./SolutionSection.module.css";
 
 export default function SolutionSection() {
@@ -12,7 +13,7 @@ export default function SolutionSection() {
         <div className={styles.columnLayoutWrapper}>
 
           <div className={`${styles.column} ${styles.imageColumn}`}>
-            <PosterRow/>
+            <PosterRow variant="showcase" posters={stockPosters.slice(4, 7)}/>
           </div>
           <div className={`${styles.column} ${styles.textColumn}`}>
             <Header type={"heading"} className={styles.solutionHeader}>The&nbsp;Solution</Header>

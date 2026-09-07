@@ -1,42 +1,34 @@
 import React from 'react';
 import Image from "next/image";
-import {posterSize} from "@/app/_components/Hero/PosterWrapperConstants";
-import {stockPoster1, stockPoster2, stockPoster3} from "../../../../public/imageDetails";
-import {media} from "@/breakpoints";
+import { stockPosters } from "@/imageDetails";
+import { posterSize } from "@/components/PosterRow";
+import { media } from "@/breakpoints";
 import styles from "./PosterFan.module.css";
 
 const imageSmallerScale = 0.8;
-const imageSizes = `${media.laptopAndDown} ${posterSize*imageSmallerScale}px, ${posterSize}px`;
+const imageSizes = `${media.laptopAndDown} ${posterSize * imageSmallerScale}px, ${posterSize}px`;
+
+// Ordered back-to-front so later posters stack on top; the outer two are hidden
+// on small screens.
+const fanPosters = [
+  { poster: stockPosters[2], className: `${styles.largeScreens} ${styles.posterThree}` },
+  { poster: stockPosters[1], className: `${styles.largeScreens} ${styles.posterTwo}` },
+  { poster: stockPosters[0], className: styles.posterOne },
+];
 
 export default function PosterFan() {
   return (
     <div className={styles.wrapper}>
-      <div className={`${styles.posterWrapper} ${styles.largeScreens} ${styles.posterThree}`}>
-        <Image
-          src={stockPoster3.src}
-          alt={stockPoster3.alt}
-          fill
-          sizes={imageSizes}
-        />
-      </div>
-
-      <div className={`${styles.posterWrapper} ${styles.largeScreens} ${styles.posterTwo}`}>
-        <Image
-          src={stockPoster2.src}
-          alt={stockPoster2.alt}
-          fill
-          sizes={imageSizes}
-        />
-      </div>
-
-      <div className={`${styles.posterWrapper} ${styles.posterOne}`}>
-        <Image
-          src={stockPoster1.src}
-          alt={stockPoster1.alt}
-          fill
-          sizes={imageSizes}
-        />
-      </div>
+      {fanPosters.map(({ poster, className }) => (
+        <div key={poster.src} className={`${styles.posterWrapper} ${className}`}>
+          <Image
+            src={poster.src}
+            alt={poster.alt}
+            fill
+            sizes={imageSizes}
+          />
+        </div>
+      ))}
     </div>
   );
 }
