@@ -7,7 +7,7 @@ import styles from "./SolutionSection.module.css";
 
 export default function SolutionSection() {
   return (
-    <section className={styles.solutionSection}>
+    <section className={styles.solutionSection} aria-label="The solution">
       <CentralColumn>
         <div className={styles.columnLayoutWrapper}>
 

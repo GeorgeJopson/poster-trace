@@ -6,13 +6,13 @@ import Button from "@/components/Button";
 
 export default function CallToAction() {
   return (
-    <ContentGroup>
+    <ContentGroup as="section" aria-label="Get started">
       <CentralColumn>
         <div className={styles.callToActionWrapper}>
           <div className={styles.box}>
-            <div className={styles.boxHeader}>
+            <h2 className={styles.boxHeader}>
               Take the guess work out of your posters.
-            </div>
+            </h2>
             <div className={styles.btnWrapper}>
               <Button type={"filledWithOutline"} fontSize={"var(--btn-font-size)"}>Sign Up Now</Button>
             </div>

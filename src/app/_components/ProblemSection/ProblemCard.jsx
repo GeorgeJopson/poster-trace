@@ -3,7 +3,7 @@ import styles from "./ProblemCard.module.css";
 
 export default function ProblemCard({icon, title, children}) {
   return (
-    <div className={styles.problemCardWrapper}>
+    <li className={styles.problemCardWrapper}>
       <div className={styles.problemCardIcon}>
         {icon}
       </div>
@@ -11,6 +11,6 @@ export default function ProblemCard({icon, title, children}) {
         <h3 className={styles.problemCardTitle}>{title}:</h3>
         <p className={styles.problemCardContent}>{children}</p>
       </div>
-    </div>
+    </li>
   );
 }

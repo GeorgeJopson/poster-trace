@@ -3,6 +3,7 @@
 }
 
 .problemCardGroup {
+  list-style: none;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -10,5 +11,5 @@
   gap: 16px;
   row-gap: 16px;
   align-items: stretch;
-  padding-top: 16px;
+  padding: 16px 0 0;
 }

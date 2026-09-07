@@ -6,7 +6,7 @@ import styles from "./NavBar.module.css";
 
 export default function NavBar() {
   return (
-    <div className={styles.navBarWrapper}>
+    <nav className={styles.navBarWrapper} aria-label="Primary">
       <CentralColumn>
         <div className={styles.contentWrapper}>
           <Logo/>
@@ -16,6 +16,6 @@ export default function NavBar() {
           </div>
         </div>
       </CentralColumn>
-    </div>
+    </nav>
   );
 }

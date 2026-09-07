@@ -19,6 +19,7 @@
   line-height: 1.2;
 
   font-size: var(--font-size-title);
+  font-weight: 400;
 }
 
 .btnWrapper{

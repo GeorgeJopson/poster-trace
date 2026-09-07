@@ -9,7 +9,7 @@ import styles from "./Hero.module.css";
 
 function Hero() {
   return (
-    <ContentGroup className={styles.wrapper}>
+    <ContentGroup as="section" aria-label="Overview" className={styles.wrapper}>
       <CentralColumn>
         <div className={styles.contentWrapper}>
 
