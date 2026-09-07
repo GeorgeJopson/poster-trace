@@ -2,31 +2,37 @@ import React from 'react';
 import styles from "./Header.module.css";
 import {crypto} from "next/dist/compiled/@edge-runtime/primitives";
 
+function convertLineStringToElements(line) {
+  const words = line.split(" ");
+
+  let outputLine = []
+  for (const word of words) {
+    outputLine.push(
+      <div className={styles.word} key={crypto.randomUUID()}>
+        {Array.from(word).map(
+          (character, index) => <span className={styles.character} key={index}>{character}</span>)
+        }
+      </div>
+    )
+    outputLine.push(<span key={crypto.randomUUID()}>&nbsp;</span>);
+  }
+  outputLine.pop();
+  return <div className={styles.line} key={crypto.randomUUID()}>{outputLine}</div>;
+}
+
 export default function Header({children, type, className}){
   let output = [];
-  console.log(children)
-  for (const line of children){
-    if(typeof line === "string"){
-      const words = line.split(" ");
-
-      let outputLine = []
-      for (const word of words){
-        outputLine.push(
-          <div className={styles.word} key={crypto.randomUUID()}>
-            {Array.from(word).map(
-              (character,index)=><span className={styles.character} key={index}>{character}</span>)
-              }
-          </div>
-        )
-        outputLine.push(<span key={crypto.randomUUID()}>&nbsp;</span>);
+  if(typeof children === "string"){
+    output.push(convertLineStringToElements(children));
+  }else if (Array.isArray(children)){
+    for (const line of children){
+      if(typeof line === "string"){
+        output.push(convertLineStringToElements(line))
       }
-      outputLine.pop();
-
-      output.push(<div className={styles.line} key={crypto.randomUUID()}>{outputLine}</div>)
     }
+  }else{
+    throw new Error(`Unexpected type "${type}" for "${children}"`);
   }
-
-
 
   let Element;
   let wrapperClass;
