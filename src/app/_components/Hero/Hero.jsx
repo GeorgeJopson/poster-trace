@@ -22,7 +22,7 @@ function Hero() {
           </header>
 
           <div className={styles.posterRowSection}>
-            <PosterRow variant="compact" posters={stockPosters.slice(1, 4)}/>
+            <PosterRow variant="compact" eager posters={stockPosters.slice(1, 4)}/>
           </div>
 
         </div>

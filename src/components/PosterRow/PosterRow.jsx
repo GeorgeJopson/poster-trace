@@ -28,8 +28,9 @@ const sizesByVariant = {
  *
  * @param posters  array of `{ src, alt }` (a slice of `stockPosters`), rendered in order
  * @param variant  `"compact"` (default) or `"showcase"` — sets image sizing and wrapping
+ * @param eager    load the images immediately instead of lazily; set when the row is above the fold
  */
-export default function PosterRow({ posters, variant = "compact" }) {
+export default function PosterRow({ posters, variant = "compact", eager = false }) {
   return (
     <div className={`${styles.wrapper} ${styles[variant]}`}>
       {posters.map((poster, index) => (
@@ -37,7 +38,13 @@ export default function PosterRow({ posters, variant = "compact" }) {
           key={poster.src}
           className={`${styles.posterWrapper} ${rotationClasses[index % rotationClasses.length]}`}
         >
-          <Image src={poster.src} alt={poster.alt} fill sizes={sizesByVariant[variant]} />
+          <Image
+            src={poster.src}
+            alt={poster.alt}
+            fill
+            sizes={sizesByVariant[variant]}
+            loading={eager ? "eager" : undefined}
+          />
         </div>
       ))}
     </div>

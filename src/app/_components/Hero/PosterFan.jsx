@@ -22,6 +22,7 @@ export default function PosterFan() {
       {fanPosters.map(({ poster, className }) => (
         <div key={poster.src} className={`${styles.posterWrapper} ${className}`}>
           <Image
+            loading="eager"
             src={poster.src}
             alt={poster.alt}
             fill
