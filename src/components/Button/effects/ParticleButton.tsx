@@ -6,7 +6,13 @@ import BaseButton from "../BaseButton";
 const SHIMMER_DURATION_MS = 1000;
 const SHIMMER_CLEANUP_MS = SHIMMER_DURATION_MS + 200;
 
-export default function ParticleButton({children, className, fontSize, ...props}:{children:React.ReactNode, className?:string, fontSize?:string}) {
+type ParticleButtonProps = {
+  children: React.ReactNode;
+  className?: string;
+  fontSize?: string;
+};
+
+export default function ParticleButton({children, className, fontSize, ...props}: ParticleButtonProps) {
   const [shimmerIds, setShimmerIds] = React.useState<Array<string>>([]);
 
   React.useEffect(() => {

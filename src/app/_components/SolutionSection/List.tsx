@@ -1,7 +1,11 @@
 import React from "react";
 import styles from "./List.module.css";
 
-export default function List({children}:{children:Array<React.ReactNode>}) {
+type ListProps = {
+  children: Array<React.ReactNode>;
+};
+
+export default function List({children}: ListProps) {
     if(!children) return null;
   return (
       <ol className={styles.listWrapper}>

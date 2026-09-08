@@ -6,7 +6,11 @@ const VARIANT_ELEMENTS = {
   heading: "h2",
 } as const;
 
-function HeaderLine({ text } : {text: string }) : React.ReactElement {
+type HeaderLineProps = {
+  text: string;
+};
+
+function HeaderLine({ text } : HeaderLineProps) : React.ReactElement {
   const words = text.split(" ");
 
   return (
@@ -23,7 +27,13 @@ function HeaderLine({ text } : {text: string }) : React.ReactElement {
   );
 }
 
-export default function Header({ children, variant = "heading", className } : {children:string, variant:"title"|"heading", className?: string }) {
+type HeaderProps = {
+  children: string;
+  variant: "title" | "heading";
+  className?: string;
+};
+
+export default function Header({ children, variant = "heading", className } : HeaderProps) {
   if (typeof children !== "string") {
     throw new Error(
       `Header expects a single string child; break lines with "\\n". Received ${typeof children}.`

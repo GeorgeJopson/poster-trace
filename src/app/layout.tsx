@@ -43,7 +43,11 @@ const nunito = Nunito({
   fallback: ['sans-serif'],
 });
 
-export default function RootLayout({ children } : { children: React.ReactNode }) {
+type RootLayoutProps = {
+  children: React.ReactNode;
+};
+
+export default function RootLayout({ children } : RootLayoutProps) {
   return (
     <html lang="en-GB" className={`${bungee.variable} ${nunito.variable}`}>
       <body>
