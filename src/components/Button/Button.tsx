@@ -11,8 +11,6 @@ const VARIANTS = {
   transparent:       {className: styles.transparent,       particles: false, shrink: true},
 } as const;
 
-const FALLBACK = {className: styles.filled, particles: false, shrink: true};
-
 type ButtonVariant = "filled" | "filledWithOutline" | "outline" | "transparent";
 
 type ButtonProps = {
@@ -23,7 +21,7 @@ type ButtonProps = {
 };
 
 export default function Button({children, variant, fontSize, href,...props}: ButtonProps) {
-  const {className, particles, shrink} = VARIANTS[variant] ?? FALLBACK;
+  const {className, particles, shrink} = VARIANTS[variant];
 
   const ButtonImplementation = particles ? ParticleButton : BaseButton;
 

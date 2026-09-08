@@ -43,9 +43,9 @@ const nunito = Nunito({
   fallback: ['sans-serif'],
 });
 
-type RootLayoutProps = {
+type RootLayoutProps = Readonly<{
   children: React.ReactNode;
-};
+}>;
 
 export default function RootLayout({ children } : RootLayoutProps) {
   return (

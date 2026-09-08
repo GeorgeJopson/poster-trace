@@ -34,17 +34,7 @@ type HeaderProps = {
 };
 
 export default function Header({ children, variant = "heading", className } : HeaderProps) {
-  if (typeof children !== "string") {
-    throw new Error(
-      `Header expects a single string child; break lines with "\\n". Received ${typeof children}.`
-    );
-  }
-
   const Element = VARIANT_ELEMENTS[variant];
-  if (!Element) {
-    throw new Error(`Unknown Header variant "${variant}".`);
-  }
-
   const combinedClassName = [styles.base, styles[variant], className].filter(Boolean).join(" ");
 
   return (

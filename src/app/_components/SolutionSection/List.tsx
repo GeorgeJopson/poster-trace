@@ -9,7 +9,7 @@ export default function List({children}: ListProps) {
     if(!children) return null;
   return (
       <ol className={styles.listWrapper}>
-        {React.Children.toArray(children).map((child:React.ReactNode, index:number) =>
+        {React.Children.toArray(children).map((child, index) =>
           <li className={styles.listItem} key={index}>
             <span className={styles.listItemContent}>
               {child}
