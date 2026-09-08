@@ -1,10 +1,15 @@
 import React from "react";
 import styles from "./List.module.css";
 
-export default function List({children}) {
+type ListProps = {
+  children: React.ReactNode;
+};
+
+export default function List({children}: ListProps) {
+    if(!children) return null;
   return (
       <ol className={styles.listWrapper}>
-        {children.map((child, index) =>
+        {React.Children.toArray(children).map((child, index) =>
           <li className={styles.listItem} key={index}>
             <span className={styles.listItemContent}>
               {child}

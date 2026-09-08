@@ -6,7 +6,7 @@ import styles from "./PosterRow.module.css";
 /** Intrinsic width (px) of a poster; its height follows the ISO-216 ratio. */
 export const posterSize = 256;
 
-const rotationClasses = [styles.poster1, styles.poster2, styles.poster3];
+const rotationClasses = [styles.poster1, styles.poster2, styles.poster3] as const;
 
 const sizesByVariant = {
   compact: `
@@ -21,7 +21,7 @@ const sizesByVariant = {
     ${media.laptopAndDown} ${posterSize * 0.65}px,
     ${posterSize * 0.8}px
   `,
-};
+} as const;
 
 /**
  * A row of slightly-rotated poster images.
@@ -30,7 +30,17 @@ const sizesByVariant = {
  * @param variant  `"compact"` (default) or `"showcase"` — sets image sizing and wrapping
  * @param eager    load the images immediately instead of lazily; set when the row is above the fold
  */
-export default function PosterRow({ posters, variant = "compact", eager = false }) {
+type PosterInfo = {
+    src: string;
+    alt: string;
+}
+type PosterRowProps = {
+    posters: PosterInfo[];
+    variant: "compact" | "showcase";
+    eager?: boolean;
+}
+
+export default function PosterRow({ posters, variant = "compact", eager = false }:PosterRowProps) {
   return (
     <div className={`${styles.wrapper} ${styles[variant]}`}>
       {posters.map((poster, index) => (

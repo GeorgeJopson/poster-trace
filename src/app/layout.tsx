@@ -1,10 +1,12 @@
 import "./global.css";
 import {Nunito, Bungee} from "next/font/google";
+import type { Metadata } from 'next'
+import React from "react";
 
 const description =
   "Gain actionable insights to effortlessly manage poster campaigns. Generate flyers, and track exactly when/where they are interacted with.";
 
-export const metadata = {
+export const metadata : Metadata = {
   metadataBase: new URL("https://www.postertrace.app"),
   title: {
     default: "PosterTrace",
@@ -41,7 +43,11 @@ const nunito = Nunito({
   fallback: ['sans-serif'],
 });
 
-export default function RootLayout({ children }) {
+type RootLayoutProps = Readonly<{
+  children: React.ReactNode;
+}>;
+
+export default function RootLayout({ children } : RootLayoutProps) {
   return (
     <html lang="en-GB" className={`${bungee.variable} ${nunito.variable}`}>
       <body>
