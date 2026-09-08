@@ -23,7 +23,7 @@ function HeaderLine({ text } : {text: string }) : React.ReactElement {
   );
 }
 
-export default function Header({ children, variant = "heading", className } : {children:string, variant:"title"|"heading", className: string }) {
+export default function Header({ children, variant = "heading", className } : {children:string, variant:"title"|"heading", className?: string }) {
   if (typeof children !== "string") {
     throw new Error(
       `Header expects a single string child; break lines with "\\n". Received ${typeof children}.`

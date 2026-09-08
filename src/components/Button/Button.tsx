@@ -13,7 +13,7 @@ const VARIANTS = {
 
 const FALLBACK = {className: styles.filled, particles: false, shrink: true};
 
-export default function Button({children, variant, fontSize, ...props}:{children?: React.ReactNode, variant:"filled" | "filledWithOutline" |"outline" | "transparent", fontSize:number}) {
+export default function Button({children, variant, fontSize, href,...props}:{children?: React.ReactNode, variant:"filled" | "filledWithOutline" |"outline" | "transparent", fontSize:string, href?:string}) {
   const {className, particles, shrink} = VARIANTS[variant] ?? FALLBACK;
 
   const ButtonImplementation = particles ? ParticleButton : BaseButton;

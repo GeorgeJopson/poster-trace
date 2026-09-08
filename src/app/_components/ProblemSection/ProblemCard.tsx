@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "./ProblemCard.module.css";
 
-export default function ProblemCard({icon, title, children}) {
+export default function ProblemCard({icon, title, children}:{icon:React.ReactElement,title:string, children:string}) {
   return (
     <li className={styles.problemCardWrapper}>
       <div className={styles.problemCardIcon}>
