@@ -4,9 +4,9 @@ import styles from "./Header.module.css";
 const VARIANT_ELEMENTS = {
   title: "h1",
   heading: "h2",
-};
+} as const;
 
-function HeaderLine({ text }) {
+function HeaderLine({ text } : {text: string }) : React.ReactElement {
   const words = text.split(" ");
 
   return (
@@ -23,7 +23,7 @@ function HeaderLine({ text }) {
   );
 }
 
-export default function Header({ children, variant = "heading", className }) {
+export default function Header({ children, variant = "heading", className } : {children:string, variant:"title"|"heading", className: string }) {
   if (typeof children !== "string") {
     throw new Error(
       `Header expects a single string child; break lines with "\\n". Received ${typeof children}.`
