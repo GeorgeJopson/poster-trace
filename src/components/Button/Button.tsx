@@ -28,7 +28,7 @@ export default function Button({children, variant, fontSize, href,...props}: But
   const ButtonImplementation = particles ? ParticleButton : BaseButton;
 
   const button = (
-    <ButtonImplementation className={className} fontSize={fontSize} {...props}>
+    <ButtonImplementation className={className} fontSize={fontSize} href={href} {...props}>
       {children}
     </ButtonImplementation>
   );

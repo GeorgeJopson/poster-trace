@@ -15,7 +15,7 @@ export const breakpoints = {
 };
 
 /** `px` as a rem `calc()` expression, keeping the conversion visible. */
-const rem = (px) => `calc(${px} / 16 * 1rem)`;
+const rem = (px:number) => `calc(${px} / 16 * 1rem)`;
 
 /** Ready-to-use media conditions for `next/image` `sizes` strings. */
 export const media = {
