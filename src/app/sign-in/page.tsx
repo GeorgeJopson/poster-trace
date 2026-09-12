@@ -1,34 +1,37 @@
 "use client";
 
-import { signIn } from "@/lib/auth-client"; //import the auth client
-
-
+import { useState } from "react";
+import { signIn } from "@/lib/auth-client";
 
 export default function SignIn() {
+    const [isPending, setIsPending] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    async function handleSignIn() {
+        setIsPending(true);
+        setError(null);
+
+        await signIn.social({
+            provider: "google",
+            callbackURL: "/dashboard",
+            errorCallbackURL: "/error",
+            newUserCallbackURL: "/welcome",
+            fetchOptions: {
+                onError: (context) => {
+                    setIsPending(false);
+                    setError(context.error.message || "Something went wrong signing in. Please try again.");
+                },
+            },
+        });
+    }
 
     return (
         <>
             <p>Sign In</p>
-            <button onClick={async ()=>await signIn.social({
-                /**
-                 * The social provider ID
-                 * @example "github", "google", "apple"
-                 */
-                provider: "google",
-                /**
-                 * A URL to redirect after the user authenticates with the provider
-                 * @default "/"
-                 */
-                callbackURL: "/dashboard",
-                /**
-                 * A URL to redirect if an error occurs during the sign in process
-                 */
-                errorCallbackURL: "/error",
-                /**
-                 * A URL to redirect if the user is newly registered
-                 */
-                newUserCallbackURL: "/welcome",
-            })}>Sign In</button>
+            <button onClick={handleSignIn} disabled={isPending}>
+                {isPending ? "Redirecting to Google…" : "Sign In"}
+            </button>
+            {error ? <p role="alert">{error}</p> : null}
         </>
     );
 }
