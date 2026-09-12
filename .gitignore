@@ -42,3 +42,8 @@ next-env.d.ts
 
 # Project
 TODO.md
+/src/generated/prisma
+/.agents/
+/.claude/
+/.windsurf/
+/skills-lock.json
