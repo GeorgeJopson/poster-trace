@@ -1,11 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "@/lib/auth-client";
 
 export default function SignIn() {
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        function handlePageShow(event: PageTransitionEvent) {
+            if (event.persisted) {
+                setIsPending(false);
+            }
+        }
+
+        window.addEventListener("pageshow", handlePageShow);
+        return () => window.removeEventListener("pageshow", handlePageShow);
+    }, []);
 
     async function handleSignIn() {
         setIsPending(true);
