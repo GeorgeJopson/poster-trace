@@ -16,6 +16,24 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Local database
+
+Postgres runs locally via Docker Compose:
+
+```bash
+npm run db:up            # start Postgres (localhost:5432)
+npx prisma migrate deploy # first time only: create the tables
+npm run dev
+```
+
+`DATABASE_URL` in `.env` should be:
+
+```
+postgresql://poster_trace:poster_trace@localhost:5432/poster_trace
+```
+
+Other scripts: `npm run db:down` (stop, keeps data), `npm run db:reset` (wipe volume, restart, re-apply migrations).
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
