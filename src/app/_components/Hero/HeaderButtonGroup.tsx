@@ -21,10 +21,8 @@ export default function HeaderButtonGroup({
       >
         Sign Up
       </Button>
-      {/*  TODO: This should scroll user to the Problem section*/}
       <Button
         variant={"transparent"}
-        href={"/"}
         fontSize={`var(--learn-more-btn-size)`}
         onClick={() => {
           if (scrollToRef.current) {
