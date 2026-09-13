@@ -5,7 +5,7 @@ import { authClient } from "@/lib/auth-client";
 
 import styles from "./SignIn.module.css";
 import Header from "@/components/Header";
-import Button from "@/components/Button";
+import GoogleSignOnButton from "@/app/sign-in/GoogleSignOnButton";
 
 export default function SignIn() {
   const [isPending, setIsPending] = useState(false);
@@ -48,14 +48,7 @@ export default function SignIn() {
       <div className={styles.card}>
         <Header variant={"heading"}>Sign Up / Log In</Header>
         <div className={styles.buttonGroup}>
-          <Button
-            variant={"outline"}
-            fontSize={"2rem"}
-            onClick={handleSignIn}
-            disabled={isPending}
-          >
-            {isPending ? "Redirecting …" : "Sign In with Google"}
-          </Button>
+          <GoogleSignOnButton isPending={isPending} onClick={handleSignIn} />
         </div>
         {error ? <p role="alert">{error}</p> : null}
       </div>
