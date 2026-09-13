@@ -1,12 +1,17 @@
-"use client";
-import { useSession } from "@/lib/auth-client"
-import {redirect} from "next/navigation";
+import { auth } from "@/lib/auth";
 
-export default function DashboardPage() {
-    const { data: session } = useSession()
-    if(session===null){
+import {redirect} from "next/navigation";
+import {headers} from "next/headers";
+
+export default async function DashboardPage() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(!session) {
         redirect("/sign-in")
     }
+
     return (
         <div>
             <p>Dashboard</p>

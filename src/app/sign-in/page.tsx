@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { signIn } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignIn() {
     const [isPending, setIsPending] = useState(false);
@@ -22,7 +22,7 @@ export default function SignIn() {
         setIsPending(true);
         setError(null);
 
-        await signIn.social({
+        await authClient.signIn.social({
             provider: "google",
             callbackURL: "/dashboard",
             errorCallbackURL: "/error",
