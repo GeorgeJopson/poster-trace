@@ -89,30 +89,6 @@ html, body {
   --color-yellow-900: oklch(42.1% 0.095 57.708);
   --color-yellow-950: oklch(28.6% 0.066 53.813);
 
-  --color-blue-50: oklch(97% 0.014 254.604);
-  --color-blue-100: oklch(93.2% 0.032 255.585);
-  --color-blue-200: oklch(88.2% 0.059 254.128);
-  --color-blue-300: oklch(80.9% 0.105 251.813);
-  --color-blue-400: oklch(70.7% 0.165 254.624);
-  --color-blue-500: oklch(62.3% 0.214 259.815);
-  --color-blue-600: oklch(54.6% 0.245 262.881);
-  --color-blue-700: oklch(48.8% 0.243 264.376);
-  --color-blue-800: oklch(42.4% 0.199 265.638);
-  --color-blue-900: oklch(37.9% 0.146 265.522);
-  --color-blue-950: oklch(28.2% 0.091 267.935);
-
-  --color-orange-50: oklch(98% 0.016 73.684);
-  --color-orange-100: oklch(95.4% 0.038 75.164);
-  --color-orange-200: oklch(90.1% 0.076 70.697);
-  --color-orange-300: oklch(83.7% 0.128 66.29);
-  --color-orange-400: oklch(75% 0.183 55.934);
-  --color-orange-500: oklch(70.5% 0.213 47.604);
-  --color-orange-600: oklch(64.6% 0.222 41.116);
-  --color-orange-700: oklch(55.3% 0.195 38.402);
-  --color-orange-800: oklch(47% 0.157 37.304);
-  --color-orange-900: oklch(40.8% 0.123 38.172);
-  --color-orange-950: oklch(26.6% 0.079 36.259);
-
   /* One shadow ramp for every background; only the shadow's colour changes.
      Override --shadow-color on an element (or :root) to re-tint it. */
   --shadow-color: 0deg 0% 63%;
