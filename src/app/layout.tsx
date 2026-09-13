@@ -2,6 +2,8 @@ import "./global.css";
 import {Nunito, Bungee} from "next/font/google";
 import type { Metadata } from 'next'
 import React from "react";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 
 const description =
   "Gain actionable insights to effortlessly manage poster campaigns. Generate flyers, and track exactly when/where they are interacted with.";
@@ -51,7 +53,11 @@ export default function RootLayout({ children } : RootLayoutProps) {
   return (
     <html lang="en-GB" className={`${bungee.variable} ${nunito.variable}`}>
       <body>
-        {children}
+        <NavBar/>
+        <main>
+            {children}
+        </main>
+        <Footer/>
       </body>
     </html>
   );

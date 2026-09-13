@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
     return (
         <div>
-            <p>Dashboard</p>
+            <p>{JSON.stringify(session)}</p>
         </div>
     );
 }

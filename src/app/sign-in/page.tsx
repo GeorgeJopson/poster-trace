@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
+import styles from "./SignIn.module.css";
+import Header from "@/components/Header";
+
 export default function SignIn() {
     const [isPending, setIsPending] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -37,12 +40,14 @@ export default function SignIn() {
     }
 
     return (
-        <>
-            <p>Sign In</p>
-            <button onClick={handleSignIn} disabled={isPending}>
-                {isPending ? "Redirecting to Google…" : "Sign In"}
-            </button>
-            {error ? <p role="alert">{error}</p> : null}
-        </>
+        <div className={styles.wrapper}>
+            <div className={styles.card}>
+                <Header variant={"heading"}>Sign Up / Log In</Header>
+                <button onClick={handleSignIn} disabled={isPending}>
+                    {isPending ? "Redirecting to Google…" : "Sign In"}
+                </button>
+                {error ? <p role="alert">{error}</p> : null}
+            </div>
+        </div>
     );
 }
