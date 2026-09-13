@@ -1,4 +1,8 @@
-.wrapper {
+.wrapper{
+  border-top: 2px solid var(--color-green-800);
+}
+
+.linkWrapper {
   display: flex;
   flex-direction: column;
   padding: 16px 0;

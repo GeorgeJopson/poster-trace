@@ -5,6 +5,8 @@ import React from "react";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
+import styles from "./Layout.module.css";
+
 const description =
   "Gain actionable insights to effortlessly manage poster campaigns. Generate flyers, and track exactly when/where they are interacted with.";
 
@@ -53,11 +55,13 @@ export default function RootLayout({ children } : RootLayoutProps) {
   return (
     <html lang="en-GB" className={`${bungee.variable} ${nunito.variable}`}>
       <body>
-        <NavBar/>
-        <main>
-            {children}
-        </main>
-        <Footer/>
+      <div className={styles.wrapper}>
+            <NavBar/>
+            <main>
+                {children}
+            </main>
+            <Footer/>
+      </div>
       </body>
     </html>
   );

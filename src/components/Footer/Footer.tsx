@@ -6,9 +6,9 @@ import styles from "./Footer.module.css";
 
 export default function Footer() {
   return (
-    <footer>
+    <footer className={styles.wrapper}>
       <CentralColumn>
-        <div className={styles.wrapper}>
+        <div className={styles.linkWrapper}>
           <Logo/>
           <nav className={styles.linkRow} aria-label="Product">
             <Link className={styles.footerLink} href="/">Log In</Link>

@@ -59,6 +59,11 @@ html {
   --font-nunito: sans-serif;
 }
 
+/* Make HTML and Body take up 100% height*/
+html, body {
+  height: 100%;
+}
+
 :root{
   --color-green-50: oklch(98.2% 0.018 155.826);
   --color-green-100: oklch(96.2% 0.044 156.743);
