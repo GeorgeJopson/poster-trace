@@ -26,7 +26,7 @@ export default function SignIn() {
             provider: "google",
             callbackURL: "/dashboard",
             errorCallbackURL: "/error",
-            newUserCallbackURL: "/welcome",
+            newUserCallbackURL: "/dashboard",
             fetchOptions: {
                 onError: (context) => {
                     setIsPending(false);
