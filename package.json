@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
-    "db:reset": "docker compose down -v && docker compose up -d && npx prisma migrate deploy"
+    "db:reset": "docker compose down -v && docker compose up -d && npx prisma migrate deploy",
+    "prettier": "prettier --write ."
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.7.4",
@@ -24,6 +25,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "prettier": "^3.9.6",
     "@csstools/postcss-global-data": "^4.0.0",
     "@types/node": "^26.5.0",
     "@types/pg": "^8.23.1",

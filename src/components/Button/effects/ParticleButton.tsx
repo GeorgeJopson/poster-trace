@@ -1,5 +1,5 @@
-'use client';
-import React from 'react';
+"use client";
+import React from "react";
 import styles from "./ParticleButton.module.css";
 import BaseButton from "../BaseButton";
 
@@ -12,7 +12,12 @@ type ParticleButtonProps = {
   fontSize?: string;
 };
 
-export default function ParticleButton({children, className, fontSize, ...props}: ParticleButtonProps) {
+export default function ParticleButton({
+  children,
+  className,
+  fontSize,
+  ...props
+}: ParticleButtonProps) {
   const [shimmerIds, setShimmerIds] = React.useState<Array<string>>([]);
 
   React.useEffect(() => {
@@ -32,7 +37,12 @@ export default function ParticleButton({children, className, fontSize, ...props}
   }
 
   return (
-    <BaseButton className={`${styles.particleBtn} ${className}`} fontSize={fontSize} onMouseEnter={addShimmer} {...props} >
+    <BaseButton
+      className={`${styles.particleBtn} ${className}`}
+      fontSize={fontSize}
+      onMouseEnter={addShimmer}
+      {...props}
+    >
       {shimmerIds.map((id) => (
         <span key={id} className={styles.shimmer} />
       ))}

@@ -7,10 +7,10 @@ import HeroAndProblemSection from "@/app/_components/HeroAndProblemSection";
 export default function Home() {
   return (
     <>
-        <HeroAndProblemSection/>
-        <SolutionSection/>
-        <AnalyticsSection/>
-        <CallToAction/>
+      <HeroAndProblemSection />
+      <SolutionSection />
+      <AnalyticsSection />
+      <CallToAction />
     </>
   );
 }

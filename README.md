@@ -39,6 +39,7 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Breakpoints
+
 We use the following breakpoints in this project:
 
 smallPhoneAndDown: `(max-width: calc(400 / 16 * 1rem))`

@@ -5,17 +5,15 @@ type ListProps = {
   children: React.ReactNode;
 };
 
-export default function List({children}: ListProps) {
-    if(!children) return null;
+export default function List({ children }: ListProps) {
+  if (!children) return null;
   return (
-      <ol className={styles.listWrapper}>
-        {React.Children.toArray(children).map((child, index) =>
-          <li className={styles.listItem} key={index}>
-            <span className={styles.listItemContent}>
-              {child}
-            </span>
-          </li>
-        )}
-      </ol>
+    <ol className={styles.listWrapper}>
+      {React.Children.toArray(children).map((child, index) => (
+        <li className={styles.listItem} key={index}>
+          <span className={styles.listItemContent}>{child}</span>
+        </li>
+      ))}
+    </ol>
   );
 }

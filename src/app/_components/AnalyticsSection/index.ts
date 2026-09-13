@@ -1,2 +1,2 @@
-export * from './AnalyticsSection';
-export { default } from './AnalyticsSection';
+export * from "./AnalyticsSection";
+export { default } from "./AnalyticsSection";

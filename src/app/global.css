@@ -1,5 +1,7 @@
 /* 1. Use a more-intuitive box-sizing model */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -25,18 +27,30 @@ body {
 }
 
 /* 7. Improve media defaults */
-img, picture, video, canvas, svg {
+img,
+picture,
+video,
+canvas,
+svg {
   display: block;
   max-width: 100%;
 }
 
 /* 8. Inherit fonts for form controls */
-input, textarea, select {
+input,
+textarea,
+select {
   font: inherit;
 }
 
 /* 9. Avoid text overflows */
-p, h1, h2, h3, h4, h5, h6 {
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   overflow-wrap: break-word;
 }
 
@@ -44,7 +58,12 @@ p, h1, h2, h3, h4, h5, h6 {
 p {
   text-wrap: pretty;
 }
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   text-wrap: balance;
 }
 
@@ -60,11 +79,12 @@ html {
 }
 
 /* Make HTML and Body take up 100% height*/
-html, body {
+html,
+body {
   height: 100%;
 }
 
-:root{
+:root {
   --color-green-50: oklch(98.2% 0.018 155.826);
   --color-green-100: oklch(96.2% 0.044 156.743);
   --color-green-200: oklch(92.5% 0.084 155.995);
@@ -94,23 +114,23 @@ html, body {
   --shadow-color: 0deg 0% 63%;
 
   --shadow-elevation-low:
-          0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
-          0.4px 0.8px 1px -1.2px hsl(var(--shadow-color) / 0.34),
-          1px 2px 2.5px -2.5px hsl(var(--shadow-color) / 0.34);
+    0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
+    0.4px 0.8px 1px -1.2px hsl(var(--shadow-color) / 0.34),
+    1px 2px 2.5px -2.5px hsl(var(--shadow-color) / 0.34);
   --shadow-elevation-medium:
-          0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.36),
-          0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.36),
-          2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.36),
-          5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.36);
+    0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.36),
+    0.8px 1.6px 2px -0.8px hsl(var(--shadow-color) / 0.36),
+    2.1px 4.1px 5.2px -1.7px hsl(var(--shadow-color) / 0.36),
+    5px 10px 12.6px -2.5px hsl(var(--shadow-color) / 0.36);
   --shadow-elevation-high:
-          0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
-          1.5px 2.9px 3.7px -0.4px hsl(var(--shadow-color) / 0.34),
-          2.7px 5.4px 6.8px -0.7px hsl(var(--shadow-color) / 0.34),
-          4.5px 8.9px 11.2px -1.1px hsl(var(--shadow-color) / 0.34),
-          7.1px 14.3px 18px -1.4px hsl(var(--shadow-color) / 0.34),
-          11.2px 22.3px 28.1px -1.8px hsl(var(--shadow-color) / 0.34),
-          17px 33.9px 42.7px -2.1px hsl(var(--shadow-color) / 0.34),
-          25px 50px 62.9px -2.5px hsl(var(--shadow-color) / 0.34);
+    0.3px 0.5px 0.7px hsl(var(--shadow-color) / 0.34),
+    1.5px 2.9px 3.7px -0.4px hsl(var(--shadow-color) / 0.34),
+    2.7px 5.4px 6.8px -0.7px hsl(var(--shadow-color) / 0.34),
+    4.5px 8.9px 11.2px -1.1px hsl(var(--shadow-color) / 0.34),
+    7.1px 14.3px 18px -1.4px hsl(var(--shadow-color) / 0.34),
+    11.2px 22.3px 28.1px -1.8px hsl(var(--shadow-color) / 0.34),
+    17px 33.9px 42.7px -2.1px hsl(var(--shadow-color) / 0.34),
+    25px 50px 62.9px -2.5px hsl(var(--shadow-color) / 0.34);
 
   --font-size-title: 4.5rem;
   --font-size-header: 4rem;
@@ -119,25 +139,25 @@ html, body {
 }
 
 @media (--laptop-and-down) {
-  :root{
+  :root {
     --font-size-title: 4rem;
     --font-size-header: 3rem;
   }
 }
 @media (--tablet-and-down) {
-  :root{
+  :root {
     --font-size-title: 3rem;
     --font-size-header: 2rem;
   }
 }
 @media (--phone-and-down) {
-  :root{
+  :root {
     --font-size-title: 2.5rem;
     --font-size-important-body: 1rem;
   }
 }
 @media (--small-phone-and-down) {
-  :root{
+  :root {
     --font-size-title: 2rem;
     --font-size-header: 1.5rem;
   }

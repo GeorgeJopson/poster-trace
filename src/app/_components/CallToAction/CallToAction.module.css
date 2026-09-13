@@ -22,7 +22,7 @@
   font-weight: 400;
 }
 
-.btnWrapper{
+.btnWrapper {
   --btn-font-size: var(--font-size-title);
 }
 

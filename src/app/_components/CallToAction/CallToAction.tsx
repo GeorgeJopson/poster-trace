@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
 import styles from "./CallToAction.module.css";
 import Button from "@/components/Button";
-import {routeNames} from "@/routeNames";
+import { routeNames } from "@/routeNames";
 
 export default function CallToAction() {
   return (
@@ -15,7 +15,13 @@ export default function CallToAction() {
               Take the guess work out of your posters.
             </h2>
             <div className={styles.btnWrapper}>
-              <Button variant={"filledWithOutline"} href={routeNames.signUp} fontSize={"var(--btn-font-size)"}>Sign Up Now</Button>
+              <Button
+                variant={"filledWithOutline"}
+                href={routeNames.signUp}
+                fontSize={"var(--btn-font-size)"}
+              >
+                Sign Up Now
+              </Button>
             </div>
           </div>
         </div>

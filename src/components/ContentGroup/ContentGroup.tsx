@@ -12,11 +12,18 @@ type ContentGroupProps<T extends React.ElementType> = PolymorphicProps<T> & {
   className?: string;
 };
 
-export default function ContentGroup<T extends React.ElementType="div">({children, className, as, ...rest}:ContentGroupProps<T>) {
-    const Element = as ?? "div";
-    return (
+export default function ContentGroup<T extends React.ElementType = "div">({
+  children,
+  className,
+  as,
+  ...rest
+}: ContentGroupProps<T>) {
+  const Element = as ?? "div";
+  return (
     <Element
-      className={className ? `${styles.contentGroup} ${className}` : styles.contentGroup}
+      className={
+        className ? `${styles.contentGroup} ${className}` : styles.contentGroup
+      }
       {...rest}
     >
       {children}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import styles from "./Header.module.css";
 
 const VARIANT_ELEMENTS = {
@@ -10,7 +10,7 @@ type HeaderLineProps = {
   text: string;
 };
 
-function HeaderLine({ text } : HeaderLineProps) : React.ReactElement {
+function HeaderLine({ text }: HeaderLineProps): React.ReactElement {
   const words = text.split(" ");
 
   return (
@@ -18,7 +18,9 @@ function HeaderLine({ text } : HeaderLineProps) : React.ReactElement {
       {words.map((word, wordIndex) => (
         <span className={styles.word} key={wordIndex}>
           {Array.from(word).map((character, characterIndex) => (
-            <span className={styles.character} key={characterIndex}>{character}</span>
+            <span className={styles.character} key={characterIndex}>
+              {character}
+            </span>
           ))}
           {wordIndex < words.length - 1 ? " " : null}
         </span>
@@ -33,9 +35,15 @@ type HeaderProps = {
   className?: string;
 };
 
-export default function Header({ children, variant = "heading", className } : HeaderProps) {
+export default function Header({
+  children,
+  variant = "heading",
+  className,
+}: HeaderProps) {
   const Element = VARIANT_ELEMENTS[variant];
-  const combinedClassName = [styles.base, styles[variant], className].filter(Boolean).join(" ");
+  const combinedClassName = [styles.base, styles[variant], className]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <Element className={combinedClassName}>
