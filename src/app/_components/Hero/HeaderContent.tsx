@@ -1,10 +1,13 @@
-import React from 'react';
+import React, {RefObject} from 'react';
 import HeaderButtonGroup from "@/app/_components/Hero/HeaderButtonGroup";
 import Header from "@/components/Header";
 import styles from "./HeaderContent.module.css";
 
+interface HeaderContentProps {
+  scrollToRef: RefObject<HTMLElement | null>;
+}
 
-export default function HeaderContent() {
+export default function HeaderContent({scrollToRef}: HeaderContentProps) {
   return (
     <div className={styles.wrapper}>
       <Header variant="title">
@@ -13,7 +16,7 @@ export default function HeaderContent() {
       <div className={styles.introduction}>
         <p>Revolutionise your poster campaigns, by finally getting the data you need.</p>
         <p>Generate posters, log their locations as you put them up, and let the analytics roll in.</p>
-        <HeaderButtonGroup/>
+        <HeaderButtonGroup scrollToRef={scrollToRef}/>
       </div>
     </div>
   );
