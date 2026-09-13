@@ -13,7 +13,7 @@ const VARIANTS = {
 
 type ButtonVariant = "filled" | "filledWithOutline" | "outline" | "transparent";
 
-type ButtonProps = {
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: React.ReactNode;
   variant: ButtonVariant;
   fontSize: string;
