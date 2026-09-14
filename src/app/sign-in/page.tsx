@@ -7,23 +7,22 @@ import styles from "./SignIn.module.css";
 import Header from "@/components/Header";
 import GoogleSignOnButton from "@/app/sign-in/GoogleSignOnButton";
 
-import { createAuthClient } from "better-auth/react"
-import {redirect} from "next/navigation";
-const { useSession } = createAuthClient()
+import { useRouter } from "next/navigation";
+
+import type { BetterFetchOption } from "better-auth/react";
 
 export default function SignIn() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-    const {
-        data: session,
-    } = useSession()
+  const { data: session } = authClient.useSession();
 
-    useEffect(() => {
-        if(session){
-            redirect("/dashboard");
-        }
-    }, [session]);
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
 
   useEffect(() => {
     function handlePageShow(event: PageTransitionEvent) {
@@ -53,7 +52,7 @@ export default function SignIn() {
               "Something went wrong signing in. Please try again.",
           );
         },
-      },
+      } as BetterFetchOption,
     });
   }
 
