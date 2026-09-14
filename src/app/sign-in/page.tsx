@@ -7,9 +7,23 @@ import styles from "./SignIn.module.css";
 import Header from "@/components/Header";
 import GoogleSignOnButton from "@/app/sign-in/GoogleSignOnButton";
 
+import { createAuthClient } from "better-auth/react"
+import {redirect} from "next/navigation";
+const { useSession } = createAuthClient()
+
 export default function SignIn() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+    const {
+        data: session,
+    } = useSession()
+
+    useEffect(() => {
+        if(session){
+            redirect("/dashboard");
+        }
+    }, [session]);
 
   useEffect(() => {
     function handlePageShow(event: PageTransitionEvent) {
