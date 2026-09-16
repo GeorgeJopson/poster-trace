@@ -1,2 +1,2 @@
-export * from './CentralColumn';
-export { default } from './CentralColumn';
+export * from "./CentralColumn";
+export { default } from "./CentralColumn";

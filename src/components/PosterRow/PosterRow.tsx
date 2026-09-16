@@ -6,7 +6,11 @@ import styles from "./PosterRow.module.css";
 /** Intrinsic width (px) of a poster; its height follows the ISO-216 ratio. */
 export const posterSize = 256;
 
-const rotationClasses = [styles.poster1, styles.poster2, styles.poster3] as const;
+const rotationClasses = [
+  styles.poster1,
+  styles.poster2,
+  styles.poster3,
+] as const;
 
 const sizesByVariant = {
   compact: `
@@ -31,22 +35,28 @@ const sizesByVariant = {
  * @param eager    load the images immediately instead of lazily; set when the row is above the fold
  */
 type PosterInfo = {
-    src: string;
-    alt: string;
-}
+  src: string;
+  alt: string;
+};
 type PosterRowProps = {
-    posters: PosterInfo[];
-    variant: "compact" | "showcase";
-    eager?: boolean;
-}
+  posters: PosterInfo[];
+  variant: "compact" | "showcase";
+  eager?: boolean;
+};
 
-export default function PosterRow({ posters, variant = "compact", eager = false }:PosterRowProps) {
+export default function PosterRow({
+  posters,
+  variant = "compact",
+  eager = false,
+}: PosterRowProps) {
   return (
     <div className={`${styles.wrapper} ${styles[variant]}`}>
       {posters.map((poster, index) => (
         <div
           key={poster.src}
-          className={`${styles.posterWrapper} ${rotationClasses[index % rotationClasses.length]}`}
+          className={`${styles.posterWrapper} ${
+            rotationClasses[index % rotationClasses.length]
+          }`}
         >
           <Image
             src={poster.src}

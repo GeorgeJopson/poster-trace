@@ -1,2 +1,2 @@
-export * from './CallToAction';
-export { default } from './CallToAction';
+export * from "./CallToAction";
+export { default } from "./CallToAction";

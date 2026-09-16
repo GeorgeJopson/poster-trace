@@ -1,2 +1,2 @@
-export * from './ContentGroup';
-export { default } from './ContentGroup';
+export * from "./ContentGroup";
+export { default } from "./ContentGroup";

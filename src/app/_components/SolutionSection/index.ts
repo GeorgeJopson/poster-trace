@@ -1,2 +1,2 @@
-export * from './SolutionSection';
-export { default } from './SolutionSection';
+export * from "./SolutionSection";
+export { default } from "./SolutionSection";

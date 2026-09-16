@@ -1,2 +1,2 @@
-export * from './PosterRow';
-export { default } from './PosterRow';
+export * from "./PosterRow";
+export { default } from "./PosterRow";

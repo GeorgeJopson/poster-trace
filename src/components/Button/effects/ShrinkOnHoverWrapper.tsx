@@ -5,10 +5,8 @@ type ShrinkOnHoverWrapperProps = {
   children: React.ReactNode;
 };
 
-export default function ShrinkOnHoverWrapper({children}: ShrinkOnHoverWrapperProps) {
-  return (
-    <div className={styles.wrapper}>
-      {children}
-    </div>
-  );
+export default function ShrinkOnHoverWrapper({
+  children,
+}: ShrinkOnHoverWrapperProps) {
+  return <div className={styles.wrapper}>{children}</div>;
 }
