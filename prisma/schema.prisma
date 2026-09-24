@@ -74,3 +74,39 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+model PosterCampaign {
+  id Int @id @default(autoincrement())
+  name String
+  target String
+  posterDesigns PosterDesign[]
+}
+
+model PosterDesign {
+  id Int @id @default(autoincrement())
+  design Bytes
+  qr_x_position Float
+  qr_y_position Float
+  qr_size Float
+  qr_rotation Float
+  posterCampaign PosterCampaign @relation(fields: [posterCampaignId], references: [id])
+  posterCampaignId Int
+  posters Poster[]
+}
+
+model Poster {
+  id Int @id @default(autoincrement())
+  activated Boolean
+  latitude  Float
+  longitude Float
+  posterDesign PosterDesign @relation(fields: [posterDesignId], references: [id])
+  posterDesignId Int
+  scans Scan[]
+}
+
+model Scan {
+  id Int @id @default(autoincrement())
+  time DateTime @default(now())
+  poster Poster @relation(fields: [posterId], references: [id])
+  posterId Int
+}
