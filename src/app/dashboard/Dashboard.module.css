@@ -1,0 +1,22 @@
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+  gap: 36px;
+  padding-top: 16px;
+}
+
+.campaign {
+  padding: 16px;
+  display: flex;
+  justify-content: left;
+  align-content: center;
+  border: dashed 4px var(--color-green-800);
+  border-radius: 16px;
+  text-decoration: none;
+}
+
+.cardTitle {
+  font-family: var(--font-bungee), sans-serif;
+  font-size: var(--font-size-important-body);
+  color: black;
+}
