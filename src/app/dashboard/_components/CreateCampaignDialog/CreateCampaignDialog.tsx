@@ -47,9 +47,11 @@ export default function CreateCampaignDialog() {
             />
           </div>
 
-          <Button variant={"filled"} fontSize={"1.5rem"} onClick={() => setOpen(false)}>
-            Submit
-          </Button>
+          <div className={styles.submitButtonWrapper}>
+            <Button variant={"filled"} fontSize={"1.5rem"} onClick={() => setOpen(false)}>
+              Submit
+            </Button>
+          </div>
           <Dialog.Close asChild>
             <button className={styles.iconButton} aria-label="Close">
               <Image width={22} height={22} src={icons.x.src} alt={icons.x.alt} />

@@ -82,6 +82,10 @@
   }
 }
 
+.submitButtonWrapper {
+  align-self: flex-start;
+}
+
 .iconButton {
   border: none;
   padding: 0;
