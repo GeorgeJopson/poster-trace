@@ -50,6 +50,14 @@ async function main() {
     },
   });
 
+  // Newly created campaign: no design or posters exist
+  await prisma.posterCampaign.create({
+    data: {
+      name: "Neighborhood Art Walk 2026",
+      target: "https://posters.example.com/campaigns/art-walk-2026",
+    },
+  });
+
   const summerFestDesignA = await prisma.posterDesign.create({
     data: {
       design: loadDesignImage("stock-poster-1.png"),

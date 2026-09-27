@@ -20,14 +20,15 @@ interface CampaignCardProps {
   campaign: Campaign;
 }
 
+const wrapperClassByCount: Record<number, string> = {
+  1: styles.posterDesignImageWrapperCount1,
+  2: styles.posterDesignImageWrapperCount2,
+  3: styles.posterDesignImageWrapperCount3,
+};
+
 export default function CampaignCard({ campaign }: CampaignCardProps) {
   const posterDesigns = campaign.posterDesigns.slice(0, 3);
-  const wrapperClassByCount: Record<number, string> = {
-    1: styles.posterDesignImageWrapperCount1,
-    2: styles.posterDesignImageWrapperCount2,
-    3: styles.posterDesignImageWrapperCount3,
-  };
-  const wrapperClass = wrapperClassByCount[posterDesigns.length];
+
   const [style, trigger] = useBoop({ rotation: 10 });
 
   return (
@@ -46,21 +47,22 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
         </animated.span>
 
         <h2 className={styles.cardTitle}>{campaign.name}</h2>
-
-        <div
-          className={`${styles.posterDesignImageWrapper} ${wrapperClass ?? ""}`}
-        >
-          {posterDesigns.map((posterDesign) => (
-            <Image
-              key={posterDesign.id}
-              width={IMAGE_WIDTH}
-              height={Math.round(IMAGE_WIDTH * ROOT_2)}
-              src={`data:image/png;base64,${posterDesign.design.toBase64()}`}
-              alt={campaign.name}
-              className={styles.posterDesignImage}
-            />
-          ))}
-        </div>
+        {posterDesigns.length > 0 && (
+          <div
+            className={`${styles.posterDesignImageWrapper} ${wrapperClassByCount[posterDesigns.length] ?? ""}`}
+          >
+            {posterDesigns.map((posterDesign) => (
+              <Image
+                key={posterDesign.id}
+                width={IMAGE_WIDTH}
+                height={Math.round(IMAGE_WIDTH * ROOT_2)}
+                src={`data:image/png;base64,${posterDesign.design.toBase64()}`}
+                alt={campaign.name}
+                className={styles.posterDesignImage}
+              />
+            ))}
+          </div>
+        )}
       </Link>
     </div>
   );
