@@ -36,34 +36,35 @@
 
 .posterDesignImageWrapperCount1{
   width: 150px;
+
+  .posterDesignImage:nth-child(1){
+    rotate: -8deg;
+  }
 }
 
 .posterDesignImageWrapperCount2{
   width: 190px;
+
+  .posterDesignImage:nth-child(1){
+    rotate: 12deg;
+  }
+  .posterDesignImage:nth-child(2){
+    rotate: -12deg;
+  }
 }
 
 .posterDesignImageWrapperCount3{
   width: 220px;
-}
 
-.rotate8{
-  transform: rotate(-8deg);
-}
-
-.rotateNeg12{
-  transform: rotate(12deg);
-}
-
-.rotate12{
-  transform: rotate(-12deg);
-}
-
-.rotate4{
-  transform: rotate(-4deg);
-}
-
-.rotate16{
-  transform: rotate(-16deg);
+  .posterDesignImage:nth-child(1){
+    rotate: 12deg;
+  }
+  .posterDesignImage:nth-child(2){
+    rotate: -4deg;
+  }
+  .posterDesignImage:nth-child(3){
+    rotate: -16deg;
+  }
 }
 
 .campaign:hover {
