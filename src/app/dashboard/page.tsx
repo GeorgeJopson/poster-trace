@@ -5,6 +5,9 @@ import styles from "./Dashboard.module.css";
 import Link from "next/link";
 import Image from "next/image";
 
+const IMAGE_WIDTH = 150;
+const ROOT_2 = 1.4142;
+
 export default async function DashboardPage() {
   const campaigns = await prisma.posterCampaign.findMany(
       {
@@ -39,8 +42,8 @@ export default async function DashboardPage() {
                 {posterDesigns.map((posterDesign) => (
                   <Image
                     key={posterDesign.id}
-                    width={150}
-                    height={150 * 1.4142}
+                    width={IMAGE_WIDTH}
+                    height={Math.round(IMAGE_WIDTH * ROOT_2)}
                     src={`data:image/png;base64,${posterDesign.design.toBase64()}`}
                     alt={campaign.name}
                     className={styles.posterDesignImage}
