@@ -10,12 +10,14 @@ type ParticleButtonProps = {
   children: React.ReactNode;
   className?: string;
   fontSize?: string;
+  textWrap?: React.CSSProperties["textWrap"];
 };
 
 export default function ParticleButton({
   children,
   className,
   fontSize,
+  textWrap,
   ...props
 }: ParticleButtonProps) {
   const [shimmerIds, setShimmerIds] = React.useState<Array<string>>([]);
@@ -40,6 +42,7 @@ export default function ParticleButton({
     <BaseButton
       className={`${styles.particleBtn} ${className}`}
       fontSize={fontSize}
+      textWrap={textWrap}
       onMouseEnter={addShimmer}
       {...props}
     >
