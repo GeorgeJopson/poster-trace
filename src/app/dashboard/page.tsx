@@ -3,21 +3,59 @@ import prisma from "@/lib/prisma";
 
 import styles from "./Dashboard.module.css";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function DashboardPage() {
-  const campaigns = await prisma.posterCampaign.findMany();
+  const campaigns = await prisma.posterCampaign.findMany(
+      {
+          include: {
+              posterDesigns:true
+          }
+      }
+  );
   return (
     <CentralColumn>
       <div className={styles.gridWrapper}>
-        {campaigns.map((campaign) => (
-          <Link
-            href={`/dashboard/campaign/${campaign.id}`}
-            key={campaign.id}
-            className={styles.campaign}
-          >
-            <h2 className={styles.cardTitle}>{campaign.name}</h2>
-          </Link>
-        ))}
+        {campaigns.map((campaign) => {
+          const posterDesigns = campaign.posterDesigns.slice(0, 3);
+          const rotationsByCount: Record<number, string[]> = {
+            1: [styles.rotate8],
+            2: [styles.rotateNeg12, styles.rotate12],
+            3: [styles.rotateNeg12, styles.rotate4, styles.rotate16],
+          };
+          const wrapperClassByCount: Record<number, string> = {
+            1: styles.posterDesignImageWrapperCount1,
+            2: styles.posterDesignImageWrapperCount2,
+            3: styles.posterDesignImageWrapperCount3,
+          };
+          const rotations = rotationsByCount[posterDesigns.length] ?? [];
+          const wrapperClass = wrapperClassByCount[posterDesigns.length];
+
+          return (
+            <Link
+              href={`/dashboard/campaign/${campaign.id}`}
+              key={campaign.id}
+              className={styles.campaign}
+            >
+                <h2 className={styles.cardTitle}>{campaign.name}</h2>
+
+                <div
+                className={`${styles.posterDesignImageWrapper} ${wrapperClass ?? ""}`}
+              >
+                {posterDesigns.map((posterDesign, index) => (
+                  <Image
+                    key={posterDesign.id}
+                    width={150}
+                    height={150 * 1.4142}
+                    src={`data:image/png;base64,${posterDesign.design.toBase64()}`}
+                    alt={campaign.name}
+                    className={`${styles.posterDesignImage} ${rotations[index] ?? ""}`}
+                  />
+                ))}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </CentralColumn>
   );
