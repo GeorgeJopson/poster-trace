@@ -12,7 +12,7 @@ export default function useBoop({
     tension: 300,
     friction: 10,
   },
-}) {
+}): [object, () => void] {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const [isBooped, setIsBooped] = React.useState(false);
