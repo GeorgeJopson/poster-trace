@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 
 import styles from "./Dashboard.module.css";
 import CampaignCard from "./_components/CampaignCard";
+import CreateCampaignDialog from "./_components/CreateCampaignDialog";
 
 export default async function DashboardPage() {
   const campaigns = await prisma.posterCampaign.findMany({
@@ -12,10 +13,13 @@ export default async function DashboardPage() {
   });
   return (
     <CentralColumn>
-      <div className={styles.gridWrapper}>
-        {campaigns.map((campaign) => (
-          <CampaignCard key={campaign.id} campaign={campaign} />
-        ))}
+      <div className={styles.wrapper}>
+        <CreateCampaignDialog />
+        <div className={styles.gridWrapper}>
+          {campaigns.map((campaign) => (
+            <CampaignCard key={campaign.id} campaign={campaign} />
+          ))}
+        </div>
       </div>
     </CentralColumn>
   );
