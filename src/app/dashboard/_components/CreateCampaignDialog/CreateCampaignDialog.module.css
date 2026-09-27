@@ -1,9 +1,29 @@
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .dialogOverlay {
   background-color: color-mix(in srgb, var(--color-green-950) 30%, transparent);;
   position: fixed;
   inset: 0;
   z-index: 200;
   animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -2%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 .dialogContent {
@@ -19,26 +39,65 @@
   padding: 25px;
   z-index: 201;
 
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.title{
+  font-family: var(--font-bungee), sans-serif;
+  font-size: var(--font-size-important-body);
+}
+.fields{
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+  font-size: var(--font-size-body);
+}
 
-@keyframes overlayShow {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+.label {
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 0 10px;
+}
+
+.input:focus {
+
+
+}
+
+@media (--small-phone-and-down) {
+  .fields {
+    grid-template-columns: 1fr;
   }
 }
 
-@keyframes contentShow {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -2%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
-  }
+.iconButton {
+  all: unset;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 150ms ease;
+}
+
+.iconButton:hover {
+  background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
 }

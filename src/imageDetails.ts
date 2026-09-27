@@ -19,6 +19,7 @@ export const icons = {
   map: { src: "/map.svg", alt: "Map Icon" },
   database: { src: "/database.svg", alt: "Database Icon" },
   plus: { src: "/plus.svg", alt: "Plus Icon" },
+  x: { src: "/x.svg", alt: "Close Icon" },
 };
 
 /** Example analytics visualizations, keyed by chart type. */
