@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import styles from "./Dashboard.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import {icons} from "@/imageDetails";
+import React from "react";
 
 const IMAGE_WIDTH = 150;
 const ROOT_2 = 1.4142;
@@ -34,6 +36,13 @@ export default async function DashboardPage() {
               key={campaign.id}
               className={styles.campaign}
             >
+                <Image
+                    className={styles.plusSymbol}
+                    width={28}
+                    height={28}
+                    src={icons.plus.src}
+                    alt={icons.plus.alt}
+                />
                 <h2 className={styles.cardTitle}>{campaign.name}</h2>
 
                 <div

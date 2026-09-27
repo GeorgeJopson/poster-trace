@@ -6,8 +6,7 @@
 }
 
 .campaign {
-  padding: 16px;
-
+  padding: 16px 28px 16px 16px;
   border: dashed 4px var(--color-green-800);
   border-radius: 16px;
   text-decoration: none;
@@ -19,6 +18,8 @@
   flex-direction:row-reverse;
 
   overflow:clip;
+
+  position: relative;
 }
 
 .posterDesignImage{
@@ -35,16 +36,12 @@
 }
 
 .posterDesignImageWrapperCount1{
-  width: 150px;
-
   .posterDesignImage:nth-child(1){
     rotate: -8deg;
   }
 }
 
 .posterDesignImageWrapperCount2{
-  width: 190px;
-
   .posterDesignImage:nth-child(1){
     rotate: 12deg;
   }
@@ -54,8 +51,6 @@
 }
 
 .posterDesignImageWrapperCount3{
-  width: 220px;
-
   .posterDesignImage:nth-child(1){
     rotate: 12deg;
   }
@@ -74,8 +69,13 @@
 .cardTitle {
   font-family: var(--font-bungee), sans-serif;
   font-size: var(--font-size-important-body);
-  color: black;
-  min-width:12ch;
+  color: var(--color-green-950);
   flex:1;
   text-align: right;
+}
+
+.plusSymbol{
+  position:absolute;
+  top:0;
+  right:0;
 }
