@@ -3,7 +3,7 @@
   height: 249px;
   border: dashed 4px var(--color-green-800);
   border-radius: 16px;
-  background-color: var(--color-green-50);
+  background-color: var(--color-white);
   cursor: pointer;
   transition: background-color 0.2s ease;
 
@@ -17,7 +17,7 @@
 }
 
 .newDesignButton:hover {
-  background-color: color-mix(in srgb, var(--color-green-800) 10%, transparent);
+  background-color: color-mix(in srgb, var(--color-green-600) 10%, transparent);
 }
 
 .newDesignText {
@@ -30,7 +30,8 @@
 
 .plus {
   font-family: var(--font-bungee), sans-serif;
-  font-size: 2.5rem;
+  display: inline-block;
+  font-size: 4rem;
   line-height: 1;
   color: var(--color-green-950);
 }
