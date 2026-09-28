@@ -2,11 +2,11 @@
 
 import { icons } from "@/imageDetails";
 import type { PosterCampaignModel } from "@/generated/prisma/models";
-import { Dialog } from "radix-ui";
 import Image from "next/image";
 import { useState } from "react";
 import { animated } from "react-spring";
 
+import Dialog from "@/components/Dialog";
 import useBoop from "@/utils/useBoop";
 import EditCampaignForm from "../EditCampaignForm/EditCampaignForm";
 import styles from "./EditCampaignDialog.module.css";
@@ -22,8 +22,11 @@ export default function EditCampaignDialog({
   const [boopStyle, trigger] = useBoop({ rotation: 25 });
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Dialog
+      open={open}
+      onOpenChange={setOpen}
+      title="Edit campaign"
+      trigger={
         <button
           className={styles.settingsButton}
           onMouseEnter={trigger}
@@ -38,31 +41,9 @@ export default function EditCampaignDialog({
             />
           </animated.span>
         </button>
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Overlay className={styles.dialogOverlay} />
-        <Dialog.Content className={styles.dialogContent}>
-          <div className={styles.dialogHeader}>
-            <Dialog.Title className={styles.title}>
-              Edit campaign
-            </Dialog.Title>
-            <Dialog.Close asChild>
-              <button className={styles.iconButton} aria-label="Close">
-                <Image
-                  width={22}
-                  height={22}
-                  src={icons.x.src}
-                  alt={icons.x.alt}
-                />
-              </button>
-            </Dialog.Close>
-          </div>
-          <EditCampaignForm
-            campaign={campaign}
-            onSaved={() => setOpen(false)}
-          />
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+      }
+    >
+      <EditCampaignForm campaign={campaign} onSaved={() => setOpen(false)} />
+    </Dialog>
   );
 }

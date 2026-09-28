@@ -1,60 +1,7 @@
-@keyframes overlayShow {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.dialogOverlay {
-  background-color: color-mix(in srgb, var(--color-green-950) 30%, transparent);;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes contentShow {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -2%) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
-  }
-}
-
-.dialogContent {
-  background-color: white;
-  border-radius: 8px;
-  position: fixed;
-  top: 10%;
-  left: 50%;
-  transform: translate(-50%, 0);
-  width: 90vw;
-  max-width: 500px;
-  max-height: 85vh;
-  padding: 25px;
-  z-index: 201;
-
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.title{
-  font-family: var(--font-bungee), sans-serif;
-  font-size: var(--font-size-important-body);
-}
-
 .form {
   display: contents;
 }
-.fields{
+.fields {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 8px;
@@ -75,11 +22,6 @@
   padding: 0 10px;
 }
 
-.input:focus {
-
-
-}
-
 @media (--small-phone-and-down) {
   .fields {
     grid-template-columns: 1fr;
@@ -88,25 +30,4 @@
 
 .submitButtonWrapper {
   align-self: flex-start;
-}
-
-.iconButton {
-  border: none;
-  padding: 0;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  background-color: transparent;
-  transition: background-color 150ms ease;
-}
-
-.iconButton:hover {
-  background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
 }
