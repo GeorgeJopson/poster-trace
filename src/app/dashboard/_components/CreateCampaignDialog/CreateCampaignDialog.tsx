@@ -6,6 +6,7 @@ import { Dialog } from "radix-ui";
 import Image from "next/image";
 import { useState } from "react";
 
+import { createCampaign } from "./actions";
 import styles from "./CreateCampaignDialog.module.css";
 
 export default function CreateCampaignDialog() {
@@ -27,31 +28,35 @@ export default function CreateCampaignDialog() {
           <Dialog.Title className={styles.title}>
             Create new campaign
           </Dialog.Title>
-          <div className={styles.fields}>
-            <label className={styles.label} htmlFor="campaignName">
-              Campaign Name
-            </label>
-            <input
-              className={styles.input}
-              id="campaignName"
-              defaultValue="My Amazing Campaign"
-            />
+          <form className={styles.form} action={createCampaign}>
+            <div className={styles.fields}>
+              <label className={styles.label} htmlFor="campaignName">
+                Campaign Name
+              </label>
+              <input
+                className={styles.input}
+                id="campaignName"
+                name="name"
+                defaultValue="My Amazing Campaign"
+              />
 
-            <label className={styles.label} htmlFor="target">
-              Target URL
-            </label>
-            <input
-              className={styles.input}
-              id="target"
-              defaultValue="https://www.campaigns.com"
-            />
-          </div>
+              <label className={styles.label} htmlFor="target">
+                Target URL
+              </label>
+              <input
+                className={styles.input}
+                id="target"
+                name="target"
+                defaultValue="https://www.campaigns.com"
+              />
+            </div>
 
-          <div className={styles.submitButtonWrapper}>
-            <Button variant={"filled"} fontSize={"1.5rem"} onClick={() => setOpen(false)}>
-              Submit
-            </Button>
-          </div>
+            <div className={styles.submitButtonWrapper}>
+              <Button variant={"filled"} fontSize={"1.5rem"} type="submit">
+                Submit
+              </Button>
+            </div>
+          </form>
           <Dialog.Close asChild>
             <button className={styles.iconButton} aria-label="Close">
               <Image width={22} height={22} src={icons.x.src} alt={icons.x.alt} />

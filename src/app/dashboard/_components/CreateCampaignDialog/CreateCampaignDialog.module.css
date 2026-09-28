@@ -50,6 +50,10 @@
   font-family: var(--font-bungee), sans-serif;
   font-size: var(--font-size-important-body);
 }
+
+.form {
+  display: contents;
+}
 .fields{
   display: grid;
   grid-template-columns: auto 1fr;
