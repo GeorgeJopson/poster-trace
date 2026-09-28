@@ -1,7 +1,7 @@
 .header {
   background-color: var(--color-yellow-300);
   border-radius: 0 0 16px 16px;
-  padding: 24px 28px;
+  padding: 24px 28px 16px 24px;
 
   display: flex;
   align-items: flex-start;
