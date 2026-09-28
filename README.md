@@ -34,6 +34,18 @@ postgresql://poster_trace:poster_trace@localhost:5432/poster_trace
 
 Other scripts: `npm run db:down` (stop, keeps data), `npm run db:reset` (wipe volume, restart, re-apply migrations).
 
+## Authentication
+
+Sign-in is Google OAuth only. To work on `/dashboard` without going through
+that flow, set in `.env`:
+
+```
+DISABLE_AUTH=true
+```
+
+This only has an effect when `NODE_ENV !== "production"`, so it can't
+accidentally disable auth in a production build.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
