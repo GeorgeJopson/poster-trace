@@ -5,7 +5,7 @@ import { routeNames } from "@/routeNames";
 export default function LoggedInNavBar() {
   return (
     <NavBar
-      logoTarget={"/"}
+      logoTarget={routeNames.dashboard}
       targets={[
         {
           targetUrl: routeNames.dashboard,
