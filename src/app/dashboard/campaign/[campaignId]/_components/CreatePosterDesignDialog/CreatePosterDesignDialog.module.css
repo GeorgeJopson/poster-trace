@@ -1,0 +1,53 @@
+.newDesignButton {
+  width: 176px;
+  height: 249px;
+  border: dashed 4px var(--color-green-800);
+  border-radius: 16px;
+  background-color: var(--color-green-50);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.newDesignButton:hover {
+  background-color: color-mix(in srgb, var(--color-green-800) 10%, transparent);
+}
+
+.newDesignText {
+  font-family: var(--font-bungee), sans-serif;
+  font-size: var(--font-size-important-body);
+  color: var(--color-green-950);
+  text-align: center;
+  line-height: 1.15;
+}
+
+.plus {
+  font-family: var(--font-bungee), sans-serif;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--color-green-950);
+}
+
+.form {
+  display: contents;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+  font-size: var(--font-size-body);
+}
+
+.submitButtonWrapper {
+  align-self: flex-start;
+}
