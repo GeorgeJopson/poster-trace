@@ -21,4 +21,5 @@
   width: 176px;
   height: 249px;
   object-fit: cover;
+  will-change: transform;
 }
