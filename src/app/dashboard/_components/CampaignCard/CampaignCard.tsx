@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import DashedCard from "@/components/DashedCard";
 import { icons } from "@/imageDetails";
 import type { Prisma } from "@/generated/prisma/client";
 
@@ -33,7 +34,8 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
 
   return (
     <div className={styles.boopWrapper} onMouseEnter={trigger}>
-      <Link
+      <DashedCard
+        as={Link}
         href={`/dashboard/campaign/${campaign.id}`}
         className={styles.campaign}
       >
@@ -63,7 +65,7 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
             ))}
           </div>
         )}
-      </Link>
+      </DashedCard>
     </div>
   );
 }

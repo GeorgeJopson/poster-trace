@@ -2,6 +2,7 @@
 
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
+import NewItemButton from "@/components/NewItemButton";
 
 import { createCampaign } from "./actions";
 import styles from "./CreateCampaignDialog.module.css";
@@ -11,9 +12,10 @@ export default function CreateCampaignDialog() {
     <Dialog
       title="Create new campaign"
       trigger={
-        <Button variant={"filled"} fontSize={"2rem"} textWrap={"wrap"}>
-          Create New Campaign
-        </Button>
+        <NewItemButton
+          label="New Poster Campaign"
+          className={styles.newCampaignButton}
+        />
       }
     >
       <form className={styles.form} action={createCampaign}>

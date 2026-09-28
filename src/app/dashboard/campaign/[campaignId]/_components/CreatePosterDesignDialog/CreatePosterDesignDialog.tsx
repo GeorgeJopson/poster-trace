@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { animated } from "react-spring";
 
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
-import useBoop from "@/utils/useBoop";
+import NewItemButton from "@/components/NewItemButton";
 
 import styles from "./CreatePosterDesignDialog.module.css";
 
 export default function CreatePosterDesignDialog() {
   const [open, setOpen] = useState(false);
-  const [style, trigger] = useBoop({ rotation: 10 });
 
   return (
     <Dialog
@@ -19,12 +17,10 @@ export default function CreatePosterDesignDialog() {
       onOpenChange={setOpen}
       title="Create new poster design"
       trigger={
-        <button className={styles.newDesignButton} onMouseEnter={trigger}>
-          <span className={styles.newDesignText}>New Poster Design</span>
-          <animated.span style={style} className={styles.plus}>
-            +
-          </animated.span>
-        </button>
+        <NewItemButton
+          label="New Poster Design"
+          className={styles.newDesignButton}
+        />
       }
     >
       <form

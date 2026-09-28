@@ -14,11 +14,11 @@ export default async function DashboardPage() {
   return (
     <CentralColumn>
       <div className={styles.wrapper}>
-        <CreateCampaignDialog />
         <div className={styles.gridWrapper}>
           {campaigns.map((campaign) => (
             <CampaignCard key={campaign.id} campaign={campaign} />
           ))}
+          <CreateCampaignDialog />
         </div>
       </div>
     </CentralColumn>
