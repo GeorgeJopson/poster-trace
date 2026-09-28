@@ -20,10 +20,7 @@ const VARIANTS = {
 } as const;
 
 export type ButtonVariant =
-  | "filled"
-  | "filledWithOutline"
-  | "outline"
-  | "transparent";
+  "filled" | "filledWithOutline" | "outline" | "transparent";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: React.ReactNode;
