@@ -1,0 +1,48 @@
+.card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevation-medium);
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  padding: 25px;
+}
+
+.title {
+  font-family: var(--font-bungee), sans-serif;
+  font-size: var(--font-size-important-body);
+  color: var(--color-green-950);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+  font-size: var(--font-size-body);
+}
+
+.label {
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 0 10px;
+}
+
+@media (--small-phone-and-down) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+.submitButtonWrapper {
+  align-self: flex-start;
+}

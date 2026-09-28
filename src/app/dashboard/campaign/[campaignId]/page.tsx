@@ -1,6 +1,8 @@
 import prisma from "@/lib/prisma";
 import CentralColumn from "@/components/CentralColumn";
 
+import EditCampaignForm from "./_components/EditCampaignForm/EditCampaignForm";
+
 export default async function CampaignPage({
   params,
 }: {
@@ -12,12 +14,7 @@ export default async function CampaignPage({
   });
   return (
     <CentralColumn>
-      {campaign && (
-        <>
-          <p>{campaign.name}</p>
-          <p>{campaign.target}</p>
-        </>
-      )}
+      {campaign && <EditCampaignForm campaign={campaign} />}
     </CentralColumn>
   );
 }
