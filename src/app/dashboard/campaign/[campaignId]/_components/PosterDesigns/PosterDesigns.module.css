@@ -1,8 +1,8 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px 4px;
+  gap: 8px;
+  padding: 8px 0;
 }
 
 .heading {
