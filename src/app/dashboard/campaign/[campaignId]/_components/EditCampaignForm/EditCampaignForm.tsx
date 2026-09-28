@@ -1,3 +1,7 @@
+"use client";
+
+import { useTransition } from "react";
+
 import Button from "@/components/Button";
 import type { PosterCampaignModel } from "@/generated/prisma/models";
 
@@ -6,14 +10,24 @@ import styles from "./EditCampaignForm.module.css";
 
 interface EditCampaignFormProps {
   campaign: PosterCampaignModel;
+  onSaved?: () => void;
 }
 
-export default function EditCampaignForm({ campaign }: EditCampaignFormProps) {
-  const updateCampaignWithId = updateCampaign.bind(null, campaign.id);
+export default function EditCampaignForm({
+  campaign,
+  onSaved,
+}: EditCampaignFormProps) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      await updateCampaign(campaign.id, formData);
+      onSaved?.();
+    });
+  }
 
   return (
-    <form className={styles.card} action={updateCampaignWithId}>
-      <h2 className={styles.title}>Edit campaign</h2>
+    <form className={styles.form} action={handleSubmit}>
       <div className={styles.fields}>
         <label className={styles.label} htmlFor="campaignName">
           Campaign Name
@@ -37,7 +51,12 @@ export default function EditCampaignForm({ campaign }: EditCampaignFormProps) {
       </div>
 
       <div className={styles.submitButtonWrapper}>
-        <Button variant={"filled"} fontSize={"1.5rem"} type="submit">
+        <Button
+          variant={"filled"}
+          fontSize={"1.5rem"}
+          type="submit"
+          disabled={isPending}
+        >
           Save changes
         </Button>
       </div>

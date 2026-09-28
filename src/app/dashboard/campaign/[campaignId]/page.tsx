@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import CentralColumn from "@/components/CentralColumn";
 
-import EditCampaignForm from "./_components/EditCampaignForm/EditCampaignForm";
+import CampaignHeader from "./_components/CampaignHeader/CampaignHeader";
 
 export default async function CampaignPage({
   params,
@@ -14,7 +14,7 @@ export default async function CampaignPage({
   });
   return (
     <CentralColumn>
-      {campaign && <EditCampaignForm campaign={campaign} />}
+      {campaign && <CampaignHeader campaign={campaign} />}
     </CentralColumn>
   );
 }

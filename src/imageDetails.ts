@@ -20,6 +20,7 @@ export const icons = {
   database: { src: "/database.svg", alt: "Database Icon" },
   plus: { src: "/plus.svg", alt: "Plus Icon" },
   x: { src: "/x.svg", alt: "Close Icon" },
+  settings: { src: "/settings.svg", alt: "Settings Icon" },
 };
 
 /** Example analytics visualizations, keyed by chart type. */

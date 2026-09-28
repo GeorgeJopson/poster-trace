@@ -1,19 +1,5 @@
-.card {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: var(--shadow-elevation-medium);
-
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  padding: 25px;
-}
-
-.title {
-  font-family: var(--font-bungee), sans-serif;
-  font-size: var(--font-size-important-body);
-  color: var(--color-green-950);
+.form {
+  display: contents;
 }
 
 .fields {
