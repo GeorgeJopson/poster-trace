@@ -10,9 +10,10 @@
   font-weight: normal;
 }
 
-.grid {
-  display: flex;
-  flex-wrap: wrap;
+.posterDesignsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 176px);
+  justify-items: left;
   gap: 24px;
 }
 
@@ -22,4 +23,5 @@
   height: 249px;
   object-fit: cover;
   will-change: transform;
+  border-radius: 16px;
 }

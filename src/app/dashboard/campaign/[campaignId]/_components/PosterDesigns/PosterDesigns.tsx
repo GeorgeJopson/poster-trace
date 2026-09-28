@@ -13,7 +13,7 @@ export default function PosterDesigns({ posterDesigns }: PosterDesignsProps) {
   return (
     <div className={styles.wrapper}>
       <h2 className={styles.heading}>Poster Designs:</h2>
-      <div className={styles.grid}>
+      <div className={styles.posterDesignsGrid}>
         {posterDesigns.map((posterDesign) => (
           <Image
             key={posterDesign.id}
