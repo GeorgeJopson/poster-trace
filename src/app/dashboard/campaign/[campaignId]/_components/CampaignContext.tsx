@@ -2,26 +2,37 @@
 
 import React, { createContext, useContext } from "react";
 
-const CampaignTargetContext = createContext<string | null>(null);
+type Campaign = {
+  id: number;
+  target: string;
+};
+
+const CampaignContext = createContext<Campaign | null>(null);
 
 export function CampaignProvider({
+  id,
   target,
   children,
-}: {
-  target: string;
-  children: React.ReactNode;
-}) {
+}: Campaign & { children: React.ReactNode }) {
   return (
-    <CampaignTargetContext.Provider value={target}>
+    <CampaignContext.Provider value={{ id, target }}>
       {children}
-    </CampaignTargetContext.Provider>
+    </CampaignContext.Provider>
   );
 }
 
-export function useCampaignTarget() {
-  const target = useContext(CampaignTargetContext);
-  if (target === null) {
-    throw new Error("useCampaignTarget must be used within a CampaignProvider");
+function useCampaign() {
+  const campaign = useContext(CampaignContext);
+  if (campaign === null) {
+    throw new Error("useCampaign must be used within a CampaignProvider");
   }
-  return target;
+  return campaign;
+}
+
+export function useCampaignId() {
+  return useCampaign().id;
+}
+
+export function useCampaignTarget() {
+  return useCampaign().target;
 }

@@ -18,7 +18,7 @@ export default async function CampaignPage({
   return (
     <CentralColumn>
       {campaign && (
-        <CampaignProvider target={campaign.target}>
+        <CampaignProvider id={campaign.id} target={campaign.target}>
           <CampaignHeader campaign={campaign} />
           <PosterDesigns posterDesigns={campaign.posterDesigns} />
         </CampaignProvider>

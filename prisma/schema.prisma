@@ -85,6 +85,7 @@ model PosterCampaign {
 model PosterDesign {
   id Int @id @default(autoincrement())
   design Bytes
+  designMimeType String
   qr_x_position Float
   qr_y_position Float
   qr_size Float

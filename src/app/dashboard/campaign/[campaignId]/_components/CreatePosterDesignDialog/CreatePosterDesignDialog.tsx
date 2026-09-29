@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useTransition } from "react";
 
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
+import { createPosterDesign } from "@/app/dashboard/campaign/[campaignId]/actions";
+import {
+  useCampaignId,
+  useCampaignTarget,
+} from "@/app/dashboard/campaign/[campaignId]/_components/CampaignContext";
 
-import { useCampaignTarget } from "../CampaignContext";
 import styles from "./CreatePosterDesignDialog.module.css";
+import { getImageFileError } from "./posterDesignValidation";
 import PosterDesignFields, { QrValues } from "./PosterDesignFields";
 import useDrawCanvas from "./useDrawCanvas";
 
@@ -28,8 +33,10 @@ function logQrValues(values: QrValues) {
 }
 
 export default function CreatePosterDesignDialog() {
+  const campaignId = useCampaignId();
   const target = useCampaignTarget();
   const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
   const maxQrSize = image
@@ -46,14 +53,34 @@ export default function CreatePosterDesignDialog() {
     setOpen(nextOpen);
   }
 
+  function clearImage() {
+    setImage(null);
+    setQrValues(DEFAULT_QR_VALUES);
+    drawCanvas({ image: null });
+  }
+
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+    const input = event.target;
+    const file = input.files?.[0];
+    input.setCustomValidity("");
     if (!file) {
-      setImage(null);
-      setQrValues(DEFAULT_QR_VALUES);
-      drawCanvas({ image: null });
+      clearImage();
       return;
     }
+
+    // Reject invalid files by marking the input invalid, which blocks the form
+    // from submitting and shows the browser's validation message.
+    function rejectFile(message: string) {
+      input.setCustomValidity(message);
+      input.reportValidity();
+      clearImage();
+    }
+    const fileError = getImageFileError(file);
+    if (fileError) {
+      rejectFile(fileError);
+      return;
+    }
+
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
@@ -62,8 +89,18 @@ export default function CreatePosterDesignDialog() {
       setQrValues(DEFAULT_QR_VALUES);
       drawCanvas({ image: img, qrValues: DEFAULT_QR_VALUES });
     };
-    img.onerror = () => URL.revokeObjectURL(url);
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      rejectFile("This image couldn't be read. Please choose another file.");
+    };
     img.src = url;
+  }
+
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      await createPosterDesign(campaignId, formData);
+      setOpen(false);
+    });
   }
 
   function handleQrChange(key: keyof QrValues, value: string) {
@@ -85,13 +122,7 @@ export default function CreatePosterDesignDialog() {
         />
       }
     >
-      <form
-        className={styles.form}
-        onSubmit={(event) => {
-          event.preventDefault();
-          setOpen(false);
-        }}
-      >
+      <form className={styles.form} action={handleSubmit}>
         <PosterDesignFields
           qrValues={qrValues}
           maxQrSize={maxQrSize}
@@ -102,7 +133,12 @@ export default function CreatePosterDesignDialog() {
         <canvas ref={canvasRef} className={styles.canvas} hidden={!image} />
 
         <div className={styles.submitButtonWrapper}>
-          <Button variant={"filled"} fontSize={"1.5rem"} type="submit">
+          <Button
+            variant={"filled"}
+            fontSize={"1.5rem"}
+            type="submit"
+            disabled={isPending}
+          >
             Create poster design
           </Button>
         </div>

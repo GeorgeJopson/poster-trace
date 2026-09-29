@@ -19,7 +19,7 @@ export default function PosterDesigns({ posterDesigns }: PosterDesignsProps) {
             key={posterDesign.id}
             width={176}
             height={249}
-            src={`data:image/png;base64,${posterDesign.design.toBase64()}`}
+            src={`data:${posterDesign.designMimeType};base64,${posterDesign.design.toBase64()}`}
             alt="Poster design"
             className={styles.posterDesignImage}
           />

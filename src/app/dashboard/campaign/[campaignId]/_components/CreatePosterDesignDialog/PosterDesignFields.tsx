@@ -1,6 +1,7 @@
 import React from "react";
 
 import styles from "./PosterDesignFields.module.css";
+import { QR_RANGES } from "./posterDesignValidation";
 
 export type QrValues = {
   qrXPosition: string;
@@ -13,9 +14,8 @@ type QrSliderFieldProps = {
   name: keyof QrValues;
   label: string;
   value: string;
-  min: number;
-  max: number;
-  step: number;
+  /** Overrides the max from QR_RANGES, e.g. for a limit based on the image. */
+  max?: number;
   unit: string;
   disabled?: boolean;
   onChange: (name: keyof QrValues, value: string) => void;
@@ -25,9 +25,7 @@ function QrSliderField({
   name,
   label,
   value,
-  min,
-  max,
-  step,
+  max = QR_RANGES[name].max,
   unit,
   disabled,
   onChange,
@@ -43,9 +41,9 @@ function QrSliderField({
           id={name}
           name={name}
           type="range"
-          min={min}
+          min={QR_RANGES[name].min}
           max={max}
-          step={step}
+          step={QR_RANGES[name].step}
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(name, event.target.value)}
@@ -84,6 +82,7 @@ export default function PosterDesignFields({
         name="image"
         type="file"
         accept="image/*"
+        required
         onChange={onFileChange}
       />
 
@@ -91,9 +90,6 @@ export default function PosterDesignFields({
         name="qrXPosition"
         label="QR X position"
         value={qrValues.qrXPosition}
-        min={0}
-        max={100}
-        step={0.1}
         unit="%"
         onChange={onQrChange}
       />
@@ -101,9 +97,6 @@ export default function PosterDesignFields({
         name="qrYPosition"
         label="QR Y position"
         value={qrValues.qrYPosition}
-        min={0}
-        max={100}
-        step={0.1}
         unit="%"
         onChange={onQrChange}
       />
@@ -111,9 +104,7 @@ export default function PosterDesignFields({
         name="qrSize"
         label="QR size"
         value={qrValues.qrSize}
-        min={0}
         max={maxQrSize}
-        step={1}
         unit="px"
         disabled={maxQrSize === 0}
         onChange={onQrChange}
@@ -122,9 +113,6 @@ export default function PosterDesignFields({
         name="qrRotation"
         label="QR rotation"
         value={qrValues.qrRotation}
-        min={0}
-        max={360}
-        step={1}
         unit="°"
         onChange={onQrChange}
       />
