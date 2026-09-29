@@ -6,6 +6,7 @@ import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
 
+import { useCampaignTarget } from "../CampaignContext";
 import styles from "./CreatePosterDesignDialog.module.css";
 import PosterDesignFields, { QrValues } from "./PosterDesignFields";
 import useDrawCanvas from "./useDrawCanvas";
@@ -27,6 +28,7 @@ function logQrValues(values: QrValues) {
 }
 
 export default function CreatePosterDesignDialog() {
+  const target = useCampaignTarget();
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
@@ -34,7 +36,7 @@ export default function CreatePosterDesignDialog() {
     ? Math.min(image.naturalWidth, image.naturalHeight)
     : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawCanvas = useDrawCanvas(canvasRef, image, qrValues);
+  const drawCanvas = useDrawCanvas(canvasRef, image, qrValues, target);
 
   // The dialog content (including the file input and canvas) is recreated each
   // time it opens, so reset the state to match.
