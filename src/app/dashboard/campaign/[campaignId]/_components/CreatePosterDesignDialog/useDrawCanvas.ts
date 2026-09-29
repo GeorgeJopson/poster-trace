@@ -37,10 +37,10 @@ export default function useDrawCanvas(
       canvas.height = currentImage.naturalHeight;
       ctx.drawImage(currentImage, 0, 0);
 
-      // Placeholder QR square: x/y is the top-left corner, rotated (in
-      // degrees) about its centre.
-      const x = parseFloat(qr.qrXPosition) || 0;
-      const y = parseFloat(qr.qrYPosition) || 0;
+      // Placeholder QR square: x/y are the top-left corner as a percentage of
+      // the canvas (like CSS left/top), rotated (in degrees) about its centre.
+      const x = ((parseFloat(qr.qrXPosition) || 0) / 100) * canvas.width;
+      const y = ((parseFloat(qr.qrYPosition) || 0) / 100) * canvas.height;
       const size = parseFloat(qr.qrSize) || 0;
       const rotation = parseFloat(qr.qrRotation) || 0;
       ctx.save();

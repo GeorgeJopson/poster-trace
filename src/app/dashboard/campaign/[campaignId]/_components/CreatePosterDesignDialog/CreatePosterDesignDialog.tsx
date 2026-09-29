@@ -30,6 +30,9 @@ export default function CreatePosterDesignDialog() {
   const [open, setOpen] = useState(false);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
+  const maxQrSize = image
+    ? Math.min(image.naturalWidth, image.naturalHeight)
+    : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawCanvas = useDrawCanvas(canvasRef, image, qrValues);
 
@@ -45,6 +48,7 @@ export default function CreatePosterDesignDialog() {
     const file = event.target.files?.[0];
     if (!file) {
       setImage(null);
+      setQrValues(DEFAULT_QR_VALUES);
       drawCanvas({ image: null });
       return;
     }
@@ -53,7 +57,8 @@ export default function CreatePosterDesignDialog() {
     img.onload = () => {
       URL.revokeObjectURL(url);
       setImage(img);
-      drawCanvas({ image: img });
+      setQrValues(DEFAULT_QR_VALUES);
+      drawCanvas({ image: img, qrValues: DEFAULT_QR_VALUES });
     };
     img.onerror = () => URL.revokeObjectURL(url);
     img.src = url;
@@ -87,6 +92,7 @@ export default function CreatePosterDesignDialog() {
       >
         <PosterDesignFields
           qrValues={qrValues}
+          maxQrSize={maxQrSize}
           onFileChange={handleFileChange}
           onQrChange={handleQrChange}
         />

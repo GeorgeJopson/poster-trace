@@ -9,40 +9,67 @@ export type QrValues = {
   qrRotation: string;
 };
 
-type QrNumberFieldProps = {
+type QrSliderFieldProps = {
   name: keyof QrValues;
   label: string;
   value: string;
+  min: number;
+  max: number;
+  step: number;
+  unit: string;
+  disabled?: boolean;
   onChange: (name: keyof QrValues, value: string) => void;
 };
 
-function QrNumberField({ name, label, value, onChange }: QrNumberFieldProps) {
+function QrSliderField({
+  name,
+  label,
+  value,
+  min,
+  max,
+  step,
+  unit,
+  disabled,
+  onChange,
+}: QrSliderFieldProps) {
   return (
     <>
       <label className={styles.label} htmlFor={name}>
         {label}
       </label>
-      <input
-        className={styles.input}
-        id={name}
-        name={name}
-        type="number"
-        step="any"
-        value={value}
-        onChange={(event) => onChange(name, event.target.value)}
-      />
+      <div className={styles.sliderWrapper}>
+        <input
+          className={styles.slider}
+          id={name}
+          name={name}
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          disabled={disabled}
+          onChange={(event) => onChange(name, event.target.value)}
+        />
+        <output className={styles.sliderValue} htmlFor={name}>
+          {parseFloat(value).toFixed(1)}
+          {unit}
+        </output>
+      </div>
     </>
   );
 }
 
 type PosterDesignFieldsProps = {
   qrValues: QrValues;
+  /** Largest allowed QR size in pixels: min(image width, image height). */
+  maxQrSize: number;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onQrChange: (name: keyof QrValues, value: string) => void;
 };
 
 export default function PosterDesignFields({
   qrValues,
+  maxQrSize,
   onFileChange,
   onQrChange,
 }: PosterDesignFieldsProps) {
@@ -60,28 +87,45 @@ export default function PosterDesignFields({
         onChange={onFileChange}
       />
 
-      <QrNumberField
+      <QrSliderField
         name="qrXPosition"
         label="QR X position"
         value={qrValues.qrXPosition}
+        min={0}
+        max={100}
+        step={0.1}
+        unit="%"
         onChange={onQrChange}
       />
-      <QrNumberField
+      <QrSliderField
         name="qrYPosition"
         label="QR Y position"
         value={qrValues.qrYPosition}
+        min={0}
+        max={100}
+        step={0.1}
+        unit="%"
         onChange={onQrChange}
       />
-      <QrNumberField
+      <QrSliderField
         name="qrSize"
         label="QR size"
         value={qrValues.qrSize}
+        min={0}
+        max={maxQrSize}
+        step={1}
+        unit="px"
+        disabled={maxQrSize === 0}
         onChange={onQrChange}
       />
-      <QrNumberField
+      <QrSliderField
         name="qrRotation"
         label="QR rotation"
         value={qrValues.qrRotation}
+        min={0}
+        max={360}
+        step={1}
+        unit="°"
         onChange={onQrChange}
       />
     </div>
