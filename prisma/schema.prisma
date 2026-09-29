@@ -22,6 +22,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  posterCampaigns PosterCampaign[]
 
   @@unique([email])
   @@map("user")
@@ -80,6 +81,10 @@ model PosterCampaign {
   name String
   target String
   posterDesigns PosterDesign[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  @@index([userId])
 }
 
 model PosterDesign {

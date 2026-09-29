@@ -1,4 +1,5 @@
 import "dotenv/config";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { PrismaClient } from "@/generated/prisma/client";
@@ -22,6 +23,25 @@ function daysAgo(days: number, hour = 12) {
   return date;
 }
 
+// Seeded campaigns belong to this user. Signing in with Google using the
+// same email links to it, so the seed data shows up on your dashboard.
+async function getSeedUser() {
+  const email = process.env.SEED_USER_EMAIL?.toLowerCase();
+  if (!email) {
+    throw new Error("Set SEED_USER_EMAIL in .env to the account to seed");
+  }
+  return prisma.user.upsert({
+    where: { email },
+    update: {},
+    create: {
+      id: crypto.randomUUID(),
+      name: email.split("@")[0],
+      email,
+      emailVerified: true,
+    },
+  });
+}
+
 async function main() {
   // Clear existing poster data (children first) so the seed is repeatable.
   await prisma.scan.deleteMany();
@@ -29,10 +49,13 @@ async function main() {
   await prisma.posterDesign.deleteMany();
   await prisma.posterCampaign.deleteMany();
 
+  const { id: userId } = await getSeedUser();
+
   const summerFest = await prisma.posterCampaign.create({
     data: {
       name: "Summer Music Festival 2026",
       target: "https://posters.example.com/campaigns/summer-fest-2026",
+      userId,
     },
   });
 
@@ -40,6 +63,7 @@ async function main() {
     data: {
       name: "Downtown Cafe Grand Opening",
       target: "https://posters.example.com/campaigns/cafe-opening",
+      userId,
     },
   });
 
@@ -47,6 +71,7 @@ async function main() {
     data: {
       name: "City Marathon 2026 Registration",
       target: "https://posters.example.com/campaigns/marathon-2026",
+      userId,
     },
   });
 
@@ -55,6 +80,7 @@ async function main() {
     data: {
       name: "Neighborhood Art Walk 2026",
       target: "https://posters.example.com/campaigns/art-walk-2026",
+      userId,
     },
   });
 

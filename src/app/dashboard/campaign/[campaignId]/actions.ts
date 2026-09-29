@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import prisma from "@/lib/prisma";
+import {
+  createPosterDesign as createPosterDesignForUser,
+  updateCampaign as updateCampaignForUser,
+} from "@/data/campaigns";
 
 import {
   getImageFileError,
@@ -13,10 +16,7 @@ export async function updateCampaign(campaignId: number, formData: FormData) {
   const name = String(formData.get("name") ?? "");
   const target = String(formData.get("target") ?? "");
 
-  await prisma.posterCampaign.update({
-    where: { id: campaignId },
-    data: { name, target },
-  });
+  await updateCampaignForUser(campaignId, { name, target });
 
   revalidatePath(`/dashboard/campaign/${campaignId}`);
 }
@@ -43,16 +43,13 @@ export async function createPosterDesign(
     throw new Error(imageError);
   }
 
-  await prisma.posterDesign.create({
-    data: {
-      design: new Uint8Array(await image.arrayBuffer()),
-      designMimeType: image.type,
-      qr_x_position: parseQrValue(formData, "qrXPosition"),
-      qr_y_position: parseQrValue(formData, "qrYPosition"),
-      qr_size: parseQrValue(formData, "qrSize"),
-      qr_rotation: parseQrValue(formData, "qrRotation"),
-      posterCampaignId: campaignId,
-    },
+  await createPosterDesignForUser(campaignId, {
+    design: new Uint8Array(await image.arrayBuffer()),
+    designMimeType: image.type,
+    qr_x_position: parseQrValue(formData, "qrXPosition"),
+    qr_y_position: parseQrValue(formData, "qrYPosition"),
+    qr_size: parseQrValue(formData, "qrSize"),
+    qr_rotation: parseQrValue(formData, "qrRotation"),
   });
 
   revalidatePath(`/dashboard/campaign/${campaignId}`);

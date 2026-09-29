@@ -1,16 +1,12 @@
 import CentralColumn from "@/components/CentralColumn";
-import prisma from "@/lib/prisma";
+import { getMyCampaigns } from "@/data/campaigns";
 
 import styles from "./Dashboard.module.css";
 import CampaignCard from "./_components/CampaignCard";
 import CreateCampaignDialog from "./_components/CreateCampaignDialog";
 
 export default async function DashboardPage() {
-  const campaigns = await prisma.posterCampaign.findMany({
-    include: {
-      posterDesigns: true,
-    },
-  });
+  const campaigns = await getMyCampaigns();
   return (
     <CentralColumn>
       <div className={styles.wrapper}>

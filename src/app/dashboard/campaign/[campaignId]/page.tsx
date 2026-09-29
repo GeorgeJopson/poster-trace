@@ -1,4 +1,6 @@
-import prisma from "@/lib/prisma";
+import { notFound } from "next/navigation";
+
+import { getMyCampaign } from "@/data/campaigns";
 import CentralColumn from "@/components/CentralColumn";
 
 import { CampaignProvider } from "./_components/CampaignContext";
@@ -11,18 +13,22 @@ export default async function CampaignPage({
   params: Promise<{ campaignId: string }>;
 }) {
   const { campaignId } = await params;
-  const campaign = await prisma.posterCampaign.findUnique({
-    where: { id: parseInt(campaignId) },
-    include: { posterDesigns: true },
-  });
+  const id = Number(campaignId);
+  if (!Number.isInteger(id)) {
+    notFound();
+  }
+
+  const campaign = await getMyCampaign(id);
+  if (!campaign) {
+    notFound();
+  }
+
   return (
     <CentralColumn>
-      {campaign && (
-        <CampaignProvider id={campaign.id} target={campaign.target}>
-          <CampaignHeader campaign={campaign} />
-          <PosterDesigns posterDesigns={campaign.posterDesigns} />
-        </CampaignProvider>
-      )}
+      <CampaignProvider id={campaign.id} target={campaign.target}>
+        <CampaignHeader campaign={campaign} />
+        <PosterDesigns posterDesigns={campaign.posterDesigns} />
+      </CampaignProvider>
     </CentralColumn>
   );
 }

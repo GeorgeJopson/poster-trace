@@ -36,15 +36,12 @@ Other scripts: `npm run db:down` (stop, keeps data), `npm run db:reset` (wipe vo
 
 ## Authentication
 
-Sign-in is Google OAuth only. To work on `/dashboard` without going through
-that flow, set in `.env`:
+Sign-in is Google OAuth only. Poster campaigns are owned by the user who
+created them, so `/dashboard` always requires signing in.
 
-```
-DISABLE_AUTH=true
-```
-
-This only has an effect when `NODE_ENV !== "production"`, so it can't
-accidentally disable auth in a production build.
+`npx prisma db seed` assigns its campaigns to the user with the email in
+`SEED_USER_EMAIL` (creating that user if needed). Set it to your Google
+email to see the seed data after signing in.
 
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
