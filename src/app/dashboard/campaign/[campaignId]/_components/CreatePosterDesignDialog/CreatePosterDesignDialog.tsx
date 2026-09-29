@@ -23,15 +23,6 @@ const DEFAULT_QR_VALUES: QrValues = {
   qrRotation: "0",
 };
 
-function logQrValues(values: QrValues) {
-  console.log({
-    qr_x_position: parseFloat(values.qrXPosition),
-    qr_y_position: parseFloat(values.qrYPosition),
-    qr_size: parseFloat(values.qrSize),
-    qr_rotation: parseFloat(values.qrRotation),
-  });
-}
-
 export default function CreatePosterDesignDialog() {
   const campaignId = useCampaignId();
   const target = useCampaignTarget();
@@ -106,7 +97,6 @@ export default function CreatePosterDesignDialog() {
   function handleQrChange(key: keyof QrValues, value: string) {
     const next = { ...qrValues, [key]: value };
     setQrValues(next);
-    logQrValues(next);
     drawCanvas({ qrValues: next });
   }
 
