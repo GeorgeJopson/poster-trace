@@ -31,7 +31,7 @@ export default function CreatePosterDesignDialog() {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawCanvas = useDrawCanvas(canvasRef, image);
+  const drawCanvas = useDrawCanvas(canvasRef, image, qrValues);
 
   // The dialog content (including the file input and canvas) is recreated each
   // time it opens, so reset the state to match.
@@ -45,7 +45,7 @@ export default function CreatePosterDesignDialog() {
     const file = event.target.files?.[0];
     if (!file) {
       setImage(null);
-      drawCanvas();
+      drawCanvas({ image: null });
       return;
     }
     const url = URL.createObjectURL(file);
@@ -53,7 +53,7 @@ export default function CreatePosterDesignDialog() {
     img.onload = () => {
       URL.revokeObjectURL(url);
       setImage(img);
-      drawCanvas(img);
+      drawCanvas({ image: img });
     };
     img.onerror = () => URL.revokeObjectURL(url);
     img.src = url;
@@ -63,6 +63,7 @@ export default function CreatePosterDesignDialog() {
     const next = { ...qrValues, [key]: value };
     setQrValues(next);
     logQrValues(next);
+    drawCanvas({ qrValues: next });
   }
 
   return (
