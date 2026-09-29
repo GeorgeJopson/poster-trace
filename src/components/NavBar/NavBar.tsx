@@ -24,7 +24,7 @@ export default function NavBar({ logoTarget, targets }: NavBarProps) {
           <div className={styles.buttonGroup}>
             {targets.map(({ targetUrl, name, buttonStyle }) => (
               <Button
-                key={targetUrl+name}
+                key={targetUrl + name}
                 variant={buttonStyle}
                 href={targetUrl}
                 fontSize={`${20 / 16}rem`}
