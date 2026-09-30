@@ -5,6 +5,7 @@ import React from "react";
 type BaseButtonProps = React.HTMLAttributes<HTMLElement> & {
   fontSize?: string;
   href?: string;
+  textWrap?: React.CSSProperties["textWrap"];
 };
 
 export default function BaseButton({
@@ -12,13 +13,14 @@ export default function BaseButton({
   className,
   fontSize,
   href,
+  textWrap,
   ...props
 }: BaseButtonProps) {
   if (href != null) {
     return (
       <Link
         className={`${styles.btn} ${className}`}
-        style={{ fontSize }}
+        style={{ fontSize, textWrap }}
         href={href}
         {...props}
       >
@@ -29,7 +31,7 @@ export default function BaseButton({
   return (
     <button
       className={`${styles.btn} ${className}`}
-      style={{ fontSize }}
+      style={{ fontSize, textWrap }}
       {...props}
     >
       {children}

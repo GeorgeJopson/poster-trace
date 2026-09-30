@@ -1,0 +1,37 @@
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  row-gap: 4px;
+  align-items: center;
+  font-size: var(--font-size-body);
+}
+
+.label {
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 0 10px;
+}
+
+.sliderWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+}
+
+.sliderValue {
+  min-width: 5ch;
+  text-align: right;
+}

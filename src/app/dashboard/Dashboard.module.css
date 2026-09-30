@@ -1,0 +1,11 @@
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: 36px;
+  padding-top: 16px;
+  align-items: stretch;
+}
+
+.wrapper {
+  padding-top: 16px;
+}

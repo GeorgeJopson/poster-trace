@@ -34,6 +34,15 @@ postgresql://poster_trace:poster_trace@localhost:5432/poster_trace
 
 Other scripts: `npm run db:down` (stop, keeps data), `npm run db:reset` (wipe volume, restart, re-apply migrations).
 
+## Authentication
+
+Sign-in is Google OAuth only. Poster campaigns are owned by the user who
+created them, so `/dashboard` always requires signing in.
+
+`npx prisma db seed` assigns its campaigns to the user with the email in
+`SEED_USER_EMAIL` (creating that user if needed). Set it to your Google
+email to see the seed data after signing in.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

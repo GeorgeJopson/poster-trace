@@ -1,0 +1,27 @@
+.button {
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.text {
+  font-family: var(--font-bungee), sans-serif;
+  font-size: var(--font-size-important-body);
+  color: var(--color-green-950);
+  text-align: center;
+  line-height: 1.15;
+}
+
+.plus {
+  font-family: var(--font-bungee), sans-serif;
+  display: inline-block;
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--color-green-950);
+  text-box: trim-both cap alphabetic;
+}

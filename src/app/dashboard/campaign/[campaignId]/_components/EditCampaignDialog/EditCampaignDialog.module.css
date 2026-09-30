@@ -1,0 +1,23 @@
+.settingsButton {
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-top: -8px;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: transparent;
+  color: black;
+  transition: background-color 150ms ease;
+}
+
+.settingsButton:hover {
+  background-color: color-mix(in srgb, var(--color-green-950) 15%, transparent);
+}
+
+.settingsIcon {
+  display: inline-flex;
+}

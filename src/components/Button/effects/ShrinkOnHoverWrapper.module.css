@@ -1,5 +1,6 @@
 .wrapper {
   will-change: transform;
+  display: inline-block;
 }
 
 .wrapper:hover button,

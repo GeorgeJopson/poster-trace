@@ -1,7 +1,5 @@
 import React from "react";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { requireUserId } from "@/lib/session";
 
 type DashboardLayoutProps = Readonly<{
   children: React.ReactNode;
@@ -10,12 +8,6 @@ type DashboardLayoutProps = Readonly<{
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/sign-in");
-  }
+  await requireUserId();
   return <>{children}</>;
 }

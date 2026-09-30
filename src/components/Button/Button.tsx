@@ -19,13 +19,15 @@ const VARIANTS = {
   },
 } as const;
 
-type ButtonVariant = "filled" | "filledWithOutline" | "outline" | "transparent";
+export type ButtonVariant =
+  "filled" | "filledWithOutline" | "outline" | "transparent";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: React.ReactNode;
   variant: ButtonVariant;
   fontSize: string;
   href?: string;
+  textWrap?: React.CSSProperties["textWrap"];
 };
 
 export default function Button({
@@ -33,6 +35,7 @@ export default function Button({
   variant,
   fontSize,
   href,
+  textWrap = "nowrap",
   ...props
 }: ButtonProps) {
   const { className, particles, shrink } = VARIANTS[variant];
@@ -44,6 +47,7 @@ export default function Button({
       className={className}
       fontSize={fontSize}
       href={href}
+      textWrap={textWrap}
       {...props}
     >
       {children}

@@ -3,9 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./Logo.module.css";
 
-export default function Logo() {
+type LogoProps = {
+  href?: string;
+};
+
+export default function Logo({ href = "/" }: LogoProps) {
   return (
-    <Link className={styles.logoWrapper} href={"/"}>
+    <Link className={styles.logoWrapper} href={href}>
       <Image
         width={36}
         height={36}

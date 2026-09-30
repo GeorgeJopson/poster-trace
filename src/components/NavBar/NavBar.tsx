@@ -1,31 +1,37 @@
 import React from "react";
 import Logo from "@/components/Logo";
-import Button from "@/components/Button";
+import Button, { ButtonVariant } from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
 import styles from "./NavBar.module.css";
-import { routeNames } from "@/routeNames";
 
-export default function NavBar() {
+export type NavBarTarget = {
+  targetUrl: string;
+  name: string;
+  buttonStyle: ButtonVariant;
+};
+
+export type NavBarProps = {
+  logoTarget: string;
+  targets: NavBarTarget[];
+};
+
+export default function NavBar({ logoTarget, targets }: NavBarProps) {
   return (
     <nav className={styles.navBarWrapper} aria-label="Primary">
       <CentralColumn>
         <div className={styles.contentWrapper}>
-          <Logo />
+          <Logo href={logoTarget} />
           <div className={styles.buttonGroup}>
-            <Button
-              variant={"transparent"}
-              href={routeNames.signIn}
-              fontSize={`${20 / 16}rem`}
-            >
-              Log In
-            </Button>
-            <Button
-              variant={"filled"}
-              href={routeNames.signUp}
-              fontSize={`${20 / 16}rem`}
-            >
-              Sign Up
-            </Button>
+            {targets.map(({ targetUrl, name, buttonStyle }) => (
+              <Button
+                key={targetUrl + name}
+                variant={buttonStyle}
+                href={targetUrl}
+                fontSize={`${20 / 16}rem`}
+              >
+                {name}
+              </Button>
+            ))}
           </div>
         </div>
       </CentralColumn>
