@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import DashedCard from "@/components/DashedCard";
 import { icons } from "@/imageDetails";
-import type { Prisma } from "@/generated/prisma/client";
+import type { CampaignWithDesigns } from "@/data/campaigns";
 
 import styles from "./CampaignCard.module.css";
 import useBoop from "@/utils/useBoop";
@@ -13,12 +13,8 @@ import { animated } from "react-spring";
 const IMAGE_WIDTH = 150;
 const ROOT_2 = 1.4142;
 
-type Campaign = Prisma.PosterCampaignGetPayload<{
-  include: { posterDesigns: true };
-}>;
-
 interface CampaignCardProps {
-  campaign: Campaign;
+  campaign: CampaignWithDesigns;
 }
 
 const wrapperClassByCount: Record<number, string> = {
@@ -58,7 +54,7 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
                 key={posterDesign.id}
                 width={IMAGE_WIDTH}
                 height={Math.round(IMAGE_WIDTH * ROOT_2)}
-                src={`data:image/png;base64,${posterDesign.design.toBase64()}`}
+                src={posterDesign.designUrl}
                 alt={campaign.name}
                 className={styles.posterDesignImage}
               />

@@ -1,12 +1,12 @@
 import Image from "next/image";
 
-import type { PosterDesignModel } from "@/generated/prisma/models";
+import type { PosterDesignWithUrl } from "@/data/campaigns";
 
 import CreatePosterDesignDialog from "../CreatePosterDesignDialog/CreatePosterDesignDialog";
 import styles from "./PosterDesigns.module.css";
 
 interface PosterDesignsProps {
-  posterDesigns: PosterDesignModel[];
+  posterDesigns: PosterDesignWithUrl[];
 }
 
 export default function PosterDesigns({ posterDesigns }: PosterDesignsProps) {
@@ -19,7 +19,7 @@ export default function PosterDesigns({ posterDesigns }: PosterDesignsProps) {
             key={posterDesign.id}
             width={176}
             height={249}
-            src={`data:${posterDesign.designMimeType};base64,${posterDesign.design.toBase64()}`}
+            src={posterDesign.designUrl}
             alt="Poster design"
             className={styles.posterDesignImage}
           />
