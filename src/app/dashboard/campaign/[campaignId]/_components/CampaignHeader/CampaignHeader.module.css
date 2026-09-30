@@ -27,6 +27,7 @@
   font-size: var(--font-size-important-body);
   color: inherit;
   text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .target:hover {
