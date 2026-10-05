@@ -62,6 +62,12 @@ Environment variables), scoped to the Builds and Functions:
 The Google OAuth client must list
 `<BETTER_AUTH_URL>/api/auth/callback/google` as an authorised redirect URI.
 
+Google doesn't allow wildcard redirect URIs, so deploy previews and branch
+deploys sign in through production using Better Auth's OAuth proxy plugin
+(see `src/lib/auth.ts`). For this to work, `BETTER_AUTH_URL` must be the
+production URL in every context, and `BETTER_AUTH_SECRET` must be the same in
+production and previews.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
