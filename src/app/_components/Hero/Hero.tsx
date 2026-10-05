@@ -5,6 +5,7 @@ import PosterFan from "@/app/_components/Hero/PosterFan";
 import HeaderContent from "@/app/_components/Hero/HeaderContent";
 import PosterRow from "@/components/PosterRow";
 import { stockPosters } from "@/imageDetails";
+import { media } from "@/breakpoints";
 import styles from "./Hero.module.css";
 
 interface HeroProps {
@@ -26,7 +27,7 @@ function Hero({ scrollToRef }: HeroProps) {
           <div className={styles.posterRowSection}>
             <PosterRow
               variant="compact"
-              eager
+              preloadMedia={media.tabletAndDown}
               posters={stockPosters.slice(1, 4)}
             />
           </div>
