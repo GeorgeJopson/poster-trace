@@ -39,11 +39,15 @@ export default function SignIn() {
     setIsPending(true);
     setError(null);
 
+    // Absolute URLs, because Netlify appends the OAuth callback's query string
+    // (code, state, …) to relative redirect locations.
+    const dashboardURL = new URL("/dashboard", window.location.origin).href;
+
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/dashboard",
-      errorCallbackURL: "/error",
-      newUserCallbackURL: "/dashboard",
+      callbackURL: dashboardURL,
+      errorCallbackURL: new URL("/error", window.location.origin).href,
+      newUserCallbackURL: dashboardURL,
       fetchOptions: {
         onError: (context) => {
           setIsPending(false);
