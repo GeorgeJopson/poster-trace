@@ -43,6 +43,25 @@ created them, so `/dashboard` always requires signing in.
 `SEED_USER_EMAIL` (creating that user if needed). Set it to your Google
 email to see the seed data after signing in.
 
+## Deployment
+
+The site is hosted on Netlify (configured in `netlify.toml`). Netlify detects
+Next.js and applies its adapter automatically. Production builds run
+`prisma migrate deploy` before `next build`; deploy previews and branch
+deploys skip migrations.
+
+Set these environment variables in the Netlify UI (Site configuration →
+Environment variables), scoped to the Builds and Functions:
+
+- `DATABASE_URL` — Postgres connection string (needed at build time for
+  migrations and at runtime)
+- `BETTER_AUTH_URL` — public site URL, e.g. `https://www.postertrace.app`
+- `BETTER_AUTH_SECRET` — random secret for signing sessions
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
+
+The Google OAuth client must list
+`<BETTER_AUTH_URL>/api/auth/callback/google` as an authorised redirect URI.
+
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
