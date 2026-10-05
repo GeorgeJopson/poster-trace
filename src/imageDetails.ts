@@ -5,9 +5,9 @@
  * decorative and should not be announced to a screen reader.
  */
 
-/** Decorative stock posters, in file order: `stockPosters[0]` is stock-poster-1.png. */
+/** Decorative stock posters, in file order: `stockPosters[0]` is stock-poster-1.jpg. */
 export const stockPosters = Array.from({ length: 7 }, (_, i) => ({
-  src: `/poster-images/stock-poster-${i + 1}.png`,
+  src: `/poster-images/stock-poster-${i + 1}.jpg`,
   alt: "",
 }));
 
