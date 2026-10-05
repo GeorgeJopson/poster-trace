@@ -1,17 +1,13 @@
-import React, { RefObject } from "react";
+import React from "react";
 import Button from "@/components/Button";
 import Image from "next/image";
 import { icons } from "@/imageDetails";
+import LearnMoreButton from "@/app/_components/Hero/LearnMoreButton";
+import { problemSectionId } from "@/app/_components/ProblemSection";
 import styles from "./HeaderButtonGroup.module.css";
 import { routeNames } from "@/routeNames";
 
-interface HeaderButtonGroupProps {
-  scrollToRef: RefObject<HTMLElement | null>;
-}
-
-export default function HeaderButtonGroup({
-  scrollToRef,
-}: HeaderButtonGroupProps) {
+export default function HeaderButtonGroup() {
   return (
     <div className={styles.buttonWrapper}>
       <Button
@@ -21,21 +17,7 @@ export default function HeaderButtonGroup({
       >
         Sign Up
       </Button>
-      <Button
-        variant={"transparent"}
-        fontSize={`var(--learn-more-btn-size)`}
-        onClick={() => {
-          if (scrollToRef.current) {
-            window.scrollTo({
-              behavior: "smooth",
-              top:
-                scrollToRef.current.getBoundingClientRect().top -
-                document.body.getBoundingClientRect().top -
-                46,
-            });
-          }
-        }}
-      >
+      <LearnMoreButton targetId={problemSectionId}>
         Learn More{" "}
         <Image
           className={styles.inlineImage}
@@ -44,7 +26,7 @@ export default function HeaderButtonGroup({
           src={icons.rightArrow.src}
           alt={icons.rightArrow.alt}
         />
-      </Button>
+      </LearnMoreButton>
     </div>
   );
 }

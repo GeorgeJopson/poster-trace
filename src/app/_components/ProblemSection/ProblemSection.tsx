@@ -1,4 +1,4 @@
-import React, { RefObject } from "react";
+import React from "react";
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
 import ProblemCard from "@/app/_components/ProblemSection/ProblemCard";
@@ -6,16 +6,15 @@ import Image from "next/image";
 import { icons } from "@/imageDetails";
 import styles from "./ProblemSection.module.css";
 
-interface ProblemSectionProps {
-  scrollToRef: RefObject<HTMLElement | null>;
-}
+/** Lets the hero's "Learn More" button scroll to this section. */
+export const problemSectionId = "the-problem";
 
-export default function ProblemSection({ scrollToRef }: ProblemSectionProps) {
+export default function ProblemSection() {
   return (
     <section
       className={styles.wrapper}
       aria-label="The problem"
-      ref={scrollToRef}
+      id={problemSectionId}
     >
       <CentralColumn>
         <Header variant="heading">The Problem</Header>
