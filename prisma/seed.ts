@@ -86,8 +86,8 @@ async function main() {
 
   const summerFestDesignA = await prisma.posterDesign.create({
     data: {
-      design: loadDesignImage("stock-poster-1.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-1.jpg"),
+      designMimeType: "image/jpeg",
       qr_x_position: 0.82,
       qr_y_position: 0.85,
       qr_size: 0.12,
@@ -98,8 +98,8 @@ async function main() {
 
   const summerFestDesignB = await prisma.posterDesign.create({
     data: {
-      design: loadDesignImage("stock-poster-2.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-2.jpg"),
+      designMimeType: "image/jpeg",
       qr_x_position: 0.5,
       qr_y_position: 0.9,
       qr_size: 0.15,
@@ -110,8 +110,8 @@ async function main() {
 
   const cafeDesign = await prisma.posterDesign.create({
     data: {
-      design: loadDesignImage("stock-poster-3.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-3.jpg"),
+      designMimeType: "image/jpeg",
       qr_x_position: 0.75,
       qr_y_position: 0.8,
       qr_size: 0.1,
@@ -122,8 +122,8 @@ async function main() {
 
   const marathonDesignA = await prisma.posterDesign.create({
     data: {
-      design: loadDesignImage("stock-poster-4.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-4.jpg"),
+      designMimeType: "image/jpeg",
       qr_x_position: 0.2,
       qr_y_position: 0.15,
       qr_size: 0.18,
@@ -134,8 +134,8 @@ async function main() {
 
   const marathonDesignB = await prisma.posterDesign.create({
     data: {
-      design: loadDesignImage("stock-poster-5.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-5.jpg"),
+      designMimeType: "image/jpeg",
       qr_x_position: 0.85,
       qr_y_position: 0.1,
       qr_size: 0.1,

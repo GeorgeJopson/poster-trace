@@ -21,6 +21,15 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  // Keep a signed copy of the session in a cookie so most session checks
+  // (the NavBar on every page, the dashboard guard) skip the database. A
+  // revoked session can stay valid for up to maxAge.
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
