@@ -46,9 +46,10 @@ email to see the seed data after signing in.
 ## Deployment
 
 The site is hosted on Netlify (configured in `netlify.toml`). Netlify detects
-Next.js and applies its adapter automatically. Production builds run
-`prisma migrate deploy` before `next build`; deploy previews and branch
-deploys skip migrations.
+Next.js and applies its adapter automatically. Every build runs
+`prisma migrate deploy` before `next build`, so deploy previews and branch
+deploys need their own `DATABASE_URL`, pointing at a separate database from
+production.
 
 Set these environment variables in the Netlify UI (Site configuration →
 Environment variables), scoped to the Builds and Functions:
