@@ -23,7 +23,7 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
 3. Create a `.env` file in the project root:
 
    ```
-   BETTER_AUTH_URL=http://localhost:8888
+   BETTER_AUTH_URL=http://localhost:3000
    BETTER_AUTH_SECRET=<any long random string, e.g. from `openssl rand -base64 32`>
    GOOGLE_CLIENT_ID=<Google OAuth client ID>
    GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
@@ -31,7 +31,7 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    ```
 
    The Google OAuth client must list
-   `http://localhost:8888/api/auth/callback/google` as an authorised redirect
+   `http://localhost:3000/api/auth/callback/google` as an authorised redirect
    URI. Don't set `NETLIFY_DB_URL`: `netlify dev` provides it.
 
 4. Start the dev server, which also starts a local database:
@@ -47,13 +47,14 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    npm run db:seed
    ```
 
-6. Open [http://localhost:8888](http://localhost:8888) and sign in with
+6. Open [http://localhost:3000](http://localhost:3000) and sign in with
    Google. If you seeded with your email, the sample campaigns appear on
    `/dashboard`.
 
-Use `netlify dev`, not `npm run dev`: plain `next dev` has no database. Local
-data persists between runs; re-run `npm run db:migrate` after pulling new
-migrations.
+`netlify dev` serves the app on port 3000 and runs Next.js on 3001 behind it
+(see `[dev]` in `netlify.toml`). Use `netlify dev`, not `npm run dev`: plain
+`next dev` has no database. Local data persists between runs; re-run
+`npm run db:migrate` after pulling new migrations.
 
 ## Local database
 
