@@ -3,15 +3,22 @@
 # See https://docs.netlify.com/frameworks/next-js/overview/
 
 [build]
-  # Runs `prisma migrate deploy && next build` (see package.json).
   command = "npm run build"
   publish = ".next"
 
 [build.environment]
-  # Prisma 7 and Next.js 16 both need a recent Node LTS.
+  # Next.js 16 and @netlify/database both need a recent Node LTS.
   NODE_VERSION = "24"
 
-# Deploy previews and branch deploys use the same build command, so they
-# migrate their own database too. Their DATABASE_URL must point at a separate
-# database in the Netlify UI, never production's, because these builds run
-# migrations from unmerged branches.
+[dev]
+  # Serve the app on http://localhost:3000. That's where Next.js normally
+  # runs, so move it to 3001 behind netlify dev's proxy.
+  port = 3000
+  targetPort = 3001
+  command = "next dev --port 3001"
+
+# Netlify Database: because @netlify/database is installed, Netlify
+# provisions the database and applies the migrations in
+# netlify/database/migrations/ on every deploy, before it goes live. Deploy
+# previews each get their own database branch (a copy of production taken
+# when the preview is created), so unmerged migrations never touch production.

@@ -1,7 +1,7 @@
 "use client";
 
 import { icons } from "@/imageDetails";
-import type { PosterCampaignModel } from "@/generated/prisma/models";
+import type { PosterCampaign } from "@/db/schema";
 import Image from "next/image";
 import { useState } from "react";
 import { animated } from "react-spring";
@@ -12,7 +12,7 @@ import EditCampaignForm from "../EditCampaignForm/EditCampaignForm";
 import styles from "./EditCampaignDialog.module.css";
 
 interface EditCampaignDialogProps {
-  campaign: PosterCampaignModel;
+  campaign: PosterCampaign;
 }
 
 export default function EditCampaignDialog({

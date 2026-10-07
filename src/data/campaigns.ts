@@ -1,7 +1,9 @@
 import "server-only";
 
-import type { PosterDesignModel } from "@/generated/prisma/models";
-import prisma from "@/lib/prisma";
+import { and, eq } from "drizzle-orm";
+
+import db from "@/db";
+import { posterCampaign, posterDesign, type PosterDesign } from "@/db/schema";
 import { requireUserId } from "@/lib/session";
 
 // Every query here is scoped to the signed-in user. A campaign owned by
@@ -10,10 +12,10 @@ import { requireUserId } from "@/lib/session";
 
 // Swap the raw image bytes for a data URL so designs can be rendered (and
 // passed to client components) without base64-encoding in the browser.
-function withDesignUrl({ design, ...posterDesign }: PosterDesignModel) {
+function withDesignUrl({ design, ...rest }: PosterDesign) {
   return {
-    ...posterDesign,
-    designUrl: `data:${posterDesign.designMimeType};base64,${Buffer.from(design).toString("base64")}`,
+    ...rest,
+    designUrl: `data:${rest.designMimeType};base64,${Buffer.from(design).toString("base64")}`,
   };
 }
 
@@ -21,9 +23,9 @@ export type PosterDesignWithUrl = ReturnType<typeof withDesignUrl>;
 
 export async function getMyCampaigns() {
   const userId = await requireUserId();
-  const campaigns = await prisma.posterCampaign.findMany({
+  const campaigns = await db.query.posterCampaign.findMany({
     where: { userId },
-    include: { posterDesigns: true },
+    with: { posterDesigns: true },
   });
   return campaigns.map((campaign) => ({
     ...campaign,
@@ -37,9 +39,9 @@ export type CampaignWithDesigns = Awaited<
 
 export async function getMyCampaign(campaignId: number) {
   const userId = await requireUserId();
-  const campaign = await prisma.posterCampaign.findFirst({
+  const campaign = await db.query.posterCampaign.findFirst({
     where: { id: campaignId, userId },
-    include: { posterDesigns: true },
+    with: { posterDesigns: true },
   });
   return (
     campaign && {
@@ -51,9 +53,9 @@ export async function getMyCampaign(campaignId: number) {
 
 async function assertOwnsCampaign(campaignId: number) {
   const userId = await requireUserId();
-  const campaign = await prisma.posterCampaign.findFirst({
+  const campaign = await db.query.posterCampaign.findFirst({
     where: { id: campaignId, userId },
-    select: { id: true },
+    columns: { id: true },
   });
   if (!campaign) {
     throw new Error("Campaign not found");
@@ -62,9 +64,11 @@ async function assertOwnsCampaign(campaignId: number) {
 
 export async function createCampaign(data: { name: string; target: string }) {
   const userId = await requireUserId();
-  return prisma.posterCampaign.create({
-    data: { ...data, userId },
-  });
+  const [campaign] = await db
+    .insert(posterCampaign)
+    .values({ ...data, userId })
+    .returning();
+  return campaign;
 }
 
 export async function updateCampaign(
@@ -72,11 +76,14 @@ export async function updateCampaign(
   data: { name: string; target: string },
 ) {
   const userId = await requireUserId();
-  const { count } = await prisma.posterCampaign.updateMany({
-    where: { id: campaignId, userId },
-    data,
-  });
-  if (count === 0) {
+  const updated = await db
+    .update(posterCampaign)
+    .set(data)
+    .where(
+      and(eq(posterCampaign.id, campaignId), eq(posterCampaign.userId, userId)),
+    )
+    .returning({ id: posterCampaign.id });
+  if (updated.length === 0) {
     throw new Error("Campaign not found");
   }
 }
@@ -86,14 +93,14 @@ export async function createPosterDesign(
   data: {
     design: Uint8Array<ArrayBuffer>;
     designMimeType: string;
-    qr_x_position: number;
-    qr_y_position: number;
-    qr_size: number;
-    qr_rotation: number;
+    qrXPosition: number;
+    qrYPosition: number;
+    qrSize: number;
+    qrRotation: number;
   },
 ) {
   await assertOwnsCampaign(campaignId);
-  await prisma.posterDesign.create({
-    data: { ...data, posterCampaignId: campaignId },
-  });
+  await db
+    .insert(posterDesign)
+    .values({ ...data, posterCampaignId: campaignId });
 }

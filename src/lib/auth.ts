@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { oAuthProxy } from "better-auth/plugins";
-import prisma from "@/lib/prisma";
+import db from "@/db";
+import * as schema from "@/db/schema";
 
 // BETTER_AUTH_URL is the production URL in every Netlify context, because
 // Google only accepts exact redirect URIs. Deploy previews and branch deploys
@@ -18,8 +19,9 @@ const currentURL =
 
 export const auth = betterAuth({
   baseURL: currentURL,
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema,
   }),
   socialProviders: {
     google: {
