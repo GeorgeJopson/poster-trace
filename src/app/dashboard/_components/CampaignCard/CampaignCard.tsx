@@ -8,7 +8,7 @@ import type { CampaignWithDesigns } from "@/data/campaigns";
 
 import styles from "./CampaignCard.module.css";
 import useBoop from "@/utils/useBoop";
-import { animated } from "react-spring";
+import { animated } from "@react-spring/web";
 
 const IMAGE_WIDTH = 150;
 const ROOT_2 = 1.4142;

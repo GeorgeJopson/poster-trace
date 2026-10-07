@@ -4,7 +4,7 @@ import { icons } from "@/imageDetails";
 import type { PosterCampaign } from "@/db/schema";
 import Image from "next/image";
 import { useState } from "react";
-import { animated } from "react-spring";
+import { animated } from "@react-spring/web";
 
 import Dialog from "@/components/Dialog";
 import useBoop from "@/utils/useBoop";
