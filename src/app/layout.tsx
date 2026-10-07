@@ -2,9 +2,8 @@ import "./global.css";
 import { Nunito, Bungee } from "next/font/google";
 import type { Metadata } from "next";
 import React from "react";
-import { LoggedInNavBar, LoggedOutNavBar } from "@/components/NavBar";
+import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import { getSession } from "@/lib/session";
 
 import styles from "./Layout.module.css";
 
@@ -52,14 +51,12 @@ type RootLayoutProps = Readonly<{
   children: React.ReactNode;
 }>;
 
-export default async function RootLayout({ children }: RootLayoutProps) {
-  const session = await getSession();
-
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en-GB" className={`${bungee.variable} ${nunito.variable}`}>
       <body>
         <div className={styles.wrapper}>
-          {session ? <LoggedInNavBar /> : <LoggedOutNavBar />}
+          <NavBar />
           <main>{children}</main>
           <Footer />
         </div>
