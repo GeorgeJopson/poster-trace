@@ -10,6 +10,13 @@
   # Next.js 16 and @netlify/database both need a recent Node LTS.
   NODE_VERSION = "24"
 
+[dev]
+  # Serve the app on http://localhost:3000. That's where Next.js normally
+  # runs, so move it to 3001 behind netlify dev's proxy.
+  port = 3000
+  targetPort = 3001
+  command = "next dev --port 3001"
+
 # Netlify Database: because @netlify/database is installed, Netlify
 # provisions the database and applies the migrations in
 # netlify/database/migrations/ on every deploy, before it goes live. Deploy
