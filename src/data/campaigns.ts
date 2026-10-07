@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 
 import db from "@/db";
 import { posterCampaign, posterDesign, type PosterDesign } from "@/db/schema";
-import { requireUserId } from "@/lib/session";
+import { requireUserId } from "@/auth/session";
 
 // Every query here is scoped to the signed-in user. A campaign owned by
 // someone else is treated exactly like one that doesn't exist, so callers
