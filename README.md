@@ -18,44 +18,54 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Local database
 
-Postgres runs locally via Docker Compose:
+The app uses Netlify Database
+(Postgres) through [Drizzle ORM](https://orm.drizzle.team). Run the app with
+the Netlify CLI, which starts a local database alongside `next dev`:
 
 ```bash
-npm run db:up            # start Postgres (localhost:5432)
-npx prisma migrate deploy # first time only: create the tables
-npm run dev
+netlify dev              # app on http://localhost:8888, plus the local database
+npm run db:migrate       # first time, and after pulling new migrations
+npm run db:seed          # optional: sample campaigns (see below)
 ```
 
-`DATABASE_URL` in `.env` should be:
+`netlify dev` sets `NETLIFY_DB_URL` for the app, so there's no database
+connection string to configure. Plain `npm run dev` has no database.
 
-```
-postgresql://poster_trace:poster_trace@localhost:5432/poster_trace
+The schema lives in `src/db/schema.ts`. After changing it, generate a
+migration and apply it locally:
+
+```bash
+npm run db:generate      # writes netlify/database/migrations/<timestamp>_<name>/
+npm run db:migrate
 ```
 
-Other scripts: `npm run db:down` (stop, keeps data), `npm run db:reset` (wipe volume, restart, re-apply migrations).
+Commit the generated migration; Netlify applies it on deploy. Never edit or
+delete a migration that has been deployed, and never run `drizzle-kit push`
+or `drizzle-kit migrate` against a Netlify-hosted database.
+
+`npm run db:reset` wipes the local database and re-applies every migration.
 
 ## Authentication
 
 Sign-in is Google OAuth only. Poster campaigns are owned by the user who
 created them, so `/dashboard` always requires signing in.
 
-`npx prisma db seed` assigns its campaigns to the user with the email in
+`npm run db:seed` assigns its campaigns to the user with the email in
 `SEED_USER_EMAIL` (creating that user if needed). Set it to your Google
 email to see the seed data after signing in.
 
 ## Deployment
 
 The site is hosted on Netlify (configured in `netlify.toml`). Netlify detects
-Next.js and applies its adapter automatically. Every build runs
-`prisma migrate deploy` before `next build`, so deploy previews and branch
-deploys need their own `DATABASE_URL`, pointing at a separate database from
-production.
+Next.js and applies its adapter automatically. Netlify Database is provisioned
+automatically and applies pending migrations from
+`netlify/database/migrations/` on every deploy. Deploy previews get their own
+database branch, copied from production when the preview is created. Because
+that copy includes production data, don't share preview links publicly.
 
 Set these environment variables in the Netlify UI (Site configuration →
 Environment variables), scoped to the Builds and Functions:
 
-- `DATABASE_URL` — Postgres connection string (needed at build time for
-  migrations and at runtime)
 - `BETTER_AUTH_URL` — public site URL, e.g. `https://www.postertrace.app`
 - `BETTER_AUTH_SECRET` — random secret for signing sessions
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials

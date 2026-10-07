@@ -1,11 +1,11 @@
 import Link from "next/link";
-import type { PosterCampaignModel } from "@/generated/prisma/models";
+import type { PosterCampaign } from "@/db/schema";
 
 import EditCampaignDialog from "../EditCampaignDialog/EditCampaignDialog";
 import styles from "./CampaignHeader.module.css";
 
 interface CampaignHeaderProps {
-  campaign: PosterCampaignModel;
+  campaign: PosterCampaign;
 }
 
 export default function CampaignHeader({ campaign }: CampaignHeaderProps) {

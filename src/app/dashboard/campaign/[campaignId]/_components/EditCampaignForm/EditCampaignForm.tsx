@@ -3,13 +3,13 @@
 import { useTransition } from "react";
 
 import Button from "@/components/Button";
-import type { PosterCampaignModel } from "@/generated/prisma/models";
+import type { PosterCampaign } from "@/db/schema";
 
 import { updateCampaign } from "../../actions";
 import styles from "./EditCampaignForm.module.css";
 
 interface EditCampaignFormProps {
-  campaign: PosterCampaignModel;
+  campaign: PosterCampaign;
   onSaved?: () => void;
 }
 
