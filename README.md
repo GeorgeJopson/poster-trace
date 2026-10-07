@@ -1,35 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Poster Trace
 
-## Getting Started
+A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
+[Drizzle ORM](https://orm.drizzle.team), with Google sign-in via
+[Better Auth](https://www.better-auth.com).
 
-First, run the development server:
+## Setting up a development server
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Install [Node.js 24](https://nodejs.org) and the Netlify CLI (v26 or
+   later), then log in:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   npm install -g netlify-cli
+   netlify login
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file in the project root:
+
+   ```
+   BETTER_AUTH_URL=http://localhost:8888
+   BETTER_AUTH_SECRET=<any long random string, e.g. from `openssl rand -base64 32`>
+   GOOGLE_CLIENT_ID=<Google OAuth client ID>
+   GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
+   SEED_USER_EMAIL=<your Google email, used by the seed script>
+   ```
+
+   The Google OAuth client must list
+   `http://localhost:8888/api/auth/callback/google` as an authorised redirect
+   URI. Don't set `NETLIFY_DB_URL`: `netlify dev` provides it.
+
+4. Start the dev server, which also starts a local database:
+
+   ```bash
+   netlify dev
+   ```
+
+5. In a second terminal, create the tables and (optionally) add sample data:
+
+   ```bash
+   npm run db:migrate
+   npm run db:seed
+   ```
+
+6. Open [http://localhost:8888](http://localhost:8888) and sign in with
+   Google. If you seeded with your email, the sample campaigns appear on
+   `/dashboard`.
+
+Use `netlify dev`, not `npm run dev`: plain `next dev` has no database. Local
+data persists between runs; re-run `npm run db:migrate` after pulling new
+migrations.
 
 ## Local database
 
-The app uses Netlify Database
-(Postgres) through [Drizzle ORM](https://orm.drizzle.team). Run the app with
-the Netlify CLI, which starts a local database alongside `next dev`:
-
-```bash
-netlify dev              # app on http://localhost:8888, plus the local database
-npm run db:migrate       # first time, and after pulling new migrations
-npm run db:seed          # optional: sample campaigns (see below)
-```
-
-`netlify dev` sets `NETLIFY_DB_URL` for the app, so there's no database
-connection string to configure. Plain `npm run dev` has no database.
+`netlify dev` runs a local Postgres database and sets `NETLIFY_DB_URL` for
+the app, so there's no connection string to configure.
 
 The schema lives in `src/db/schema.ts`. After changing it, generate a
 migration and apply it locally:
@@ -78,10 +107,6 @@ deploys sign in through production using Better Auth's OAuth proxy plugin
 (see `src/lib/auth.ts`). For this to work, `BETTER_AUTH_URL` must be the
 production URL in every context, and `BETTER_AUTH_SECRET` must be the same in
 production and previews.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Breakpoints
 
