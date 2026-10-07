@@ -1,17 +1,11 @@
-import React, { RefObject } from "react";
+import React from "react";
 import Button from "@/components/Button";
 import Image from "next/image";
 import { icons } from "@/imageDetails";
 import styles from "./HeaderButtonGroup.module.css";
 import { routeNames } from "@/routeNames";
 
-interface HeaderButtonGroupProps {
-  scrollToRef: RefObject<HTMLElement | null>;
-}
-
-export default function HeaderButtonGroup({
-  scrollToRef,
-}: HeaderButtonGroupProps) {
+export default function HeaderButtonGroup() {
   return (
     <div className={styles.buttonWrapper}>
       <Button
@@ -23,20 +17,10 @@ export default function HeaderButtonGroup({
       </Button>
       <Button
         variant={"transparent"}
+        href={routeNames.about}
         fontSize={`var(--learn-more-btn-size)`}
-        onClick={() => {
-          if (scrollToRef.current) {
-            window.scrollTo({
-              behavior: "smooth",
-              top:
-                scrollToRef.current.getBoundingClientRect().top -
-                document.body.getBoundingClientRect().top -
-                46,
-            });
-          }
-        }}
       >
-        Learn More{" "}
+        About Us{" "}
         <Image
           className={styles.inlineImage}
           width={32}

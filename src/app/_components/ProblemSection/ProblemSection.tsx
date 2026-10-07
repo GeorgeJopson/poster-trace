@@ -1,4 +1,4 @@
-import React, { RefObject } from "react";
+import React from "react";
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
 import ProblemCard from "@/app/_components/ProblemSection/ProblemCard";
@@ -6,17 +6,9 @@ import Image from "next/image";
 import { icons } from "@/imageDetails";
 import styles from "./ProblemSection.module.css";
 
-interface ProblemSectionProps {
-  scrollToRef: RefObject<HTMLElement | null>;
-}
-
-export default function ProblemSection({ scrollToRef }: ProblemSectionProps) {
+export default function ProblemSection() {
   return (
-    <section
-      className={styles.wrapper}
-      aria-label="The problem"
-      ref={scrollToRef}
-    >
+    <section className={styles.wrapper} aria-label="The problem">
       <CentralColumn>
         <Header variant="heading">The Problem</Header>
         <ul className={styles.problemCardGroup}>
