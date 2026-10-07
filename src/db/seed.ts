@@ -59,10 +59,8 @@ async function getSeedUser() {
 }
 
 async function main() {
-  // Clear existing poster data (children first) so the seed is repeatable.
-  await db.delete(scan);
-  await db.delete(poster);
-  await db.delete(posterDesign);
+  // Clear existing poster data so the seed is repeatable. Deleting campaigns
+  // cascades to their designs, posters and scans.
   await db.delete(posterCampaign);
 
   const { id: userId } = await getSeedUser();
@@ -106,10 +104,10 @@ async function main() {
     .values({
       design: loadDesignImage("stock-poster-1.png"),
       designMimeType: "image/png",
-      qr_x_position: 0.82,
-      qr_y_position: 0.85,
-      qr_size: 0.12,
-      qr_rotation: 0,
+      qrXPosition: 0.82,
+      qrYPosition: 0.85,
+      qrSize: 0.12,
+      qrRotation: 0,
       posterCampaignId: summerFest.id,
     })
     .returning();
@@ -119,10 +117,10 @@ async function main() {
     .values({
       design: loadDesignImage("stock-poster-2.png"),
       designMimeType: "image/png",
-      qr_x_position: 0.5,
-      qr_y_position: 0.9,
-      qr_size: 0.15,
-      qr_rotation: 5,
+      qrXPosition: 0.5,
+      qrYPosition: 0.9,
+      qrSize: 0.15,
+      qrRotation: 5,
       posterCampaignId: summerFest.id,
     })
     .returning();
@@ -132,10 +130,10 @@ async function main() {
     .values({
       design: loadDesignImage("stock-poster-3.png"),
       designMimeType: "image/png",
-      qr_x_position: 0.75,
-      qr_y_position: 0.8,
-      qr_size: 0.1,
-      qr_rotation: -3,
+      qrXPosition: 0.75,
+      qrYPosition: 0.8,
+      qrSize: 0.1,
+      qrRotation: -3,
       posterCampaignId: cafeOpening.id,
     })
     .returning();
@@ -145,10 +143,10 @@ async function main() {
     .values({
       design: loadDesignImage("stock-poster-4.png"),
       designMimeType: "image/png",
-      qr_x_position: 0.2,
-      qr_y_position: 0.15,
-      qr_size: 0.18,
-      qr_rotation: 0,
+      qrXPosition: 0.2,
+      qrYPosition: 0.15,
+      qrSize: 0.18,
+      qrRotation: 0,
       posterCampaignId: marathon.id,
     })
     .returning();
@@ -158,10 +156,10 @@ async function main() {
     .values({
       design: loadDesignImage("stock-poster-5.png"),
       designMimeType: "image/png",
-      qr_x_position: 0.85,
-      qr_y_position: 0.1,
-      qr_size: 0.1,
-      qr_rotation: 90,
+      qrXPosition: 0.85,
+      qrYPosition: 0.1,
+      qrSize: 0.1,
+      qrRotation: 90,
       posterCampaignId: marathon.id,
     })
     .returning();

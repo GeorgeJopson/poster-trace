@@ -46,10 +46,10 @@ export async function createPosterDesign(
   await createPosterDesignForUser(campaignId, {
     design: new Uint8Array(await image.arrayBuffer()),
     designMimeType: image.type,
-    qr_x_position: parseQrValue(formData, "qrXPosition"),
-    qr_y_position: parseQrValue(formData, "qrYPosition"),
-    qr_size: parseQrValue(formData, "qrSize"),
-    qr_rotation: parseQrValue(formData, "qrRotation"),
+    qrXPosition: parseQrValue(formData, "qrXPosition"),
+    qrYPosition: parseQrValue(formData, "qrYPosition"),
+    qrSize: parseQrValue(formData, "qrSize"),
+    qrRotation: parseQrValue(formData, "qrRotation"),
   });
 
   revalidatePath(`/dashboard/campaign/${campaignId}`);

@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "ca80e0e2-62bb-40e6-9581-898efe7648d7",
+  "id": "66152db5-04c2-45d2-99a3-a07b4f8f2840",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -14,25 +14,25 @@
     },
     {
       "isRlsEnabled": false,
-      "name": "Poster",
+      "name": "poster",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "PosterCampaign",
+      "name": "poster_campaign",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "PosterDesign",
+      "name": "poster_design",
       "entityType": "tables",
       "schema": "public"
     },
     {
       "isRlsEnabled": false,
-      "name": "Scan",
+      "name": "scan",
       "entityType": "tables",
       "schema": "public"
     },
@@ -75,7 +75,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "accountId",
+      "name": "account_id",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -88,7 +88,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "providerId",
+      "name": "provider_id",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -101,7 +101,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "userId",
+      "name": "user_id",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -114,7 +114,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "accessToken",
+      "name": "access_token",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -127,7 +127,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "refreshToken",
+      "name": "refresh_token",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -140,33 +140,33 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "idToken",
+      "name": "id_token",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "accessTokenExpiresAt",
+      "name": "access_token_expires_at",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": false,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "refreshTokenExpiresAt",
+      "name": "refresh_token_expires_at",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -198,27 +198,27 @@
       "table": "account"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "createdAt",
+      "name": "created_at",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "updatedAt",
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "account"
@@ -234,7 +234,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "Poster"
+      "table": "poster"
     },
     {
       "type": "boolean",
@@ -247,7 +247,7 @@
       "name": "activated",
       "entityType": "columns",
       "schema": "public",
-      "table": "Poster"
+      "table": "poster"
     },
     {
       "type": "double precision",
@@ -260,7 +260,7 @@
       "name": "latitude",
       "entityType": "columns",
       "schema": "public",
-      "table": "Poster"
+      "table": "poster"
     },
     {
       "type": "double precision",
@@ -273,7 +273,7 @@
       "name": "longitude",
       "entityType": "columns",
       "schema": "public",
-      "table": "Poster"
+      "table": "poster"
     },
     {
       "type": "integer",
@@ -283,10 +283,10 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "posterDesignId",
+      "name": "poster_design_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "Poster"
+      "table": "poster"
     },
     {
       "type": "serial",
@@ -299,7 +299,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterCampaign"
+      "table": "poster_campaign"
     },
     {
       "type": "text",
@@ -312,7 +312,7 @@
       "name": "name",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterCampaign"
+      "table": "poster_campaign"
     },
     {
       "type": "text",
@@ -325,7 +325,7 @@
       "name": "target",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterCampaign"
+      "table": "poster_campaign"
     },
     {
       "type": "text",
@@ -335,10 +335,10 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "userId",
+      "name": "user_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterCampaign"
+      "table": "poster_campaign"
     },
     {
       "type": "serial",
@@ -351,7 +351,7 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "bytea",
@@ -364,7 +364,7 @@
       "name": "design",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "text",
@@ -374,10 +374,10 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "designMimeType",
+      "name": "design_mime_type",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "double precision",
@@ -390,7 +390,7 @@
       "name": "qr_x_position",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "double precision",
@@ -403,7 +403,7 @@
       "name": "qr_y_position",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "double precision",
@@ -416,7 +416,7 @@
       "name": "qr_size",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "double precision",
@@ -429,7 +429,7 @@
       "name": "qr_rotation",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "integer",
@@ -439,10 +439,10 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "posterCampaignId",
+      "name": "poster_campaign_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "type": "serial",
@@ -455,10 +455,10 @@
       "name": "id",
       "entityType": "columns",
       "schema": "public",
-      "table": "Scan"
+      "table": "scan"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
@@ -468,7 +468,7 @@
       "name": "time",
       "entityType": "columns",
       "schema": "public",
-      "table": "Scan"
+      "table": "scan"
     },
     {
       "type": "integer",
@@ -478,10 +478,10 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "posterId",
+      "name": "poster_id",
       "entityType": "columns",
       "schema": "public",
-      "table": "Scan"
+      "table": "scan"
     },
     {
       "type": "text",
@@ -497,14 +497,14 @@
       "table": "session"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "expiresAt",
+      "name": "expires_at",
       "entityType": "columns",
       "schema": "public",
       "table": "session"
@@ -523,27 +523,27 @@
       "table": "session"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "createdAt",
+      "name": "created_at",
       "entityType": "columns",
       "schema": "public",
       "table": "session"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "updatedAt",
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "session"
@@ -556,7 +556,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "ipAddress",
+      "name": "ip_address",
       "entityType": "columns",
       "schema": "public",
       "table": "session"
@@ -569,7 +569,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "userAgent",
+      "name": "user_agent",
       "entityType": "columns",
       "schema": "public",
       "table": "session"
@@ -582,7 +582,7 @@
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "userId",
+      "name": "user_id",
       "entityType": "columns",
       "schema": "public",
       "table": "session"
@@ -634,7 +634,7 @@
       "default": "false",
       "generated": null,
       "identity": null,
-      "name": "emailVerified",
+      "name": "email_verified",
       "entityType": "columns",
       "schema": "public",
       "table": "user"
@@ -653,27 +653,27 @@
       "table": "user"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "createdAt",
+      "name": "created_at",
       "entityType": "columns",
       "schema": "public",
       "table": "user"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "updatedAt",
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "user"
@@ -718,49 +718,49 @@
       "table": "verification"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "expiresAt",
+      "name": "expires_at",
       "entityType": "columns",
       "schema": "public",
       "table": "verification"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": "now()",
       "generated": null,
       "identity": null,
-      "name": "createdAt",
+      "name": "created_at",
       "entityType": "columns",
       "schema": "public",
       "table": "verification"
     },
     {
-      "type": "timestamp(3)",
+      "type": "timestamp",
       "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": null,
       "generated": null,
       "identity": null,
-      "name": "updatedAt",
+      "name": "updated_at",
       "entityType": "columns",
       "schema": "public",
       "table": "verification"
     },
     {
-      "nameExplicit": true,
+      "nameExplicit": false,
       "columns": [
         {
-          "value": "userId",
+          "value": "user_id",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -772,16 +772,16 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "account_userId_idx",
+      "name": "account_user_id_index",
       "entityType": "indexes",
       "schema": "public",
       "table": "account"
     },
     {
-      "nameExplicit": true,
+      "nameExplicit": false,
       "columns": [
         {
-          "value": "userId",
+          "value": "poster_design_id",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -793,37 +793,16 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "PosterCampaign_userId_idx",
+      "name": "poster_poster_design_id_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "PosterCampaign"
+      "table": "poster"
     },
     {
-      "nameExplicit": true,
+      "nameExplicit": false,
       "columns": [
         {
-          "value": "token",
-          "isExpression": false,
-          "asc": true,
-          "nullsFirst": false,
-          "opclass": null
-        }
-      ],
-      "isUnique": true,
-      "where": null,
-      "with": "",
-      "method": "btree",
-      "concurrently": false,
-      "name": "session_token_key",
-      "entityType": "indexes",
-      "schema": "public",
-      "table": "session"
-    },
-    {
-      "nameExplicit": true,
-      "columns": [
-        {
-          "value": "userId",
+          "value": "user_id",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
@@ -835,34 +814,76 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "session_userId_idx",
+      "name": "poster_campaign_user_id_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "session"
+      "table": "poster_campaign"
     },
     {
-      "nameExplicit": true,
+      "nameExplicit": false,
       "columns": [
         {
-          "value": "email",
+          "value": "poster_campaign_id",
           "isExpression": false,
           "asc": true,
           "nullsFirst": false,
           "opclass": null
         }
       ],
-      "isUnique": true,
+      "isUnique": false,
       "where": null,
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "user_email_key",
+      "name": "poster_design_poster_campaign_id_index",
       "entityType": "indexes",
       "schema": "public",
-      "table": "user"
+      "table": "poster_design"
     },
     {
-      "nameExplicit": true,
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "poster_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "scan_poster_id_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "scan"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        {
+          "value": "user_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "name": "session_user_id_index",
+      "entityType": "indexes",
+      "schema": "public",
+      "table": "session"
+    },
+    {
+      "nameExplicit": false,
       "columns": [
         {
           "value": "identifier",
@@ -877,7 +898,7 @@
       "with": "",
       "method": "btree",
       "concurrently": false,
-      "name": "verification_identifier_idx",
+      "name": "verification_identifier_index",
       "entityType": "indexes",
       "schema": "public",
       "table": "verification"
@@ -885,16 +906,16 @@
     {
       "nameExplicit": false,
       "columns": [
-        "userId"
+        "user_id"
       ],
       "schemaTo": "public",
       "tableTo": "user",
       "columnsTo": [
         "id"
       ],
-      "onUpdate": "CASCADE",
+      "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "account_userId_user_id_fkey",
+      "name": "account_user_id_user_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "account"
@@ -902,84 +923,84 @@
     {
       "nameExplicit": false,
       "columns": [
-        "posterDesignId"
+        "poster_design_id"
       ],
       "schemaTo": "public",
-      "tableTo": "PosterDesign",
+      "tableTo": "poster_design",
       "columnsTo": [
         "id"
       ],
-      "onUpdate": "CASCADE",
-      "onDelete": "RESTRICT",
-      "name": "Poster_posterDesignId_PosterDesign_id_fkey",
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "poster_poster_design_id_poster_design_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "Poster"
+      "table": "poster"
     },
     {
       "nameExplicit": false,
       "columns": [
-        "userId"
+        "user_id"
       ],
       "schemaTo": "public",
       "tableTo": "user",
       "columnsTo": [
         "id"
       ],
-      "onUpdate": "CASCADE",
+      "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "PosterCampaign_userId_user_id_fkey",
+      "name": "poster_campaign_user_id_user_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "PosterCampaign"
+      "table": "poster_campaign"
     },
     {
       "nameExplicit": false,
       "columns": [
-        "posterCampaignId"
+        "poster_campaign_id"
       ],
       "schemaTo": "public",
-      "tableTo": "PosterCampaign",
+      "tableTo": "poster_campaign",
       "columnsTo": [
         "id"
       ],
-      "onUpdate": "CASCADE",
-      "onDelete": "RESTRICT",
-      "name": "PosterDesign_posterCampaignId_PosterCampaign_id_fkey",
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "poster_design_poster_campaign_id_poster_campaign_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "PosterDesign"
+      "table": "poster_design"
     },
     {
       "nameExplicit": false,
       "columns": [
-        "posterId"
+        "poster_id"
       ],
       "schemaTo": "public",
-      "tableTo": "Poster",
+      "tableTo": "poster",
       "columnsTo": [
         "id"
       ],
-      "onUpdate": "CASCADE",
-      "onDelete": "RESTRICT",
-      "name": "Scan_posterId_Poster_id_fkey",
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "scan_poster_id_poster_id_fkey",
       "entityType": "fks",
       "schema": "public",
-      "table": "Scan"
+      "table": "scan"
     },
     {
       "nameExplicit": false,
       "columns": [
-        "userId"
+        "user_id"
       ],
       "schemaTo": "public",
       "tableTo": "user",
       "columnsTo": [
         "id"
       ],
-      "onUpdate": "CASCADE",
+      "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
-      "name": "session_userId_user_id_fkey",
+      "name": "session_user_id_user_id_fkey",
       "entityType": "fks",
       "schema": "public",
       "table": "session"
@@ -999,9 +1020,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "Poster_pkey",
+      "name": "poster_pkey",
       "schema": "public",
-      "table": "Poster",
+      "table": "poster",
       "entityType": "pks"
     },
     {
@@ -1009,9 +1030,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "PosterCampaign_pkey",
+      "name": "poster_campaign_pkey",
       "schema": "public",
-      "table": "PosterCampaign",
+      "table": "poster_campaign",
       "entityType": "pks"
     },
     {
@@ -1019,9 +1040,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "PosterDesign_pkey",
+      "name": "poster_design_pkey",
       "schema": "public",
-      "table": "PosterDesign",
+      "table": "poster_design",
       "entityType": "pks"
     },
     {
@@ -1029,9 +1050,9 @@
         "id"
       ],
       "nameExplicit": false,
-      "name": "Scan_pkey",
+      "name": "scan_pkey",
       "schema": "public",
-      "table": "Scan",
+      "table": "scan",
       "entityType": "pks"
     },
     {
@@ -1063,6 +1084,28 @@
       "schema": "public",
       "table": "verification",
       "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "token"
+      ],
+      "nullsNotDistinct": false,
+      "name": "session_token_key",
+      "schema": "public",
+      "table": "session",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "email"
+      ],
+      "nullsNotDistinct": false,
+      "name": "user_email_key",
+      "schema": "public",
+      "table": "user",
+      "entityType": "uniques"
     }
   ],
   "renames": []

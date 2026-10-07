@@ -9,13 +9,28 @@ function createDb() {
   return drizzle({ relations });
 }
 
-const globalForDb = global as unknown as {
-  db: ReturnType<typeof createDb>;
-};
+type Db = ReturnType<typeof createDb>;
 
-// Reuse one client across hot reloads in development.
-const db = globalForDb.db || createDb();
+const globalForDb = global as unknown as { db?: Db };
 
-if (process.env.NODE_ENV !== "production") globalForDb.db = db;
+function getDb() {
+  // Reuse one client across hot reloads in development.
+  globalForDb.db ??= createDb();
+  return globalForDb.db;
+}
+
+// Schema metadata (`db._`) that needs no connection. Better Auth's adapter
+// reads it as soon as src/lib/auth.ts is imported.
+const metadata = drizzle.mock({ relations })._;
+
+// drizzle() throws if NETLIFY_DB_URL is missing, and `next build` imports
+// this module, so wait until the database is first used to connect.
+const db = new Proxy({} as Db, {
+  get(_target, property) {
+    if (property === "_" && !globalForDb.db) return metadata;
+    const value = Reflect.get(getDb(), property);
+    return typeof value === "function" ? value.bind(getDb()) : value;
+  },
+});
 
 export default db;

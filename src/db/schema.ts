@@ -4,20 +4,19 @@ import {
   doublePrecision,
   index,
   integer,
-  pgTable,
   serial,
+  snakeCase,
   text,
   timestamp,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-// Table and column names match the tables Prisma created, so data can be
-// copied across from the old database unchanged.
+// snakeCase.table maps camelCase fields to snake_case columns, so
+// `userId` is stored as "user_id".
+const pgTable = snakeCase.table;
 
-// Millisecond precision, matching JavaScript Dates.
 const timestamps = {
-  createdAt: timestamp({ precision: 3 }).notNull().defaultNow(),
-  updatedAt: timestamp({ precision: 3 })
+  createdAt: timestamp().notNull().defaultNow(),
+  updatedAt: timestamp()
     .notNull()
     .$onUpdate(() => new Date()),
 };
@@ -43,36 +42,29 @@ const bytea = customType<{ data: Uint8Array; driverData: string | Buffer }>({
 // Better Auth tables. Better Auth's Drizzle adapter finds these by their
 // export names, so keep them as user/session/account/verification.
 
-export const user = pgTable(
-  "user",
-  {
-    id: text().primaryKey(),
-    name: text().notNull(),
-    email: text().notNull(),
-    emailVerified: boolean().notNull().default(false),
-    image: text(),
-    ...timestamps,
-  },
-  (table) => [uniqueIndex("user_email_key").on(table.email)],
-);
+export const user = pgTable("user", {
+  id: text().primaryKey(),
+  name: text().notNull(),
+  email: text().notNull().unique(),
+  emailVerified: boolean().notNull().default(false),
+  image: text(),
+  ...timestamps,
+});
 
 export const session = pgTable(
   "session",
   {
     id: text().primaryKey(),
-    expiresAt: timestamp({ precision: 3 }).notNull(),
-    token: text().notNull(),
+    expiresAt: timestamp().notNull(),
+    token: text().notNull().unique(),
     ...timestamps,
     ipAddress: text(),
     userAgent: text(),
     userId: text()
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
-  (table) => [
-    uniqueIndex("session_token_key").on(table.token),
-    index("session_userId_idx").on(table.userId),
-  ],
+  (table) => [index().on(table.userId)],
 );
 
 export const account = pgTable(
@@ -83,17 +75,17 @@ export const account = pgTable(
     providerId: text().notNull(),
     userId: text()
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     accessToken: text(),
     refreshToken: text(),
     idToken: text(),
-    accessTokenExpiresAt: timestamp({ precision: 3 }),
-    refreshTokenExpiresAt: timestamp({ precision: 3 }),
+    accessTokenExpiresAt: timestamp(),
+    refreshTokenExpiresAt: timestamp(),
     scope: text(),
     password: text(),
     ...timestamps,
   },
-  (table) => [index("account_userId_idx").on(table.userId)],
+  (table) => [index().on(table.userId)],
 );
 
 export const verification = pgTable(
@@ -102,63 +94,70 @@ export const verification = pgTable(
     id: text().primaryKey(),
     identifier: text().notNull(),
     value: text().notNull(),
-    expiresAt: timestamp({ precision: 3 }).notNull(),
+    expiresAt: timestamp().notNull(),
     ...timestamps,
   },
-  (table) => [index("verification_identifier_idx").on(table.identifier)],
+  (table) => [index().on(table.identifier)],
 );
 
-// Poster tables
+// Poster tables. Deleting a campaign deletes its designs, their posters and
+// those posters' scans.
 
 export const posterCampaign = pgTable(
-  "PosterCampaign",
+  "poster_campaign",
   {
     id: serial().primaryKey(),
     name: text().notNull(),
     target: text().notNull(),
     userId: text()
       .notNull()
-      .references(() => user.id, { onDelete: "cascade", onUpdate: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
-  (table) => [index("PosterCampaign_userId_idx").on(table.userId)],
+  (table) => [index().on(table.userId)],
 );
 
-export const posterDesign = pgTable("PosterDesign", {
-  id: serial().primaryKey(),
-  design: bytea().notNull(),
-  designMimeType: text().notNull(),
-  qr_x_position: doublePrecision().notNull(),
-  qr_y_position: doublePrecision().notNull(),
-  qr_size: doublePrecision().notNull(),
-  qr_rotation: doublePrecision().notNull(),
-  posterCampaignId: integer()
-    .notNull()
-    .references(() => posterCampaign.id, {
-      onDelete: "restrict",
-      onUpdate: "cascade",
-    }),
-});
+export const posterDesign = pgTable(
+  "poster_design",
+  {
+    id: serial().primaryKey(),
+    design: bytea().notNull(),
+    designMimeType: text().notNull(),
+    qrXPosition: doublePrecision().notNull(),
+    qrYPosition: doublePrecision().notNull(),
+    qrSize: doublePrecision().notNull(),
+    qrRotation: doublePrecision().notNull(),
+    posterCampaignId: integer()
+      .notNull()
+      .references(() => posterCampaign.id, { onDelete: "cascade" }),
+  },
+  (table) => [index().on(table.posterCampaignId)],
+);
 
-export const poster = pgTable("Poster", {
-  id: serial().primaryKey(),
-  activated: boolean().notNull(),
-  latitude: doublePrecision().notNull(),
-  longitude: doublePrecision().notNull(),
-  posterDesignId: integer()
-    .notNull()
-    .references(() => posterDesign.id, {
-      onDelete: "restrict",
-      onUpdate: "cascade",
-    }),
-});
+export const poster = pgTable(
+  "poster",
+  {
+    id: serial().primaryKey(),
+    activated: boolean().notNull(),
+    latitude: doublePrecision().notNull(),
+    longitude: doublePrecision().notNull(),
+    posterDesignId: integer()
+      .notNull()
+      .references(() => posterDesign.id, { onDelete: "cascade" }),
+  },
+  (table) => [index().on(table.posterDesignId)],
+);
 
-export const scan = pgTable("Scan", {
-  id: serial().primaryKey(),
-  time: timestamp({ precision: 3 }).notNull().defaultNow(),
-  posterId: integer()
-    .notNull()
-    .references(() => poster.id, { onDelete: "restrict", onUpdate: "cascade" }),
-});
+export const scan = pgTable(
+  "scan",
+  {
+    id: serial().primaryKey(),
+    time: timestamp().notNull().defaultNow(),
+    posterId: integer()
+      .notNull()
+      .references(() => poster.id, { onDelete: "cascade" }),
+  },
+  (table) => [index().on(table.posterId)],
+);
 
 export type PosterCampaign = typeof posterCampaign.$inferSelect;
 export type PosterDesign = typeof posterDesign.$inferSelect;

@@ -93,10 +93,10 @@ export async function createPosterDesign(
   data: {
     design: Uint8Array<ArrayBuffer>;
     designMimeType: string;
-    qr_x_position: number;
-    qr_y_position: number;
-    qr_size: number;
-    qr_rotation: number;
+    qrXPosition: number;
+    qrYPosition: number;
+    qrSize: number;
+    qrRotation: number;
   },
 ) {
   await assertOwnsCampaign(campaignId);
