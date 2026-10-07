@@ -102,8 +102,8 @@ async function main() {
   const [summerFestDesignA] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-1.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-1.webp"),
+      designMimeType: "image/webp",
       qrXPosition: 0.82,
       qrYPosition: 0.85,
       qrSize: 0.12,
@@ -115,8 +115,8 @@ async function main() {
   const [summerFestDesignB] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-2.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-2.webp"),
+      designMimeType: "image/webp",
       qrXPosition: 0.5,
       qrYPosition: 0.9,
       qrSize: 0.15,
@@ -128,8 +128,8 @@ async function main() {
   const [cafeDesign] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-3.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-3.webp"),
+      designMimeType: "image/webp",
       qrXPosition: 0.75,
       qrYPosition: 0.8,
       qrSize: 0.1,
@@ -141,8 +141,8 @@ async function main() {
   const [marathonDesignA] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-4.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-4.webp"),
+      designMimeType: "image/webp",
       qrXPosition: 0.2,
       qrYPosition: 0.15,
       qrSize: 0.18,
@@ -154,8 +154,8 @@ async function main() {
   const [marathonDesignB] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-5.png"),
-      designMimeType: "image/png",
+      design: loadDesignImage("stock-poster-5.webp"),
+      designMimeType: "image/webp",
       qrXPosition: 0.85,
       qrYPosition: 0.1,
       qrSize: 0.1,
