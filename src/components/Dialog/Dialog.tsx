@@ -1,7 +1,7 @@
 "use client";
 
 import { icons } from "@/imageDetails";
-import { Dialog as RadixDialog } from "radix-ui";
+import * as RadixDialog from "@radix-ui/react-dialog";
 import Image from "next/image";
 import type { ReactNode } from "react";
 

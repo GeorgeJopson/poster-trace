@@ -1,4 +1,4 @@
-import React, { RefObject } from "react";
+import React from "react";
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
 import PosterFan from "@/app/_components/Hero/PosterFan";
@@ -7,11 +7,7 @@ import PosterRow from "@/components/PosterRow";
 import { stockPosters } from "@/imageDetails";
 import styles from "./Hero.module.css";
 
-interface HeroProps {
-  scrollToRef: RefObject<HTMLElement | null>;
-}
-
-function Hero({ scrollToRef }: HeroProps) {
+function Hero() {
   return (
     <ContentGroup as="section" aria-label="Overview" className={styles.wrapper}>
       <CentralColumn>
@@ -20,7 +16,7 @@ function Hero({ scrollToRef }: HeroProps) {
             <div className={styles.posterFanWrapper}>
               <PosterFan />
             </div>
-            <HeaderContent scrollToRef={scrollToRef} />
+            <HeaderContent />
           </header>
 
           <div className={styles.posterRowSection}>

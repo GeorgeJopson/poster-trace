@@ -1,7 +1,7 @@
 "use client";
 
 import type { ButtonHTMLAttributes, MouseEvent } from "react";
-import { animated } from "react-spring";
+import { animated } from "@react-spring/web";
 
 import DashedCard from "@/components/DashedCard";
 import useBoop from "@/utils/useBoop";

@@ -5,9 +5,9 @@
  * decorative and should not be announced to a screen reader.
  */
 
-/** Decorative stock posters, in file order: `stockPosters[0]` is stock-poster-1.png. */
+/** Decorative stock posters, in file order: `stockPosters[0]` is stock-poster-1.webp. */
 export const stockPosters = Array.from({ length: 7 }, (_, i) => ({
-  src: `/poster-images/stock-poster-${i + 1}.png`,
+  src: `/poster-images/stock-poster-${i + 1}.webp`,
   alt: "",
 }));
 
@@ -26,15 +26,15 @@ export const icons = {
 /** Example analytics visualizations, keyed by chart type. */
 export const chartImages = {
   line: {
-    src: "/analytics-images/line-chart.png",
+    src: "/analytics-images/line-chart.webp",
     alt: "An example of a line chart displaying analytics from poster QR code scans.",
   },
   area: {
-    src: "/analytics-images/area-chart.png",
+    src: "/analytics-images/area-chart.webp",
     alt: "An example of an area chart displaying analytics from poster QR code scans.",
   },
   map: {
-    src: "/analytics-images/map-chart.png",
+    src: "/analytics-images/map-chart.webp",
     alt: "An example of a map displaying analytics of where poster QR code scans have occurred.",
   },
 };

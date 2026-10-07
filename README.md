@@ -105,7 +105,7 @@ The Google OAuth client must list
 
 Google doesn't allow wildcard redirect URIs, so deploy previews and branch
 deploys sign in through production using Better Auth's OAuth proxy plugin
-(see `src/lib/auth.ts`). For this to work, `BETTER_AUTH_URL` must be the
+(see `src/auth/auth.ts`). For this to work, `BETTER_AUTH_URL` must be the
 production URL in every context, and `BETTER_AUTH_SECRET` must be the same in
 production and previews.
 

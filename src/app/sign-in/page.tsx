@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/auth/auth-client";
 
 import styles from "./SignIn.module.css";
 import Header from "@/components/Header";

@@ -1,5 +1,5 @@
 import React from "react";
-import { requireUserId } from "@/lib/session";
+import { requireUserId } from "@/auth/session";
 
 type DashboardLayoutProps = Readonly<{
   children: React.ReactNode;

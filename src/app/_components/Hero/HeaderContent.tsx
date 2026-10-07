@@ -1,13 +1,9 @@
-import React, { RefObject } from "react";
+import React from "react";
 import HeaderButtonGroup from "@/app/_components/Hero/HeaderButtonGroup";
 import Header from "@/components/Header";
 import styles from "./HeaderContent.module.css";
 
-interface HeaderContentProps {
-  scrollToRef: RefObject<HTMLElement | null>;
-}
-
-export default function HeaderContent({ scrollToRef }: HeaderContentProps) {
+export default function HeaderContent() {
   return (
     <div className={styles.wrapper}>
       <Header variant="title">
@@ -22,7 +18,7 @@ export default function HeaderContent({ scrollToRef }: HeaderContentProps) {
           Generate posters, log their locations as you put them up, and let the
           analytics roll in.
         </p>
-        <HeaderButtonGroup scrollToRef={scrollToRef} />
+        <HeaderButtonGroup />
       </div>
     </div>
   );
