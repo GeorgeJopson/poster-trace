@@ -44,7 +44,7 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
 
    ```bash
    npm run db:migrate
-   npm run db:seed
+   npm run seed
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000) and sign in with
@@ -80,7 +80,7 @@ or `drizzle-kit migrate` against a Netlify-hosted database.
 Sign-in is Google OAuth only. Poster campaigns are owned by the user who
 created them, so `/dashboard` always requires signing in.
 
-`npm run db:seed` assigns its campaigns to the user with the email in
+`npm run seed` assigns its campaigns to the user with the email in
 `SEED_USER_EMAIL` (creating that user if needed). Set it to your Google
 email to see the seed data after signing in.
 

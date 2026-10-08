@@ -44,8 +44,7 @@ export async function createPosterDesign(
   }
 
   await createPosterDesignForUser(campaignId, {
-    design: new Uint8Array(await image.arrayBuffer()),
-    designMimeType: image.type,
+    image,
     qrXPosition: parseQrValue(formData, "qrXPosition"),
     qrYPosition: parseQrValue(formData, "qrYPosition"),
     qrSize: parseQrValue(formData, "qrSize"),
