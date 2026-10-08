@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { routeNames } from "@/routeNames";
+
 const ERROR_MESSAGES: Record<string, string> = {
   no_code:
     "Google didn't return an authorization code. Please try signing in again.",
@@ -41,7 +43,7 @@ export default async function ErrorPage(props: PageProps<"/error">) {
     <div>
       <p>{message}</p>
       {description ? <p>{description}</p> : null}
-      <Link href="/sign-in">Back to sign in</Link>
+      <Link href={routeNames.signIn}>Back to sign in</Link>
     </div>
   );
 }

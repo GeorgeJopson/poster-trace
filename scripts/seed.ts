@@ -3,9 +3,18 @@ import { execFileSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { hashPassword } from "better-auth/crypto";
 
-import { poster, posterCampaign, posterDesign, scan, user } from "@/db/schema";
+import {
+  account,
+  poster,
+  posterCampaign,
+  posterDesign,
+  scan,
+  user,
+} from "@/db/schema";
 import { deleteImage, saveImage } from "@/imageStorage";
 import { connectToLocalImageStorage } from "@/imageStorage/localDev";
 
@@ -42,24 +51,42 @@ function daysAgo(days: number, hour = 12) {
   return date;
 }
 
-// Seeded campaigns belong to this user. Signing in with Google using the
-// same email links to it, so the seed data shows up on your dashboard.
+// Seeded campaigns belong to this test account. Log in with these
+// credentials to see the seed data on the dashboard.
+const SEED_USER_EMAIL = "test@example.com";
+const SEED_USER_PASSWORD = "password123";
+
 async function getSeedUser() {
-  const email = process.env.SEED_USER_EMAIL?.toLowerCase();
-  if (!email) {
-    throw new Error("Set SEED_USER_EMAIL in .env to the account to seed");
-  }
   // The no-op update makes RETURNING give back an existing user too.
   const [seedUser] = await db
     .insert(user)
     .values({
       id: crypto.randomUUID(),
-      name: email.split("@")[0],
-      email,
+      name: "Test User",
+      email: SEED_USER_EMAIL,
       emailVerified: true,
     })
-    .onConflictDoUpdate({ target: user.email, set: { email } })
+    .onConflictDoUpdate({ target: user.email, set: { email: SEED_USER_EMAIL } })
     .returning();
+
+  // Better Auth stores email/password sign-in as a "credential" account whose
+  // accountId is the user's ID. Replace it so the password is always reset.
+  await db
+    .delete(account)
+    .where(
+      and(
+        eq(account.userId, seedUser.id),
+        eq(account.providerId, "credential"),
+      ),
+    );
+  await db.insert(account).values({
+    id: crypto.randomUUID(),
+    accountId: seedUser.id,
+    providerId: "credential",
+    userId: seedUser.id,
+    password: await hashPassword(SEED_USER_PASSWORD),
+  });
+
   return seedUser;
 }
 
@@ -272,7 +299,9 @@ async function main() {
     { posterId: posterD1.id, time: daysAgo(1, 16) },
   ]);
 
-  console.log("Seed complete.");
+  console.log(
+    `Seed complete. Log in as ${SEED_USER_EMAIL} / ${SEED_USER_PASSWORD}.`,
+  );
 }
 
 main()

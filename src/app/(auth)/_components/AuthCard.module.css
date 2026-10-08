@@ -1,0 +1,80 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  padding-top: 24px;
+}
+
+.card {
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevation-high);
+
+  display: flex;
+  flex-direction: column;
+
+  width: min(100%, 440px);
+  box-sizing: border-box;
+  padding: 32px;
+
+  gap: 16px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--font-size-body);
+}
+
+.label {
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 0 10px;
+  margin-bottom: 8px;
+}
+
+.submitButtonWrapper {
+  align-self: center;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--font-size-body);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid currentColor;
+  opacity: 0.3;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  gap: 16px;
+}
+
+.switchPrompt {
+  text-align: center;
+  font-size: var(--font-size-body);
+}

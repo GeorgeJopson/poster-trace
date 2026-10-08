@@ -1,29 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { authClient } from "@/auth/auth-client";
-
-import styles from "./SignIn.module.css";
-import Header from "@/components/Header";
-import GoogleSignOnButton from "@/app/sign-in/GoogleSignOnButton";
-
-import { useRouter } from "next/navigation";
-
 import type { BetterFetchOption } from "better-auth/react";
 
-export default function SignIn() {
+import { authClient } from "@/auth/auth-client";
+import { routeNames } from "@/routeNames";
+import GoogleSignOnButton from "./GoogleSignOnButton";
+
+interface GoogleSignInProps {
+  label: string;
+}
+
+// Google creates the account on first sign-in, so sign-up and log-in share
+// this flow.
+export default function GoogleSignIn({ label }: GoogleSignInProps) {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
-  const { data: session } = authClient.useSession();
-
-  useEffect(() => {
-    if (session) {
-      router.push("/dashboard");
-    }
-  }, [session, router]);
-
+  // Coming back from Google with the back button restores this page from the
+  // bfcache, still showing the pending state.
   useEffect(() => {
     function handlePageShow(event: PageTransitionEvent) {
       if (event.persisted) {
@@ -41,7 +36,8 @@ export default function SignIn() {
 
     // Absolute URLs, because Netlify appends the OAuth callback's query string
     // (code, state, …) to relative redirect locations.
-    const dashboardURL = new URL("/dashboard", window.location.origin).href;
+    const dashboardURL = new URL(routeNames.dashboard, window.location.origin)
+      .href;
 
     await authClient.signIn.social({
       provider: "google",
@@ -61,14 +57,13 @@ export default function SignIn() {
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.card}>
-        <Header variant={"heading"}>Sign Up / Log In</Header>
-        <div className={styles.buttonGroup}>
-          <GoogleSignOnButton isPending={isPending} onClick={handleSignIn} />
-        </div>
-        {error ? <p role="alert">{error}</p> : null}
-      </div>
-    </div>
+    <>
+      <GoogleSignOnButton
+        isPending={isPending}
+        onClick={handleSignIn}
+        label={label}
+      />
+      {error ? <p role="alert">{error}</p> : null}
+    </>
   );
 }

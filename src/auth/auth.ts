@@ -23,6 +23,10 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  // No email verification or password reset until an email provider is set up.
+  emailAndPassword: {
+    enabled: true,
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,

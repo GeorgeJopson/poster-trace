@@ -5,14 +5,20 @@ import styles from "./GoogleSignOnButton.module.css";
 interface GoogleSignOnButtonProps {
   onClick: () => void;
   isPending: boolean;
+  label: string;
 }
 
 export default function GoogleSignOnButton({
   isPending,
   onClick,
+  label,
 }: GoogleSignOnButtonProps) {
   return (
-    <button className={styles.gsiMaterialButton} onClick={onClick}>
+    <button
+      type="button"
+      className={styles.gsiMaterialButton}
+      onClick={onClick}
+    >
       <div className={styles.gsiMaterialButtonState}></div>
       <div className={styles.gsiMaterialButtonContentWrapper}>
         <div
@@ -45,10 +51,10 @@ export default function GoogleSignOnButton({
           </svg>
         </div>
         <span className={styles.gsiMaterialButtonContents}>
-          {isPending ? "Redirecting …" : "Sign In with Google"}
+          {isPending ? "Redirecting …" : label}
         </span>
         <span style={{ display: "none" }}>
-          {isPending ? "Redirecting …" : "Sign In with Google"}
+          {isPending ? "Redirecting …" : label}
         </span>
       </div>
     </button>
