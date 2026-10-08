@@ -20,6 +20,7 @@ export default function PosterDesigns({ posterDesigns }: PosterDesignsProps) {
             width={176}
             height={249}
             src={posterDesign.designUrl}
+            unoptimized
             alt="Poster design"
             className={styles.posterDesignImage}
           />

@@ -1,6 +1,5 @@
 import {
   boolean,
-  customType,
   doublePrecision,
   index,
   integer,
@@ -20,24 +19,6 @@ const timestamps = {
     .notNull()
     .$onUpdate(() => new Date()),
 };
-
-// Drizzle's built-in bytea column is sent through the Netlify serverless
-// driver with String(), which mangles binary data. Postgres hex format
-// ("\x" + hex digits) round-trips safely through every driver.
-const bytea = customType<{ data: Uint8Array; driverData: string | Buffer }>({
-  dataType() {
-    return "bytea";
-  },
-  toDriver(value) {
-    return `\\x${Buffer.from(value).toString("hex")}`;
-  },
-  fromDriver(value) {
-    if (typeof value === "string") {
-      return Buffer.from(value.replace(/^\\x/, ""), "hex");
-    }
-    return value;
-  },
-});
 
 // Better Auth tables. Better Auth's Drizzle adapter finds these by their
 // export names, so keep them as user/session/account/verification.
@@ -120,8 +101,8 @@ export const posterDesign = pgTable(
   "poster_design",
   {
     id: serial().primaryKey(),
-    design: bytea().notNull(),
-    designMimeType: text().notNull(),
+    // Key of the design image in imageStorage.
+    designImageKey: text().notNull(),
     qrXPosition: doublePrecision().notNull(),
     qrYPosition: doublePrecision().notNull(),
     qrSize: doublePrecision().notNull(),

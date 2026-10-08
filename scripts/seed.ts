@@ -6,6 +6,8 @@ import path from "node:path";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 import { poster, posterCampaign, posterDesign, scan, user } from "@/db/schema";
+import { deleteImage, saveImage } from "@/imageStorage";
+import { connectToLocalImageStorage } from "@/imageStorage/localDev";
 
 // Seeds the local database started by `netlify dev`, the same one the app
 // uses there. Never point this at a Netlify-hosted database: it deletes all
@@ -23,10 +25,13 @@ function getLocalConnectionString() {
 }
 
 const db = drizzle({ connection: getLocalConnectionString() });
+// The same sandboxed local store `netlify dev` serves images from.
+const imageStorage = connectToLocalImageStorage();
 
 const posterImagesDir = path.join(process.cwd(), "public/poster-images");
-function loadDesignImage(filename: string) {
-  return fs.readFileSync(path.join(posterImagesDir, filename));
+function uploadDesignImage(filename: string) {
+  const data = fs.readFileSync(path.join(posterImagesDir, filename));
+  return saveImage(new Blob([data], { type: "image/webp" }));
 }
 
 // Scan timestamps relative to now, spread over the last couple of weeks.
@@ -59,8 +64,17 @@ async function getSeedUser() {
 }
 
 async function main() {
+  await imageStorage;
+
   // Clear existing poster data so the seed is repeatable. Deleting campaigns
-  // cascades to their designs, posters and scans.
+  // cascades to their designs, posters and scans, so delete the designs'
+  // images first.
+  const oldDesigns = await db
+    .select({ designImageKey: posterDesign.designImageKey })
+    .from(posterDesign);
+  await Promise.all(
+    oldDesigns.map(({ designImageKey }) => deleteImage(designImageKey)),
+  );
   await db.delete(posterCampaign);
 
   const { id: userId } = await getSeedUser();
@@ -102,8 +116,7 @@ async function main() {
   const [summerFestDesignA] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-1.webp"),
-      designMimeType: "image/webp",
+      designImageKey: await uploadDesignImage("stock-poster-1.webp"),
       qrXPosition: 0.82,
       qrYPosition: 0.85,
       qrSize: 0.12,
@@ -115,8 +128,7 @@ async function main() {
   const [summerFestDesignB] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-2.webp"),
-      designMimeType: "image/webp",
+      designImageKey: await uploadDesignImage("stock-poster-2.webp"),
       qrXPosition: 0.5,
       qrYPosition: 0.9,
       qrSize: 0.15,
@@ -128,8 +140,7 @@ async function main() {
   const [cafeDesign] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-3.webp"),
-      designMimeType: "image/webp",
+      designImageKey: await uploadDesignImage("stock-poster-3.webp"),
       qrXPosition: 0.75,
       qrYPosition: 0.8,
       qrSize: 0.1,
@@ -141,8 +152,7 @@ async function main() {
   const [marathonDesignA] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-4.webp"),
-      designMimeType: "image/webp",
+      designImageKey: await uploadDesignImage("stock-poster-4.webp"),
       qrXPosition: 0.2,
       qrYPosition: 0.15,
       qrSize: 0.18,
@@ -154,8 +164,7 @@ async function main() {
   const [marathonDesignB] = await db
     .insert(posterDesign)
     .values({
-      design: loadDesignImage("stock-poster-5.webp"),
-      designMimeType: "image/webp",
+      designImageKey: await uploadDesignImage("stock-poster-5.webp"),
       qrXPosition: 0.85,
       qrYPosition: 0.1,
       qrSize: 0.1,
@@ -273,4 +282,6 @@ main()
   })
   .finally(async () => {
     await db.$client.end();
+    const stopImageStorage = await imageStorage;
+    await stopImageStorage();
   });

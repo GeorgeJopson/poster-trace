@@ -10,11 +10,12 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "netlify database migrations apply",
-    "db:seed": "tsx src/db/seed.ts",
+    "seed": "tsx scripts/seed.ts",
     "db:reset": "netlify database reset && netlify database migrations apply",
     "prettier": "prettier --write ."
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.4",
     "@netlify/database": "^2.0.1",
     "@radix-ui/react-dialog": "^1.2.0",
     "@react-spring/web": "^10.1.2",

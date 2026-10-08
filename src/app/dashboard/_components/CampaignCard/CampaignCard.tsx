@@ -55,6 +55,7 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
                 width={IMAGE_WIDTH}
                 height={Math.round(IMAGE_WIDTH * ROOT_2)}
                 src={posterDesign.designUrl}
+                unoptimized
                 alt={campaign.name}
                 className={styles.posterDesignImage}
               />
