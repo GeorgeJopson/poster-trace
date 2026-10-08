@@ -47,3 +47,6 @@ TODO.md
 /.claude/
 /.windsurf/
 /skills-lock.json
+
+# created by netlify dev
+/deno.lock
