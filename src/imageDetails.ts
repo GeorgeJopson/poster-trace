@@ -21,6 +21,7 @@ export const icons = {
   plus: { src: "/plus.svg", alt: "Plus Icon" },
   x: { src: "/x.svg", alt: "Close Icon" },
   settings: { src: "/settings.svg", alt: "Settings Icon" },
+  google: { src: "/google.svg", alt: "Google logo" },
 };
 
 /** Example analytics visualizations, keyed by chart type. */

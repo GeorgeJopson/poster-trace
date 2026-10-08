@@ -67,14 +67,6 @@
   opacity: 0.3;
 }
 
-.buttonGroup {
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  gap: 16px;
-}
-
 .switchPrompt {
   text-align: center;
   font-size: var(--font-size-body);

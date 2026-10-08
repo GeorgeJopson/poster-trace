@@ -7,9 +7,9 @@ import { authClient } from "@/auth/auth-client";
 import Button from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
 import Header from "@/components/Header";
+import SocialSignOn from "@/components/SocialSignOn";
 import { routeNames } from "@/routeNames";
 
-import GoogleSignIn from "../_components/GoogleSignIn";
 import useRedirectIfSignedIn from "../_components/useRedirectIfSignedIn";
 import styles from "../_components/AuthCard.module.css";
 
@@ -89,9 +89,7 @@ export default function SignIn() {
 
           <p className={styles.divider}>or</p>
 
-          <div className={styles.buttonGroup}>
-            <GoogleSignIn label="Log In with Google" />
-          </div>
+          <SocialSignOn actionName="Log In" />
 
           <p className={styles.switchPrompt}>
             Don&apos;t have an account?{" "}
