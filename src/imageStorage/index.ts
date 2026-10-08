@@ -20,9 +20,11 @@ export async function saveImage(image: Blob) {
   return key;
 }
 
+// Returns the image as a stream, so callers can pass bytes on as they arrive
+// instead of holding the whole image in memory.
 export async function getImage(key: string) {
   const entry = await getImageStore().getWithMetadata(key, {
-    type: "arrayBuffer",
+    type: "stream",
   });
   if (!entry) return null;
   return {
