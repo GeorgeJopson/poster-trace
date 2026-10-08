@@ -1,5 +1,5 @@
 export const routeNames = {
-  signIn: "/sign-in",
+  signIn: "/log-in",
   signUp: "/sign-up",
   dashboard: "/dashboard",
   about: "/about",
