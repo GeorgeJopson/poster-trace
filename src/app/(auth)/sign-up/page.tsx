@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { authClient } from "@/auth/auth-client";
 import Button from "@/components/Button";
+import CentralColumn from "@/components/CentralColumn";
 import Header from "@/components/Header";
 import { routeNames } from "@/routeNames";
 
@@ -45,73 +46,76 @@ export default function SignUp() {
   }
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.card}>
-        <Header variant={"heading"}>Sign Up</Header>
+    <CentralColumn>
+      <div className={styles.wrapper}>
+        <div className={styles.card}>
+          <Header variant={"heading"}>Sign Up</Header>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <div className={styles.fields}>
-            <label className={styles.label} htmlFor="name">
-              Name
-            </label>
-            <input
-              className={styles.input}
-              id="name"
-              name="name"
-              autoComplete="name"
-              required
-            />
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.fields}>
+              <label className={styles.label} htmlFor="name">
+                Name
+              </label>
+              <input
+                className={styles.input}
+                id="name"
+                name="name"
+                autoComplete="name"
+                required
+              />
 
-            <label className={styles.label} htmlFor="email">
-              Email
-            </label>
-            <input
-              className={styles.input}
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-            />
+              <label className={styles.label} htmlFor="email">
+                Email
+              </label>
+              <input
+                className={styles.input}
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+              />
 
-            <label className={styles.label} htmlFor="password">
-              Password
-            </label>
-            <input
-              className={styles.input}
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              minLength={MIN_PASSWORD_LENGTH}
-              required
-            />
+              <label className={styles.label} htmlFor="password">
+                Password
+              </label>
+              <input
+                className={styles.input}
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                minLength={MIN_PASSWORD_LENGTH}
+                required
+              />
+            </div>
+
+            {error ? <p role="alert">{error}</p> : null}
+
+            <div className={styles.submitButtonWrapper}>
+              <Button
+                variant={"filled"}
+                fontSize={"1.25rem"}
+                type="submit"
+                disabled={isPending}
+              >
+                {isPending ? "Signing Up …" : "Sign Up"}
+              </Button>
+            </div>
+          </form>
+
+          <p className={styles.divider}>or</p>
+
+          <div className={styles.buttonGroup}>
+            <GoogleSignIn label="Sign Up with Google" />
           </div>
 
-          {error ? <p role="alert">{error}</p> : null}
-
-          <div className={styles.submitButtonWrapper}>
-            <Button
-              variant={"filled"}
-              fontSize={"1.25rem"}
-              type="submit"
-              disabled={isPending}
-            >
-              {isPending ? "Signing Up …" : "Sign Up"}
-            </Button>
-          </div>
-        </form>
-
-        <p className={styles.divider}>or</p>
-
-        <div className={styles.buttonGroup}>
-          <GoogleSignIn label="Sign Up with Google" />
+          <p className={styles.switchPrompt}>
+            Already have an account?{" "}
+            <Link href={routeNames.signIn}>Log in</Link>
+          </p>
         </div>
-
-        <p className={styles.switchPrompt}>
-          Already have an account? <Link href={routeNames.signIn}>Log in</Link>
-        </p>
       </div>
-    </div>
+    </CentralColumn>
   );
 }

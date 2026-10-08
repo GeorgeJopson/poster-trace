@@ -5,6 +5,7 @@
   align-items: center;
 
   padding-top: 24px;
+  padding-bottom: 24px;
 }
 
 .card {
@@ -77,4 +78,8 @@
 .switchPrompt {
   text-align: center;
   font-size: var(--font-size-body);
+}
+
+.switchPrompt a {
+  color: var(--color-green-800);
 }
