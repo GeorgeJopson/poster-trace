@@ -1,4 +1,6 @@
-.gsiMaterialButton {
+/* Based on the button from https://developers.google.com/identity/branding-guidelines */
+
+.button {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -36,14 +38,14 @@
   min-width: 200px;
 }
 
-.gsiMaterialButton .gsiMaterialButtonIcon {
+.button .icon {
   height: 20px;
   margin-right: 10px;
   min-width: 20px;
   width: 20px;
 }
 
-.gsiMaterialButton .gsiMaterialButtonContentWrapper {
+.button .contentWrapper {
   -webkit-align-items: center;
   align-items: center;
   display: flex;
@@ -57,7 +59,7 @@
   width: 100%;
 }
 
-.gsiMaterialButton .gsiMaterialButtonContents {
+.button .contents {
   -webkit-flex-grow: 1;
   flex-grow: 1;
   font-family: "Roboto", arial, sans-serif;
@@ -67,7 +69,7 @@
   vertical-align: top;
 }
 
-.gsiMaterialButton .gsiMaterialButtonState {
+.button .state {
   -webkit-transition: opacity 0.218s;
   transition: opacity 0.218s;
   bottom: 0;
@@ -78,27 +80,27 @@
   top: 0;
 }
 
-.gsiMaterialButton:disabled {
+.button:disabled {
   cursor: default;
   background-color: #ffffff61;
   border-color: #1f1f1f1f;
 }
 
-.gsiMaterialButton:disabled .gsiMaterialButtonContents {
+.button:disabled .contents {
   opacity: 38%;
 }
 
-.gsiMaterialButton:disabled .gsiMaterialButtonIcon {
+.button:disabled .icon {
   opacity: 38%;
 }
 
-.gsiMaterialButton:not(:disabled):active .gsiMaterialButtonState,
-.gsiMaterialButton:not(:disabled):focus .gsiMaterialButtonState {
+.button:not(:disabled):active .state,
+.button:not(:disabled):focus .state {
   background-color: #303030;
   opacity: 12%;
 }
 
-.gsiMaterialButton:not(:disabled):hover {
+.button:not(:disabled):hover {
   -webkit-box-shadow:
     0 1px 2px 0 rgba(60, 64, 67, 0.3),
     0 1px 3px 1px rgba(60, 64, 67, 0.15);
@@ -107,7 +109,7 @@
     0 1px 3px 1px rgba(60, 64, 67, 0.15);
 }
 
-.gsiMaterialButton:not(:disabled):hover .gsiMaterialButtonState {
+.button:not(:disabled):hover .state {
   background-color: #303030;
   opacity: 8%;
 }
@@ -123,4 +125,11 @@
 
 .spin {
   animation: spin 1s ease-in-out infinite;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }

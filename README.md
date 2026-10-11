@@ -1,7 +1,7 @@
 # Poster Trace
 
 A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
-[Drizzle ORM](https://orm.drizzle.team), with Google sign-in via
+[Drizzle ORM](https://orm.drizzle.team), with email/password and Google sign-in via
 [Better Auth](https://www.better-auth.com).
 
 ## Setting up a development server
@@ -27,7 +27,6 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    BETTER_AUTH_SECRET=<any long random string, e.g. from `openssl rand -base64 32`>
    GOOGLE_CLIENT_ID=<Google OAuth client ID>
    GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
-   SEED_USER_EMAIL=<your Google email, used by the seed script>
    ```
 
    The Google OAuth client must list
@@ -47,9 +46,9 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    npm run seed
    ```
 
-6. Open [http://localhost:3000](http://localhost:3000) and sign in with
-   Google. If you seeded with your email, the sample campaigns appear on
-   `/dashboard`.
+6. Open [http://localhost:3000](http://localhost:3000) and log in. If you
+   seeded the database, log in as `test@example.com` with password
+   `password123` to see the sample campaigns on `/dashboard`.
 
 `netlify dev` serves the app on port 3000 and runs Next.js on 3001 behind it
 (see `[dev]` in `netlify.toml`). Use `netlify dev`, not `npm run dev`: plain
@@ -77,12 +76,14 @@ or `drizzle-kit migrate` against a Netlify-hosted database.
 
 ## Authentication
 
-Sign-in is Google OAuth only. Poster campaigns are owned by the user who
-created them, so `/dashboard` always requires signing in.
+Users sign up at `/sign-up` and log in at `/sign-in`, with either an email
+and password or Google OAuth. Signing in with Google for the first time
+creates the account, so both pages offer it. There's no email verification
+or password reset yet. Poster campaigns are owned by the user who created
+them, so `/dashboard` always requires signing in.
 
-`npm run seed` assigns its campaigns to the user with the email in
-`SEED_USER_EMAIL` (creating that user if needed). Set it to your Google
-email to see the seed data after signing in.
+`npm run seed` assigns its campaigns to the test account `test@example.com`
+(password `password123`), creating it if needed and resetting its password.
 
 ## Deployment
 

@@ -1,0 +1,12 @@
+.label {
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 0 10px;
+  margin-bottom: 8px;
+}

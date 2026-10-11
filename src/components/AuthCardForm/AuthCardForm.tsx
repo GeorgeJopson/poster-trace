@@ -1,0 +1,83 @@
+"use client";
+
+import React, { useState } from "react";
+
+import CentralColumn from "@/components/CentralColumn";
+import Form, { SubmitButton } from "@/components/Form";
+import Header from "@/components/Header";
+import SocialSignOn from "@/components/SocialSignOn";
+import { routeNames } from "@/routeNames";
+import useRedirectIfSignedIn from "@/utils/useRedirectIfSignedIn";
+
+import styles from "./AuthCardForm.module.css";
+
+interface AuthCardFormProps {
+  // Used as the heading, submit button and social sign-on label.
+  actionName: string;
+  pendingText: string;
+  fallbackErrorMessage: string;
+  // The form's fields.
+  children: React.ReactNode;
+  // Resolves once the auth request finishes. On success the new session
+  // triggers useRedirectIfSignedIn.
+  submit: (
+    formData: FormData,
+  ) => Promise<{ error: { message?: string } | null }>;
+  switchPrompt: React.ReactNode;
+}
+
+export default function AuthCardForm({
+  actionName,
+  pendingText,
+  fallbackErrorMessage,
+  children,
+  submit,
+  switchPrompt,
+}: AuthCardFormProps) {
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useRedirectIfSignedIn(routeNames.dashboard);
+
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    setIsPending(true);
+    setError(null);
+
+    const { error } = await submit(formData);
+
+    if (error) {
+      setIsPending(false);
+      setError(error.message || fallbackErrorMessage);
+    }
+  }
+
+  return (
+    <CentralColumn>
+      <div className={styles.wrapper}>
+        <div className={styles.card}>
+          <Header variant={"heading"}>{actionName}</Header>
+
+          <Form
+            handleSubmit={handleSubmit}
+            error={error}
+            fields={children}
+            submitBtn={
+              <SubmitButton isPending={isPending} isPendingText={pendingText}>
+                {actionName}
+              </SubmitButton>
+            }
+          />
+
+          <p className={styles.divider}>or</p>
+
+          <SocialSignOn actionName={actionName} />
+
+          <p className={styles.switchPrompt}>{switchPrompt}</p>
+        </div>
+      </div>
+    </CentralColumn>
+  );
+}
