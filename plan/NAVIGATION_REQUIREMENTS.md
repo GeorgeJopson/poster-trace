@@ -25,7 +25,8 @@ account, or sign out.
 
 1. Public pages keep the existing top `NavBar` and `Footer`.
 2. Authenticated pages get a left-hand navigation pane (desktop) / collapsed
-   rail + dialog (mobile), as shown in the mockup.
+   rail + dialog (mobile), as shown in the mockup, and keep the existing
+   `Footer`.
 3. The navigation pane can display page-specific navigation, starting with a
    campaign sub-section (Create / Analytics).
 4. Every page linked from the navigation exists, even if blank (§4.1).
@@ -46,7 +47,7 @@ account, or sign out.
 | Group      | Contains                                                                   | Layout renders                     |
 | ---------- | -------------------------------------------------------------------------- | ---------------------------------- |
 | `(public)` | `/` (landing), `(auth)/log-in`, `(auth)/sign-up`, `error`, `register` (new) | existing `NavBar` + `Footer`        |
-| `(app)`    | `dashboard/**`, `account` (new)                                            | new authenticated navigation shell |
+| `(app)`    | `dashboard/**`, `account` (new)                                            | new authenticated navigation shell + existing `Footer` |
 
 **R-3.2** `src/app/layout.tsx` remains the **single** root layout (`<html>`,
 `<body>`, fonts, metadata) and no longer renders `NavBar` or `Footer`.
@@ -151,14 +152,24 @@ explicit rows**: one column for the navigation pane, one for the content.
 │ └────────┘ │                                  │
 │            │                                  │
 │ Account    │                                  │
-│ Sign Out   │                                  │
+│ Sign Out   ├─────────────────────────────────┤
+│            │ Footer                           │
 └────────────┴─────────────────────────────────┘
 ```
 
 **R-5.2** The navigation column has a fixed width (mockup ≈ 170px) and a
 right border separating it from the content. The content column takes the
 remaining space (`minmax(0, 1fr)` so wide content can't blow out the grid)
-and is rendered as the `<main>` element by the `(app)` layout.
+and contains the `<main>` element followed by the existing `<Footer />`,
+both rendered by the `(app)` layout.
+
+**R-5.2a** The footer sits in the content column, below `<main>`, so the
+grid keeps two columns and no rows. The content column is at least the
+viewport height (`min-height: 100dvh`) with `<main>` growing to fill it, so
+on short pages the footer sits at the bottom of the viewport rather than
+directly under the content. **[Decision]** Alternative: a full-width footer
+below the whole grid; this would add a row and push the sticky nav pane up
+as the footer scrolls into view. Default: footer in the content column.
 
 **R-5.3** The navigation pane is **not** required to line up with anything
 in the content column. Pages render their content (e.g. `CampaignHeader`)
@@ -324,7 +335,8 @@ re-renders the slot too.
 3. Signed-out request to `/register` shows a blank page with the public
    NavBar + Footer (no redirect).
 4. On `/dashboard` (wide viewport): left pane with logo, Campaigns (active),
-   Register, Account and Sign Out; no sub-box; no public NavBar or Footer.
+   Register, Account and Sign Out; no sub-box; no public NavBar; the
+   existing Footer below the content in the content column.
 5. On `/dashboard/campaign/1`: sub-box titled with the campaign name,
    "Create" active. On `/dashboard/campaign/1/analytics`: same sub-box,
    "Analytics" active, blank content.
@@ -347,6 +359,18 @@ re-renders the slot too.
 | 1   | Mobile dialog: reuse centred modal or add a left drawer? (R-5.9)  | Reuse existing `Dialog`   |
 | 2   | Expand icon (R-5.12)                                              | Feather `menu`            |
 | 3   | Where does Sign Out land? (R-4.2)                                 | `/`                       |
-| 4   | Should authenticated pages keep a footer?                         | No (mockup shows none)    |
+| 4   | Footer placement on authenticated pages (R-5.2a)                  | In the content column, below `<main>` |
 | 5   | Page-specific nav mechanism (R-6.3)                               | `@pageNav` parallel route |
 | 6   | Should a signed-in user visiting `/` see the public NavBar, or get "Dashboard" in place of "Log In / Sign Up"? | Unchanged (out of scope) |
+| 7   | The footer's "Log In" / "Sign Up" links also show to signed-in users. Hide or swap them on authenticated pages? | Unchanged (out of scope) |
+
+### Resolved
+
+| Question                                                  | Answer                                                                |
+| --------------------------------------------------------- | --------------------------------------------------------------------- |
+| What is "Register"?                                       | Where posters are registered when put up; public, no sign-in (R-4.7) |
+| Ship links to pages that don't exist yet?                 | Yes; create the pages blank (R-4.5, R-4.6)                            |
+| Mobile breakpoint                                         | `--tablet-and-down` (R-5.6)                                           |
+| Should the nav pane line up with a page header row?       | No; two columns, no rows (R-5.1, R-5.3)                               |
+| Does `/register` need a poster ID in the URL?             | No (R-4.8)                                                            |
+| Should authenticated pages keep a footer?                 | Yes (R-5.2, R-5.2a)                                                   |
