@@ -13,7 +13,7 @@
   font-size: var(--font-size-body);
   font-weight: normal;
   line-height: 1.4;
-  color: var(--color-green-950);
+  color: var(--color-green-900);
   /* Wrap long campaign names rather than overflowing the pane. */
   overflow-wrap: anywhere;
 }
