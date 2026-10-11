@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import UnderConstruction from "@/components/UnderConstruction";
 import { getMyCampaign } from "@/data/campaigns";
 
 export const metadata: Metadata = {
@@ -23,5 +24,5 @@ export default async function AnalyticsPage({
     notFound();
   }
 
-  return null;
+  return <UnderConstruction />;
 }
