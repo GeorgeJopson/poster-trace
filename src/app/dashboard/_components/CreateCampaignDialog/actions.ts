@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { createCampaign as createCampaignForUser } from "@/data/campaigns";
+import { routeNames } from "@/routeNames";
 
 export async function createCampaign(formData: FormData) {
   const name = String(formData.get("name") ?? "");
@@ -10,5 +11,5 @@ export async function createCampaign(formData: FormData) {
 
   const campaign = await createCampaignForUser({ name, target });
 
-  redirect(`/dashboard/campaign/${campaign.id}`);
+  redirect(routeNames.campaign(campaign.id));
 }

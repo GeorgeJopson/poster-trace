@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import DashedCard from "@/components/DashedCard";
 import { icons } from "@/imageDetails";
+import { routeNames } from "@/routeNames";
 import type { CampaignWithDesigns } from "@/data/campaigns";
 
 import styles from "./CampaignCard.module.css";
@@ -32,7 +33,7 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
     <div className={styles.boopWrapper} onMouseEnter={trigger}>
       <DashedCard
         as={Link}
-        href={`/dashboard/campaign/${campaign.id}`}
+        href={routeNames.campaign(campaign.id)}
         className={styles.campaign}
       >
         <animated.span style={style} className={styles.plusSymbol}>

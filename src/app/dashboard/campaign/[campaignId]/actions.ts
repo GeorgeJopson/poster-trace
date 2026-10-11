@@ -6,6 +6,7 @@ import {
   createPosterDesign as createPosterDesignForUser,
   updateCampaign as updateCampaignForUser,
 } from "@/data/campaigns";
+import { routeNames } from "@/routeNames";
 
 import {
   getImageFileError,
@@ -18,7 +19,7 @@ export async function updateCampaign(campaignId: number, formData: FormData) {
 
   await updateCampaignForUser(campaignId, { name, target });
 
-  revalidatePath(`/dashboard/campaign/${campaignId}`);
+  revalidatePath(routeNames.campaign(campaignId));
 }
 
 function parseQrValue(formData: FormData, name: keyof typeof QR_RANGES) {
@@ -51,5 +52,5 @@ export async function createPosterDesign(
     qrRotation: parseQrValue(formData, "qrRotation"),
   });
 
-  revalidatePath(`/dashboard/campaign/${campaignId}`);
+  revalidatePath(routeNames.campaign(campaignId));
 }
