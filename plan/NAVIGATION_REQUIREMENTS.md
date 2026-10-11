@@ -44,10 +44,10 @@ account, or sign out.
 
 **R-3.1** Routes are split into two route groups under `src/app/`:
 
-| Group      | Contains                                                                   | Layout renders                     |
-| ---------- | -------------------------------------------------------------------------- | ---------------------------------- |
-| `(public)` | `/` (landing), `(auth)/log-in`, `(auth)/sign-up`, `error`, `register` (new) | existing `NavBar` + `Footer`        |
-| `(app)`    | `dashboard/**`, `account` (new)                                            | new authenticated navigation shell + existing `Footer` |
+| Group      | Contains                                                                    | Layout renders                                         |
+| ---------- | --------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `(public)` | `/` (landing), `(auth)/log-in`, `(auth)/sign-up`, `error`, `register` (new) | existing `NavBar` + `Footer`                           |
+| `(app)`    | `dashboard/**`, `account` (new)                                             | new authenticated navigation shell + existing `Footer` |
 
 **R-3.2** `src/app/layout.tsx` remains the **single** root layout (`<html>`,
 `<body>`, fonts, metadata) and no longer renders `NavBar` or `Footer`.
@@ -113,11 +113,11 @@ navigation components. Add to `src/routeNames.ts`:
 **R-4.5** Pages linked from the navigation that don't exist yet are
 created as part of this work:
 
-| Page      | URL                                         | File                                                              | Auth required |
-| --------- | ------------------------------------------- | ----------------------------------------------------------------- | ------------- |
-| Account   | `/account`                                  | `src/app/(app)/account/page.tsx`                                  | Yes           |
+| Page      | URL                                          | File                                                               | Auth required |
+| --------- | -------------------------------------------- | ------------------------------------------------------------------ | ------------- |
+| Account   | `/account`                                   | `src/app/(app)/account/page.tsx`                                   | Yes           |
 | Analytics | `/dashboard/campaign/[campaignId]/analytics` | `src/app/(app)/dashboard/campaign/[campaignId]/analytics/page.tsx` | Yes           |
-| Register  | `/register`                                 | `src/app/(public)/register/page.tsx`                              | **No**        |
+| Register  | `/register`                                  | `src/app/(public)/register/page.tsx`                               | **No**        |
 
 **R-4.6** These pages are left **blank**: no content beyond what the
 surrounding layout provides. They may export a `metadata.title`.
@@ -361,23 +361,23 @@ re-renders the slot too.
 
 ## 9. Open questions
 
-| #   | Question                                                          | Default if unanswered     |
-| --- | ----------------------------------------------------------------- | ------------------------- |
-| 1   | Mobile dialog: reuse centred modal or add a left drawer? (R-5.9)  | Reuse existing `Dialog`   |
-| 2   | Expand icon (R-5.12)                                              | Feather `menu`            |
-| 3   | Where does Sign Out land? (R-4.2)                                 | `/`                       |
-| 4   | Footer placement on authenticated pages (R-5.2a)                  | In the content column, below `<main>` |
-| 5   | Page-specific nav mechanism (R-6.3)                               | `@pageNav` parallel route |
-| 6   | Should a signed-in user visiting `/` see the public NavBar, or get "Dashboard" in place of "Log In / Sign Up"? | Unchanged (out of scope) |
-| 7   | The footer's "Log In" / "Sign Up" links also show to signed-in users. Hide or swap them on authenticated pages? | Unchanged (out of scope) |
+| #   | Question                                                                                                        | Default if unanswered                 |
+| --- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| 1   | Mobile dialog: reuse centred modal or add a left drawer? (R-5.9)                                                | Reuse existing `Dialog`               |
+| 2   | Expand icon (R-5.12)                                                                                            | Feather `menu`                        |
+| 3   | Where does Sign Out land? (R-4.2)                                                                               | `/`                                   |
+| 4   | Footer placement on authenticated pages (R-5.2a)                                                                | In the content column, below `<main>` |
+| 5   | Page-specific nav mechanism (R-6.3)                                                                             | `@pageNav` parallel route             |
+| 6   | Should a signed-in user visiting `/` see the public NavBar, or get "Dashboard" in place of "Log In / Sign Up"?  | Unchanged (out of scope)              |
+| 7   | The footer's "Log In" / "Sign Up" links also show to signed-in users. Hide or swap them on authenticated pages? | Unchanged (out of scope)              |
 
 ### Resolved
 
-| Question                                                  | Answer                                                                |
-| --------------------------------------------------------- | --------------------------------------------------------------------- |
-| What is "Register"?                                       | Where posters are registered when put up; public, no sign-in (R-4.7) |
-| Ship links to pages that don't exist yet?                 | Yes; create the pages blank (R-4.5, R-4.6)                            |
-| Mobile breakpoint                                         | `--tablet-and-down` (R-5.6)                                           |
-| Should the nav pane line up with a page header row?       | No; two columns, no rows (R-5.1, R-5.3)                               |
-| Does `/register` need a poster ID in the URL?             | No (R-4.8)                                                            |
-| Should authenticated pages keep a footer?                 | Yes (R-5.2, R-5.2a)                                                   |
+| Question                                            | Answer                                                               |
+| --------------------------------------------------- | -------------------------------------------------------------------- |
+| What is "Register"?                                 | Where posters are registered when put up; public, no sign-in (R-4.7) |
+| Ship links to pages that don't exist yet?           | Yes; create the pages blank (R-4.5, R-4.6)                           |
+| Mobile breakpoint                                   | `--tablet-and-down` (R-5.6)                                          |
+| Should the nav pane line up with a page header row? | No; two columns, no rows (R-5.1, R-5.3)                              |
+| Does `/register` need a poster ID in the URL?       | No (R-4.8)                                                           |
+| Should authenticated pages keep a footer?           | Yes (R-5.2, R-5.2a)                                                  |

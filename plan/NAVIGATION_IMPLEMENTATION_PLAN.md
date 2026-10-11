@@ -49,8 +49,8 @@ Two techniques used repeatedly below:
   - `account: "/account"`, `register: "/register"`,
   - `campaign: (id: number) => \`/dashboard/campaign/${id}\``,
   - `campaignAnalytics: (id: number) => \`/dashboard/campaign/${id}/analytics\``.
-  Keep `as const` on the static entries (the object can stay `as const`;
-  functions are fine inside it).
+Keep `as const`on the static entries (the object can stay`as const`;
+    functions are fine inside it).
 - Replace the existing hard-coded campaign URLs with the helpers:
   - `src/app/dashboard/_components/CampaignCard/CampaignCard.tsx` (`href`),
   - `src/app/dashboard/_components/CreateCampaignDialog/actions.ts`
@@ -107,6 +107,7 @@ Structural move only. To keep this commit free of visual changes, the
   Change `@/app/dashboard/...` → `@/app/(app)/dashboard/...`, or to
   relative imports to match the rest of the folder. Re-run
   `grep -rn "@/app/dashboard" src` to confirm none remain.
+
 - `error/page.tsx` uses `PageProps<"/error">`; the URL is unchanged so the
   type keeps working, but confirm with `typecheck`.
 
@@ -190,7 +191,9 @@ following the existing `Component/Component.tsx` + `index.ts` +
 
   ```tsx
   <div className={styles.grid}>
-    <aside className={styles.navColumn}><NavPane /></aside>
+    <aside className={styles.navColumn}>
+      <NavPane />
+    </aside>
     <div className={styles.contentColumn}>
       <main className={styles.main}>{children}</main>
       <Footer />
@@ -203,9 +206,9 @@ following the existing `Component/Component.tsx` + `index.ts` +
     — two columns, no rows (R-5.1, R-5.2).
   - `.navColumn` — right border (`--color-green-800`, matching `NavBar`).
   - Pane: `position: sticky; top: 0; align-self: start; height: 100dvh;
-    overflow-y: auto;` (R-5.4).
+overflow-y: auto;` (R-5.4).
   - `.contentColumn { display: flex; flex-direction: column;
-    min-height: 100dvh; }`, `.main { flex: 1; }` — footer at the bottom
+min-height: 100dvh; }`, `.main { flex: 1; }` — footer at the bottom
     on short pages (R-5.2a).
 - Remove the temporary CSS from Commit 2.
 
@@ -272,7 +275,7 @@ following the existing `Component/Component.tsx` + `index.ts` +
 > **Deviation from R-6.3 / R-6.5 — needs a requirements update.** The
 > requirements suggest a root catch-all `@pageNav/[...rest]/page.tsx`.
 > Because route groups don't appear in the URL, that slot route would
-> resolve to `/[...rest]` and could match *every* URL, including public
+> resolve to `/[...rest]` and could match _every_ URL, including public
 > ones (`/register`, unknown URLs), with unclear interaction with the
 > `(public)` routes and the `requireUserId()` gate. Instead, give every
 > `(app)` route an explicit slot page returning `null` (`account`,
@@ -338,24 +341,39 @@ following the existing `Component/Component.tsx` + `index.ts` +
 
   ```tsx
   <aside className={styles.navColumn}>
-    <div className={styles.desktopNav}><NavPane pageNav={pageNav} /></div>
+    <div className={styles.desktopNav}>
+      <NavPane pageNav={pageNav} />
+    </div>
     <div className={styles.mobileNav}>
-      <MobileNav><NavPane pageNav={pageNav} /></MobileNav>
+      <MobileNav>
+        <NavPane pageNav={pageNav} />
+      </MobileNav>
     </div>
   </aside>
   ```
 
   `pageNav` is a React node, so rendering it twice is fine (they're
   never both visible).
+
 - CSS — only `--tablet-and-down`, desktop as default (R-5.10):
 
   ```css
-  .mobileNav { display: none; }
+  .mobileNav {
+    display: none;
+  }
 
   @media (--tablet-and-down) {
-    .grid { grid-template-columns: 48px minmax(0, 1fr); }
-    .desktopNav { display: none; }
-    .mobileNav { display: block; position: sticky; top: 0; }
+    .grid {
+      grid-template-columns: 48px minmax(0, 1fr);
+    }
+    .desktopNav {
+      display: none;
+    }
+    .mobileNav {
+      display: block;
+      position: sticky;
+      top: 0;
+    }
   }
   ```
 
@@ -391,19 +409,19 @@ following the existing `Component/Component.tsx` + `index.ts` +
 
 ## Acceptance criteria → commit map
 
-| AC  | Summary                                           | Verified in        |
-| --- | ------------------------------------------------- | ------------------ |
-| 1   | Public pages unchanged                            | 2 (re-check at 6)  |
-| 2   | Signed-out redirects for `(app)` routes           | 2, 3               |
-| 3   | `/register` public and blank                      | 3                  |
-| 4   | Dashboard pane, footer in content column          | 4                  |
-| 5   | Campaign sub-box on Create and Analytics          | 5                  |
-| 6   | Pane stays fixed while scrolling                  | 4                  |
-| 7   | Sub-box clears on navigation, no reload           | 5                  |
-| 8   | No full reloads between groups                    | 2, 4               |
-| 9   | Mobile rail + dialog at `--tablet-and-down`       | 6                  |
-| 10  | Sign Out                                          | 4                  |
-| 11  | Lint / typecheck / build                          | every commit       |
+| AC  | Summary                                     | Verified in       |
+| --- | ------------------------------------------- | ----------------- |
+| 1   | Public pages unchanged                      | 2 (re-check at 6) |
+| 2   | Signed-out redirects for `(app)` routes     | 2, 3              |
+| 3   | `/register` public and blank                | 3                 |
+| 4   | Dashboard pane, footer in content column    | 4                 |
+| 5   | Campaign sub-box on Create and Analytics    | 5                 |
+| 6   | Pane stays fixed while scrolling            | 4                 |
+| 7   | Sub-box clears on navigation, no reload     | 5                 |
+| 8   | No full reloads between groups              | 2, 4              |
+| 9   | Mobile rail + dialog at `--tablet-and-down` | 6                 |
+| 10  | Sign Out                                    | 4                 |
+| 11  | Lint / typecheck / build                    | every commit      |
 
 After Commit 6, run through all of §8 once more end to end on a fresh
 `netlify dev` before opening the PR.
