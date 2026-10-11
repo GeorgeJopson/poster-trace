@@ -21,7 +21,9 @@
   font-size: var(--font-size-header);
   line-height: 1;
   text-box: trim-both cap alphabetic;
-  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: balance;
 }
 
 .target {
