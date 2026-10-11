@@ -1,5 +1,6 @@
 "use client";
 
+import CentralColumn from "@/components/CentralColumn";
 import { icons } from "@/imageDetails";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -16,7 +17,8 @@ interface DialogProps {
   children: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  // "drawer" anchors the dialog to the left edge at full height.
+  // "drawer" anchors the dialog to the top edge at full width, with its content
+  // in a CentralColumn to line up with the page.
   variant?: "centered" | "drawer";
 }
 
@@ -37,6 +39,27 @@ export default function Dialog({
     </RadixDialog.Close>
   );
 
+  const body = (
+    <>
+      {hideTitle ? (
+        <>
+          <VisuallyHidden asChild>
+            <RadixDialog.Title>{title}</RadixDialog.Title>
+          </VisuallyHidden>
+          <div className={styles.floatingClose}>{closeButton}</div>
+        </>
+      ) : (
+        <div className={styles.dialogHeader}>
+          <RadixDialog.Title className={styles.title}>
+            {title}
+          </RadixDialog.Title>
+          {closeButton}
+        </div>
+      )}
+      {children}
+    </>
+  );
+
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
@@ -45,22 +68,7 @@ export default function Dialog({
         <RadixDialog.Content
           className={`${styles.dialogContent} ${variant === "drawer" ? styles.drawer : ""}`}
         >
-          {hideTitle ? (
-            <>
-              <VisuallyHidden asChild>
-                <RadixDialog.Title>{title}</RadixDialog.Title>
-              </VisuallyHidden>
-              <div className={styles.floatingClose}>{closeButton}</div>
-            </>
-          ) : (
-            <div className={styles.dialogHeader}>
-              <RadixDialog.Title className={styles.title}>
-                {title}
-              </RadixDialog.Title>
-              {closeButton}
-            </div>
-          )}
-          {children}
+          {variant === "drawer" ? <CentralColumn>{body}</CentralColumn> : body}
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>

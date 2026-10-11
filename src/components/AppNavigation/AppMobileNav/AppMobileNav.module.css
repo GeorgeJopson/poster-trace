@@ -2,13 +2,18 @@
   display: none;
 }
 
+.contentWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .menuButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  margin: 12px auto 0;
 
   padding: 0;
   border: none;
@@ -26,7 +31,7 @@
    neither. */
 @media (--phone-and-down) {
   .mobileNav {
-    display: flex;
-    justify-content: center;
+    display: block;
+    padding: 4px 0;
   }
 }

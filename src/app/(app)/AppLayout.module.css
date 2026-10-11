@@ -5,12 +5,15 @@
   grid-template-columns: min-content minmax(0, 1fr);
 }
 
+/* One column: the navigation bar above the content, which fills the rest of
+   the viewport height. */
 @media (--phone-and-down) {
   .grid {
-    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    min-height: 100dvh;
   }
 }
-
 
 .navColumn {
   /* Stays in view while the content scrolls, keeping the footer links at
@@ -23,12 +26,29 @@
   box-shadow: var(--shadow-elevation-medium);
 }
 
+/* A bar stuck to the top, above the content scrolling beneath it. */
+@media (--phone-and-down) {
+  .navColumn {
+    height: auto;
+    overflow-y: visible;
+    z-index: 100;
+    background-color: white;
+  }
+}
+
 /* At least the viewport height, so the footer sits at the bottom on short
    pages. */
 .contentColumn {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+}
+
+/* The grid row sets the height, less the navigation bar. */
+@media (--phone-and-down) {
+  .contentColumn {
+    min-height: 0;
+  }
 }
 
 .main {

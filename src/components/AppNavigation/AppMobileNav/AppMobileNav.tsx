@@ -3,7 +3,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
+import CentralColumn from "@/components/CentralColumn";
 import Dialog from "@/components/Dialog";
+import Logo from "@/components/Logo";
 import { icons } from "@/imageDetails";
 
 import NavPane from "../_components/NavPane";
@@ -14,9 +16,9 @@ type AppMobileNavProps = {
   pageNav?: React.ReactNode;
 };
 
-// A menu button that opens the navigation pane in a drawer, shown only at the
-// breakpoint where AppDesktopNav is hidden. No padding, as the dialog adds
-// its own.
+// A bar with the logo and a menu button that opens the navigation pane in a
+// drawer from the top, shown only at the breakpoint where AppDesktopNav is
+// hidden. No padding around the pane, as the dialog adds its own.
 export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
   const [open, setOpen] = useState(false);
 
@@ -30,22 +32,30 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
 
   return (
     <div className={styles.mobileNav}>
-      <Dialog
-        title="Navigation"
-        hideTitle
-        variant="drawer"
-        open={open}
-        onOpenChange={setOpen}
-        trigger={
-          <button className={styles.menuButton} aria-label="Open navigation">
-            <Image width={24} height={24} src={icons.menu.src} alt="" />
-          </button>
-        }
-      >
-        <div onClick={handleClick}>
-          <NavPane pageNav={pageNav} />
+      <CentralColumn>
+        <div className={styles.contentWrapper}>
+          <Logo showTitle={false} />
+          <Dialog
+            title="Navigation"
+            hideTitle
+            variant="drawer"
+            open={open}
+            onOpenChange={setOpen}
+            trigger={
+              <button
+                className={styles.menuButton}
+                aria-label="Open navigation"
+              >
+                <Image width={24} height={24} src={icons.menu.src} alt="" />
+              </button>
+            }
+          >
+            <div onClick={handleClick}>
+              <NavPane pageNav={pageNav} />
+            </div>
+          </Dialog>
         </div>
-      </Dialog>
+      </CentralColumn>
     </div>
   );
 }
