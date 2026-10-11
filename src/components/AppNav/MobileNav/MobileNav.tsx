@@ -27,6 +27,8 @@ export default function MobileNav({ children }: MobileNavProps) {
   return (
     <Dialog
       title="Navigation"
+      hideTitle
+      variant="drawer"
       open={open}
       onOpenChange={setOpen}
       trigger={

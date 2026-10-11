@@ -46,11 +46,44 @@
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes drawerShow {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawer {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  transform: none;
+  width: 85vw;
+  max-width: 320px;
+  max-height: none;
+  border-radius: 0 8px 8px 0;
+  overflow-y: auto;
+
+  animation: drawerShow 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .dialogHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.floatingClose {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+}
+
+.floatingClose .iconButton {
+  margin-top: 0;
 }
 
 .title {
@@ -82,7 +115,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dialogOverlay,
-  .dialogContent {
+  .dialogContent,
+  .drawer {
     animation: none;
   }
 }
