@@ -1,5 +1,5 @@
 import React from "react";
-import NavBar from "@/components/NavBar";
+import PublicNavBar from "@/components/PublicNavigation";
 import Footer from "@/components/Footer";
 
 import styles from "./PublicLayout.module.css";
@@ -11,7 +11,7 @@ type PublicLayoutProps = Readonly<{
 export default function PublicLayout({ children }: PublicLayoutProps) {
   return (
     <div className={styles.wrapper}>
-      <NavBar />
+      <PublicNavBar />
       <main>{children}</main>
       <Footer />
     </div>

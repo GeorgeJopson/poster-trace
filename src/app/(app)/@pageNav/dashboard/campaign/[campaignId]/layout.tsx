@@ -1,6 +1,6 @@
 import React from "react";
 
-import NavSubSection from "@/components/AppNav/NavSubSection";
+import NavSubSection from "@/components/AppNavigation/NavSubSection";
 import { getMyCampaign } from "@/data/campaigns";
 import { routeNames } from "@/routeNames";
 

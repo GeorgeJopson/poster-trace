@@ -5,6 +5,13 @@
   grid-template-columns: 170px minmax(0, 1fr);
 }
 
+@media (--tablet-and-down) {
+  .grid {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+}
+
+
 .navColumn {
   /* Stays in view while the content scrolls, keeping the footer links at
      the bottom of the viewport. Scrolls itself if taller than the viewport. */
@@ -27,30 +34,4 @@
 
 .main {
   flex: 1;
-}
-
-.desktopNav {
-  height: 100%;
-  padding: 24px 8px 16px;
-}
-
-.mobileNav {
-  display: none;
-}
-
-/* Desktop is the default; only this query switches to the thin rail, so no
-   width shows both navigations or neither. */
-@media (--tablet-and-down) {
-  .grid {
-    grid-template-columns: 48px minmax(0, 1fr);
-  }
-
-  .desktopNav {
-    display: none;
-  }
-
-  .mobileNav {
-    display: flex;
-    justify-content: center;
-  }
 }

@@ -1,6 +1,6 @@
 import React, { useId } from "react";
 
-import NavLink from "../NavLink";
+import NavLink from "../_components/NavLink";
 import styles from "./NavSubSection.module.css";
 
 type NavSubSectionProps = {

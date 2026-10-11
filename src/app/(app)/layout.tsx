@@ -1,7 +1,7 @@
 import React from "react";
 import { requireUserId } from "@/auth/session";
-import MobileNav from "@/components/AppNav/MobileNav";
-import NavPane from "@/components/AppNav/NavPane";
+import AppDesktopNav from "@/components/AppNavigation/AppDesktopNav";
+import AppMobileNav from "@/components/AppNavigation/AppMobileNav";
 import Footer from "@/components/Footer";
 
 import styles from "./AppLayout.module.css";
@@ -17,15 +17,8 @@ export default async function AppLayout({ children, pageNav }: AppLayoutProps) {
   return (
     <div className={styles.grid}>
       <aside className={styles.navColumn}>
-        {/* Both are server-rendered; CSS shows one per breakpoint. */}
-        <div className={styles.desktopNav}>
-          <NavPane pageNav={pageNav} />
-        </div>
-        <div className={styles.mobileNav}>
-          <MobileNav>
-            <NavPane pageNav={pageNav} />
-          </MobileNav>
-        </div>
+        <AppDesktopNav pageNav={pageNav} />
+        <AppMobileNav pageNav={pageNav} />
       </aside>
       <div className={styles.contentColumn}>
         <main className={styles.main}>{children}</main>

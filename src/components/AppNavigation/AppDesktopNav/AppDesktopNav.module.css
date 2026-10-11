@@ -1,0 +1,12 @@
+.desktopNav {
+  height: 100%;
+  padding: 24px 8px 16px;
+}
+
+/* Matches the query in AppMobileNav, so no width shows both navigations or
+   neither. */
+@media (--tablet-and-down) {
+  .desktopNav {
+    display: none;
+  }
+}

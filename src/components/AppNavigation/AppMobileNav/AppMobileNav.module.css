@@ -1,3 +1,7 @@
+.mobileNav {
+  display: none;
+}
+
 .menuButton {
   display: inline-flex;
   align-items: center;
@@ -16,4 +20,13 @@
 
 .menuButton:hover {
   background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
+}
+
+/* Matches the query in AppDesktopNav, so no width shows both navigations or
+   neither. */
+@media (--tablet-and-down) {
+  .mobileNav {
+    display: flex;
+    justify-content: center;
+  }
 }

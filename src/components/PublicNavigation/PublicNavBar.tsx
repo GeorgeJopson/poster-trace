@@ -3,15 +3,15 @@ import Logo from "@/components/Logo";
 import Button, { ButtonVariant } from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
 import { routeNames } from "@/routeNames";
-import styles from "./NavBar.module.css";
+import styles from "./PublicNavBar.module.css";
 
-type NavBarTarget = {
+type PublicNavBarTarget = {
   targetUrl: string;
   name: string;
   buttonStyle: ButtonVariant;
 };
 
-const targets: NavBarTarget[] = [
+const targets: PublicNavBarTarget[] = [
   {
     targetUrl: routeNames.signIn,
     name: "Log In",
@@ -24,7 +24,7 @@ const targets: NavBarTarget[] = [
   },
 ];
 
-export default function NavBar() {
+export default function PublicNavBar() {
   return (
     <nav className={styles.navBarWrapper} aria-label="Primary">
       <CentralColumn>
