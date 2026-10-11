@@ -6,7 +6,7 @@
   gap: 8px 16px;
   margin: 0;
 
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-important-body);
 }
 
 .userDetails dt {
