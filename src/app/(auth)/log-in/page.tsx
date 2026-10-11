@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 
 import { authClient } from "@/auth/auth-client";
-import Button from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
+import Form, { SubmitButton, TextInput } from "@/components/Form";
 import Header from "@/components/Header";
 import SocialSignOn from "@/components/SocialSignOn";
 import { routeNames } from "@/routeNames";
@@ -46,46 +46,31 @@ export default function SignIn() {
         <div className={styles.card}>
           <Header variant={"heading"}>Log In</Header>
 
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.fields}>
-              <label className={styles.label} htmlFor="email">
-                Email
-              </label>
-              <input
-                className={styles.input}
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-              />
-
-              <label className={styles.label} htmlFor="password">
-                Password
-              </label>
-              <input
-                className={styles.input}
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-
-            {error ? <p role="alert">{error}</p> : null}
-
-            <div className={styles.submitButtonWrapper}>
-              <Button
-                variant={"filled"}
-                fontSize={"1.25rem"}
-                type="submit"
-                disabled={isPending}
-              >
-                {isPending ? "Logging In …" : "Log In"}
-              </Button>
-            </div>
-          </form>
+          <Form
+            handleSubmit={handleSubmit}
+            error={error}
+            fields={
+              <>
+                <TextInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                />
+                <TextInput
+                  label="Password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                />
+              </>
+            }
+            submitBtn={
+              <SubmitButton isPending={isPending} isPendingText="Logging In …">
+                Log In
+              </SubmitButton>
+            }
+          />
 
           <p className={styles.divider}>or</p>
 

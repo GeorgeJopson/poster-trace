@@ -22,36 +22,6 @@
   gap: 16px;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.fields {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: var(--font-size-body);
-}
-
-.label {
-  text-align: left;
-}
-
-.input {
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  height: 35px;
-  padding: 0 10px;
-  margin-bottom: 8px;
-}
-
-.submitButtonWrapper {
-  align-self: center;
-}
-
 .divider {
   display: flex;
   align-items: center;

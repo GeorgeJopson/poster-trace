@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 
 import { authClient } from "@/auth/auth-client";
-import Button from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
+import Form, { SubmitButton, TextInput } from "@/components/Form";
 import Header from "@/components/Header";
 import SocialSignOn from "@/components/SocialSignOn";
 import { routeNames } from "@/routeNames";
@@ -51,58 +51,33 @@ export default function SignUp() {
         <div className={styles.card}>
           <Header variant={"heading"}>Sign Up</Header>
 
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.fields}>
-              <label className={styles.label} htmlFor="name">
-                Name
-              </label>
-              <input
-                className={styles.input}
-                id="name"
-                name="name"
-                autoComplete="name"
-                required
-              />
-
-              <label className={styles.label} htmlFor="email">
-                Email
-              </label>
-              <input
-                className={styles.input}
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-              />
-
-              <label className={styles.label} htmlFor="password">
-                Password
-              </label>
-              <input
-                className={styles.input}
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                minLength={MIN_PASSWORD_LENGTH}
-                required
-              />
-            </div>
-
-            {error ? <p role="alert">{error}</p> : null}
-
-            <div className={styles.submitButtonWrapper}>
-              <Button
-                variant={"filled"}
-                fontSize={"1.25rem"}
-                type="submit"
-                disabled={isPending}
-              >
-                {isPending ? "Signing Up …" : "Sign Up"}
-              </Button>
-            </div>
-          </form>
+          <Form
+            handleSubmit={handleSubmit}
+            error={error}
+            fields={
+              <>
+                <TextInput label="Name" name="name" autoComplete="name" />
+                <TextInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                />
+                <TextInput
+                  label="Password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={MIN_PASSWORD_LENGTH}
+                />
+              </>
+            }
+            submitBtn={
+              <SubmitButton isPending={isPending} isPendingText="Signing Up …">
+                Sign Up
+              </SubmitButton>
+            }
+          />
 
           <p className={styles.divider}>or</p>
 
