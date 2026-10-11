@@ -79,3 +79,10 @@
 .iconButton:hover {
   background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .dialogOverlay,
+  .dialogContent {
+    animation: none;
+  }
+}

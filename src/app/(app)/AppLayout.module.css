@@ -28,3 +28,28 @@
 .main {
   flex: 1;
 }
+
+.desktopNav {
+  height: 100%;
+}
+
+.mobileNav {
+  display: none;
+}
+
+/* Desktop is the default; only this query switches to the thin rail, so no
+   width shows both navigations or neither. */
+@media (--tablet-and-down) {
+  .grid {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .desktopNav {
+    display: none;
+  }
+
+  .mobileNav {
+    display: flex;
+    justify-content: center;
+  }
+}
