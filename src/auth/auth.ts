@@ -27,6 +27,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  // Deleting requires a fresh session (signed in within the last day), so
+  // users are asked to sign in again before deleting their account.
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,

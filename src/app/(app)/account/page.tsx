@@ -4,6 +4,7 @@ import CentralColumn from "@/components/CentralColumn";
 import { getCurrentUser } from "@/data/users";
 
 import styles from "./Account.module.css";
+import DeleteAccountDialog from "./_components/DeleteAccountDialog";
 
 export const metadata: Metadata = {
   title: "Account",
@@ -21,6 +22,7 @@ export default async function AccountPage() {
           <dd>{email}</dd>
         </dl>
       </div>
+      <DeleteAccountDialog />
     </CentralColumn>
   );
 }

@@ -1,0 +1,33 @@
+.deleteButton {
+  font-family: var(--font-nunito), sans-serif;
+  font-size: 1.25rem;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: solid 2px #b91c1c;
+  background-color: transparent;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #b91c1c;
+  color: white;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.text {
+  margin: 0;
+  font-size: var(--font-size-body);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--font-size-body);
+}
