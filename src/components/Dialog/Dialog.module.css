@@ -60,8 +60,7 @@
   bottom: 0;
   left: 0;
   transform: none;
-  width: 85vw;
-  max-width: 320px;
+  width: min-content;
   max-height: none;
   border-radius: 0 8px 8px 0;
   overflow-y: auto;

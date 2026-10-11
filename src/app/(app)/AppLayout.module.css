@@ -2,7 +2,7 @@
    the footer below it. */
 .grid {
   display: grid;
-  grid-template-columns: 170px minmax(0, 1fr);
+  grid-template-columns: min-content minmax(0, 1fr);
 }
 
 @media (--tablet-and-down) {
@@ -20,8 +20,7 @@
   align-self: start;
   height: 100dvh;
   overflow-y: auto;
-
-  border-right: 2px solid var(--color-green-800);
+  box-shadow: var(--shadow-elevation-medium);
 }
 
 /* At least the viewport height, so the footer sits at the bottom on short
