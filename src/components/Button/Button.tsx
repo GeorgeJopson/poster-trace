@@ -17,10 +17,12 @@ const VARIANTS = {
     particles: false,
     shrink: true,
   },
+  // No effect wrappers, so the button can be a Dialog trigger.
+  danger: { className: styles.danger, particles: false, shrink: false },
 } as const;
 
 export type ButtonVariant =
-  "filled" | "filledWithOutline" | "outline" | "transparent";
+  "filled" | "filledWithOutline" | "outline" | "transparent" | "danger";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: React.ReactNode;

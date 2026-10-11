@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import { SubmitButton, TextInput } from "@/components/Form";
 
@@ -14,7 +15,11 @@ export default function DeleteAccountDialog() {
   return (
     <Dialog
       title="Are you sure?"
-      trigger={<button className={styles.deleteButton}>Delete Account</button>}
+      trigger={
+        <Button variant="danger" fontSize="1.25rem">
+          Delete Account
+        </Button>
+      }
     >
       <form className={styles.form} action={formAction}>
         <p className={styles.text}>
@@ -36,7 +41,11 @@ export default function DeleteAccountDialog() {
 
         {error ? <p role="alert">{error}</p> : null}
 
-        <SubmitButton isPending={isPending} isPendingText="Deleting...">
+        <SubmitButton
+          variant="danger"
+          isPending={isPending}
+          isPendingText="Deleting..."
+        >
           Delete Account
         </SubmitButton>
       </form>
