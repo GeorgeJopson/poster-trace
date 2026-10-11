@@ -5,11 +5,8 @@ import React, { useRef, useState, useTransition } from "react";
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
-import { createPosterDesign } from "@/app/dashboard/campaign/[campaignId]/actions";
-import {
-  useCampaignId,
-  useCampaignTarget,
-} from "@/app/dashboard/campaign/[campaignId]/_components/CampaignContext";
+import { createPosterDesign } from "../../actions";
+import { useCampaignId, useCampaignTarget } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
 import { getImageFileError } from "./posterDesignValidation";

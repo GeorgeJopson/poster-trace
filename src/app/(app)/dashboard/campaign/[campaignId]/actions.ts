@@ -11,7 +11,7 @@ import { routeNames } from "@/routeNames";
 import {
   getImageFileError,
   QR_RANGES,
-} from "@/app/dashboard/campaign/[campaignId]/_components/CreatePosterDesignDialog/posterDesignValidation";
+} from "./_components/CreatePosterDesignDialog/posterDesignValidation";
 
 export async function updateCampaign(campaignId: number, formData: FormData) {
   const name = String(formData.get("name") ?? "");
