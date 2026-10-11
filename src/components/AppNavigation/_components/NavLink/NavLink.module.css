@@ -1,0 +1,10 @@
+.navLink {
+  font-size: 1.25rem;
+  color: var(--color-green-900);
+  text-decoration: none;
+}
+
+.navLink:hover,
+.active {
+  text-decoration: underline;
+}

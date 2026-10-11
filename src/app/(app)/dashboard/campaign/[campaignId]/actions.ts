@@ -1,0 +1,56 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+
+import {
+  createPosterDesign as createPosterDesignForUser,
+  updateCampaign as updateCampaignForUser,
+} from "@/data/campaigns";
+import { routeNames } from "@/routeNames";
+
+import {
+  getImageFileError,
+  QR_RANGES,
+} from "./_components/CreatePosterDesignDialog/posterDesignValidation";
+
+export async function updateCampaign(campaignId: number, formData: FormData) {
+  const name = String(formData.get("name") ?? "");
+  const target = String(formData.get("target") ?? "");
+
+  await updateCampaignForUser(campaignId, { name, target });
+
+  revalidatePath(routeNames.campaign(campaignId));
+}
+
+function parseQrValue(formData: FormData, name: keyof typeof QR_RANGES) {
+  const { min, max } = QR_RANGES[name];
+  const value = parseFloat(String(formData.get(name)));
+  if (!Number.isFinite(value) || value < min || value > max) {
+    throw new Error(`Invalid ${name}`);
+  }
+  return value;
+}
+
+export async function createPosterDesign(
+  campaignId: number,
+  formData: FormData,
+) {
+  const image = formData.get("image");
+  if (!(image instanceof File) || image.size === 0) {
+    throw new Error("A poster image is required");
+  }
+  const imageError = getImageFileError(image);
+  if (imageError) {
+    throw new Error(imageError);
+  }
+
+  await createPosterDesignForUser(campaignId, {
+    image,
+    qrXPosition: parseQrValue(formData, "qrXPosition"),
+    qrYPosition: parseQrValue(formData, "qrYPosition"),
+    qrSize: parseQrValue(formData, "qrSize"),
+    qrRotation: parseQrValue(formData, "qrRotation"),
+  });
+
+  revalidatePath(routeNames.campaign(campaignId));
+}

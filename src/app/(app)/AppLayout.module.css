@@ -1,0 +1,56 @@
+/* Two columns and no rows: the navigation pane, then the page content with
+   the footer below it. */
+.grid {
+  display: grid;
+  grid-template-columns: min-content minmax(0, 1fr);
+}
+
+/* One column: the navigation bar above the content, which fills the rest of
+   the viewport height. */
+@media (--phone-and-down) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    min-height: 100dvh;
+  }
+}
+
+.navColumn {
+  /* Stays in view while the content scrolls, keeping the footer links at
+     the bottom of the viewport. Scrolls itself if taller than the viewport. */
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-elevation-medium);
+}
+
+/* A bar stuck to the top, above the content scrolling beneath it. */
+@media (--phone-and-down) {
+  .navColumn {
+    height: auto;
+    overflow-y: visible;
+    z-index: 100;
+    background-color: white;
+  }
+}
+
+/* At least the viewport height, so the footer sits at the bottom on short
+   pages. */
+.contentColumn {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* The grid row sets the height, less the navigation bar. */
+@media (--phone-and-down) {
+  .contentColumn {
+    min-height: 0;
+  }
+}
+
+.main {
+  flex: 1;
+}

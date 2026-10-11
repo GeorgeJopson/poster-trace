@@ -2,21 +2,24 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./Logo.module.css";
+import {routeNames} from "@/routeNames";
 
 type LogoProps = {
   href?: string;
+  // Show the "PosterTrace" wordmark next to the mark.
+  showTitle?: boolean;
 };
 
-export default function Logo({ href = "/" }: LogoProps) {
+export default function Logo({showTitle = true }: LogoProps) {
   return (
-    <Link className={styles.logoWrapper} href={href}>
+    <Link className={styles.logoWrapper} href={routeNames.root}>
       <Image
         width={36}
         height={36}
         src={"/logo.svg"}
         alt={"Poster Trace Logo"}
       />
-      <p className={styles.logoTitle}>PosterTrace</p>
+      {showTitle && <p className={styles.logoTitle}>PosterTrace</p>}
     </Link>
   );
 }

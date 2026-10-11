@@ -46,11 +46,53 @@
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes drawerShow {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.drawer {
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: none;
+  width: auto;
+  max-width: none;
+  max-height: 100dvh;
+  border-radius: 0 0 8px 8px;
+  /* CentralColumn adds the side padding. The top matches the page's mobile
+     navigation bar, so the content lines up with it. */
+  padding: 4px 0 16px;
+  overflow-y: auto;
+
+  animation: drawerShow 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .dialogHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+}
+
+.floatingClose {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+}
+
+/* Centred where the 36px menu button sits in the mobile navigation bar. */
+.drawer .floatingClose {
+  top: 2px;
+  right: 2px;
+}
+
+.floatingClose .iconButton {
+  margin-top: 0;
 }
 
 .title {
@@ -78,4 +120,12 @@
 
 .iconButton:hover {
   background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialogOverlay,
+  .dialogContent,
+  .drawer {
+    animation: none;
+  }
 }
