@@ -5,7 +5,7 @@
 
 /* Matches the query in AppMobileNav, so no width shows both navigations or
    neither. */
-@media (--tablet-and-down) {
+@media (--phone-and-down) {
   .desktopNav {
     display: none;
   }

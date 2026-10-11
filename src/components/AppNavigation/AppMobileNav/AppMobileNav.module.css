@@ -24,7 +24,7 @@
 
 /* Matches the query in AppDesktopNav, so no width shows both navigations or
    neither. */
-@media (--tablet-and-down) {
+@media (--phone-and-down) {
   .mobileNav {
     display: flex;
     justify-content: center;

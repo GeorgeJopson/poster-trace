@@ -5,7 +5,7 @@
   grid-template-columns: min-content minmax(0, 1fr);
 }
 
-@media (--tablet-and-down) {
+@media (--phone-and-down) {
   .grid {
     grid-template-columns: 48px minmax(0, 1fr);
   }
