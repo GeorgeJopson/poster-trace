@@ -1,0 +1,10 @@
+.wrapper {
+  padding-top: 16px;
+  padding-bottom: 16px;
+  text-align: center;
+}
+
+.text {
+  font-size: var(--font-size-body);
+  text-align: left;
+}

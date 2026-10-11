@@ -1,0 +1,19 @@
+.userDetails {
+  padding: 16px 0;
+
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  margin: 0;
+
+  font-size: var(--font-size-important-body);
+}
+
+.userDetails dt {
+  font-weight: bold;
+}
+
+.userDetails dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

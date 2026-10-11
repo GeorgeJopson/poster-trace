@@ -33,3 +33,14 @@
 .filledWithOutline:hover {
   outline-offset: 4px;
 }
+
+.danger {
+  background-color: transparent;
+  color: #b91c1c;
+  border: solid 2px #b91c1c;
+  cursor: pointer;
+}
+.danger:hover {
+  background-color: #b91c1c;
+  color: white;
+}
