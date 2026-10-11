@@ -7,14 +7,16 @@ import styles from "./AppLayout.module.css";
 
 type AppLayoutProps = Readonly<{
   children: React.ReactNode;
+  // Page-specific navigation from the @pageNav slot.
+  pageNav: React.ReactNode;
 }>;
 
-export default async function AppLayout({ children }: AppLayoutProps) {
+export default async function AppLayout({ children, pageNav }: AppLayoutProps) {
   await requireUserId();
   return (
     <div className={styles.grid}>
       <aside className={styles.navColumn}>
-        <NavPane />
+        <NavPane pageNav={pageNav} />
       </aside>
       <div className={styles.contentColumn}>
         <main className={styles.main}>{children}</main>

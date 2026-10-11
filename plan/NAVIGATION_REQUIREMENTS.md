@@ -264,8 +264,9 @@ campaign layout lives in a **parallel route slot** on the `(app)` layout:
 src/app/(app)/
   layout.tsx                       # receives { children, pageNav }
   @pageNav/
-    default.tsx                    # returns null
-    [...rest]/page.tsx             # returns null (see R-6.5)
+    default.tsx                    # returns null (full page loads)
+    account/page.tsx               # returns null (see R-6.5)
+    dashboard/page.tsx             # returns null (see R-6.5)
     dashboard/campaign/[campaignId]/
       layout.tsx                   # fetches campaign, renders NavSubSection
       page.tsx                     # returns null (Create)
@@ -298,14 +299,20 @@ The active item follows R-4.3.
 
 **R-6.5** The slot must clear when navigating away. Next keeps a parallel
 slot's previous content on client-side navigation if the slot has no match
-for the new URL, so `@pageNav` needs a catch-all `page.tsx` returning `null`
-(in addition to `default.tsx` for hard loads). Acceptance: go to a campaign,
-click "Campaigns" — the campaign sub-box disappears.
+for the new URL, so **every page under `(app)` has a matching `@pageNav`
+page**, returning `null` where there is no page-specific navigation
+(`default.tsx` only covers full page loads). A root catch-all
+(`@pageNav/[...rest]/page.tsx`) is not used: route groups don't appear in
+the URL, so it would resolve to `/[...rest]` and could match public URLs
+too. Acceptance: go to a campaign, click "Campaigns" or "Account" — the
+campaign sub-box disappears.
 
 **R-6.6** The campaign is looked up with `getMyCampaign(id)` using the same
-validation as the page (`Number.isInteger`, `notFound()` if missing or not
-owned). To avoid querying twice per request (slot + page), wrap
-`getMyCampaign` in React `cache()`, as `getSession` already is.
+validation as the page (`Number.isInteger`). If the ID is invalid or the
+campaign is missing or not owned, the slot renders `null` rather than
+calling `notFound()`; the page's own `notFound()` produces the 404. To
+avoid querying twice per request (slot + page), wrap `getMyCampaign` in
+React `cache()`, as `getSession` already is.
 
 **R-6.7** After the campaign is renamed via `EditCampaignDialog`, the
 sub-box title updates. The existing server action calls

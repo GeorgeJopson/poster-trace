@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { and, eq } from "drizzle-orm";
 
 import db from "@/db";
@@ -42,7 +43,8 @@ export type CampaignWithDesigns = Awaited<
   ReturnType<typeof getMyCampaigns>
 >[number];
 
-export async function getMyCampaign(campaignId: number) {
+// Cached so the navigation pane and the page share one query per request.
+export const getMyCampaign = cache(async (campaignId: number) => {
   const userId = await requireUserId();
   const campaign = await db.query.posterCampaign.findFirst({
     where: { id: campaignId, userId },
@@ -54,7 +56,7 @@ export async function getMyCampaign(campaignId: number) {
       posterDesigns: campaign.posterDesigns.map(withDesignUrl),
     }
   );
-}
+});
 
 async function assertOwnsCampaign(campaignId: number) {
   const userId = await requireUserId();
