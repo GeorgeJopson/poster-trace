@@ -5,6 +5,8 @@
   grid-template-columns: max-content 1fr;
   gap: 8px 16px;
   margin: 0;
+
+  font-size: var(--font-size-body);
 }
 
 .userDetails dt {
