@@ -5,9 +5,11 @@ import styles from "./Logo.module.css";
 
 type LogoProps = {
   href?: string;
+  // Show the "PosterTrace" wordmark next to the mark.
+  showTitle?: boolean;
 };
 
-export default function Logo({ href = "/" }: LogoProps) {
+export default function Logo({ href = "/", showTitle = true }: LogoProps) {
   return (
     <Link className={styles.logoWrapper} href={href}>
       <Image
@@ -16,7 +18,7 @@ export default function Logo({ href = "/" }: LogoProps) {
         src={"/logo.svg"}
         alt={"Poster Trace Logo"}
       />
-      <p className={styles.logoTitle}>PosterTrace</p>
+      {showTitle && <p className={styles.logoTitle}>PosterTrace</p>}
     </Link>
   );
 }

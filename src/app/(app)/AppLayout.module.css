@@ -1,5 +1,30 @@
-.wrapper {
-  min-height: 100%;
+/* Two columns and no rows: the navigation pane, then the page content with
+   the footer below it. */
+.grid {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 170px minmax(0, 1fr);
+}
+
+.navColumn {
+  /* Stays in view while the content scrolls, keeping the footer links at
+     the bottom of the viewport. Scrolls itself if taller than the viewport. */
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  overflow-y: auto;
+
+  border-right: 2px solid var(--color-green-800);
+}
+
+/* At least the viewport height, so the footer sits at the bottom on short
+   pages. */
+.contentColumn {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.main {
+  flex: 1;
 }
