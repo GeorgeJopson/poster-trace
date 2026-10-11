@@ -56,8 +56,12 @@
   font-size: var(--font-size-important-body);
   color: var(--color-green-950);
   flex: 1;
+  min-width: 0;
   text-align: right;
   text-box: trim-both cap alphabetic;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: balance;
 }
 
 .plusSymbol {

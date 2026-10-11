@@ -16,6 +16,8 @@
   color: var(--color-green-900);
   /* Wrap long campaign names rather than overflowing the pane. */
   overflow-wrap: anywhere;
+  hyphens: auto;
+  text-wrap: balance;
 }
 
 .linkList {
