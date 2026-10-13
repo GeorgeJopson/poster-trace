@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./Logo.module.css";
-import {routeNames} from "@/routeNames";
+import { routeNames } from "@/routeNames";
 
 type LogoProps = {
   href?: string;
@@ -10,7 +10,7 @@ type LogoProps = {
   showTitle?: boolean;
 };
 
-export default function Logo({showTitle = true }: LogoProps) {
+export default function Logo({ showTitle = true }: LogoProps) {
   return (
     <Link className={styles.logoWrapper} href={routeNames.root}>
       <Image

@@ -29,7 +29,7 @@ export default function PublicNavBar() {
     <nav className={styles.navBarWrapper} aria-label="Primary">
       <CentralColumn>
         <div className={styles.contentWrapper}>
-          <Logo/>
+          <Logo />
           <div className={styles.buttonGroup}>
             {targets.map(({ targetUrl, name, buttonStyle }) => (
               <Button
