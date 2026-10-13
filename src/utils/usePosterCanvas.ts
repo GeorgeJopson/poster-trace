@@ -1,6 +1,6 @@
-import { RefObject, useLayoutEffect } from "react";
+import { RefObject, useLayoutEffect, useMemo } from "react";
 
-import drawPoster from "@/utils/drawPoster";
+import drawPoster, { createQrModules } from "@/utils/drawPoster";
 
 export type QrValues = {
   qrXPosition: string;
@@ -20,6 +20,8 @@ export default function usePosterCanvas(
   qrValues: QrValues,
   target: string,
 ) {
+  const qrModules = useMemo(() => createQrModules(target), [target]);
+
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -39,7 +41,7 @@ export default function usePosterCanvas(
         qrSize: parseFloat(qrValues.qrSize) || 0,
         qrRotation: parseFloat(qrValues.qrRotation) || 0,
       },
-      target,
+      qrModules,
     );
-  }, [canvasRef, image, qrValues, target]);
+  }, [canvasRef, image, qrValues, qrModules]);
 }

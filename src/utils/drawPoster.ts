@@ -9,14 +9,24 @@ export type DrawablePosterDesign = Pick<
   image: HTMLImageElement;
 };
 
+export type QrModules = ReturnType<typeof QRCode.create>["modules"];
+
+/**
+ * Encodes `url` as a QR code. Encoding is relatively slow, so callers should
+ * keep the result rather than re-creating it on every draw.
+ */
+export function createQrModules(url: string): QrModules {
+  return QRCode.create(url, { errorCorrectionLevel: "Q" }).modules;
+}
+
 /**
  * Draws the design image onto ctx's canvas at the image's natural size, with
- * a QR code for `url` on top. The canvas is resized to fit the image.
+ * the QR code on top. The canvas is resized to fit the image.
  */
 export default function drawPoster(
   ctx: CanvasRenderingContext2D,
   posterDesign: DrawablePosterDesign,
-  url: string,
+  modules: QrModules,
 ) {
   const { image, qrXPosition, qrYPosition, qrSize, qrRotation } = posterDesign;
   const canvas = ctx.canvas;
@@ -29,7 +39,6 @@ export default function drawPoster(
   // (like CSS left/top), rotated (in degrees) about its centre. Only the
   // dark modules are drawn, so the image shows through the rest. `qrSize`
   // is the code itself, without a quiet zone.
-  const modules = QRCode.create(url, { errorCorrectionLevel: "Q" }).modules;
   const x = (qrXPosition / 100) * canvas.width;
   const y = (qrYPosition / 100) * canvas.height;
   const moduleSize = qrSize / modules.size;
