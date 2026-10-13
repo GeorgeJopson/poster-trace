@@ -26,7 +26,7 @@ export function getTargetError(target: string): string | null {
   // several bytes, so count bytes rather than characters. For a plain ASCII
   // URL the two are the same.
   if (new TextEncoder().encode(target).length > MAX_TARGET_LENGTH) {
-    return `The target URL must be ${MAX_TARGET_LENGTH} characters or less.`;
+    return `The target URL is too long. It can be up to ${MAX_TARGET_LENGTH} characters, and some characters, like accented letters, count as more than one.`;
   }
   return null;
 }

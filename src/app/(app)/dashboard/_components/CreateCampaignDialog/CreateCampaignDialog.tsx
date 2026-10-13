@@ -3,7 +3,11 @@
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
-import { DEFAULT_TARGET, MAX_TARGET_LENGTH } from "@/data/campaignValidation";
+import {
+  DEFAULT_TARGET,
+  getTargetError,
+  MAX_TARGET_LENGTH,
+} from "@/data/campaignValidation";
 
 import { createCampaign } from "./actions";
 import styles from "./CreateCampaignDialog.module.css";
@@ -41,6 +45,11 @@ export default function CreateCampaignDialog() {
             required
             maxLength={MAX_TARGET_LENGTH}
             defaultValue={DEFAULT_TARGET}
+            onChange={(event) =>
+              event.currentTarget.setCustomValidity(
+                getTargetError(event.currentTarget.value.trim()) ?? "",
+              )
+            }
           />
         </div>
 

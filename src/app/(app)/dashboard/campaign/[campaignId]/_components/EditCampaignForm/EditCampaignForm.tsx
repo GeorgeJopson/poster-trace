@@ -4,7 +4,7 @@ import { useTransition } from "react";
 
 import Button from "@/components/Button";
 import type { PosterCampaign } from "@/db/schema";
-import { MAX_TARGET_LENGTH } from "@/data/campaignValidation";
+import { getTargetError, MAX_TARGET_LENGTH } from "@/data/campaignValidation";
 
 import { updateCampaign } from "../../actions";
 import styles from "./EditCampaignForm.module.css";
@@ -50,6 +50,11 @@ export default function EditCampaignForm({
           required
           maxLength={MAX_TARGET_LENGTH}
           defaultValue={campaign.target}
+          onChange={(event) =>
+            event.currentTarget.setCustomValidity(
+              getTargetError(event.currentTarget.value.trim()) ?? "",
+            )
+          }
         />
       </div>
 
