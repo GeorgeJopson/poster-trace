@@ -22,28 +22,56 @@ export function createQrModules(url: string): QrModules {
   return QRCode.create(url, { errorCorrectionLevel: "Q" }).modules;
 }
 
+/** The CSS size a canvas is shown at. */
+export type DisplaySize = { width: number; height: number };
+
 /**
- * Draws the design image onto ctx's canvas at the image's natural size, with
- * the QR code on top. The canvas is resized to fit the image.
+ * How much to shrink the image so the canvas has one pixel per physical screen
+ * pixel when shown at `displaySize`. The image keeps its aspect ratio and
+ * covers the whole box (matching `object-fit: cover`), and is never scaled up.
+ */
+function getDisplayScale(image: HTMLImageElement, displaySize: DisplaySize) {
+  const coverScale = Math.max(
+    displaySize.width / image.naturalWidth,
+    displaySize.height / image.naturalHeight,
+  );
+  return Math.min(1, coverScale * window.devicePixelRatio);
+}
+
+/**
+ * Draws the design image onto ctx's canvas with the QR code on top. The canvas
+ * is resized to the image's natural size or, given a `displaySize`, to just
+ * big enough to look sharp at that size. A full-size canvas would hold the
+ * whole image in memory (e.g. ~90 MB for 4000 x 5600), which is wasteful for
+ * a preview a few hundred pixels across.
  */
 export default function drawPoster(
   ctx: CanvasRenderingContext2D,
   posterDesign: DrawablePosterDesign,
   modules: QrModules,
+  displaySize?: DisplaySize,
 ) {
   const { image, qrXPosition, qrYPosition, qrSize, qrRotation } = posterDesign;
   const canvas = ctx.canvas;
+  const imageWidth = image.naturalWidth;
+  const imageHeight = image.naturalHeight;
+  const scale = displaySize ? getDisplayScale(image, displaySize) : 1;
 
-  canvas.width = image.naturalWidth;
-  canvas.height = image.naturalHeight;
+  // Resizing the canvas also resets the context. Everything below is drawn
+  // in the image's own pixels, and the transform scales it to the canvas.
+  canvas.width = Math.max(1, Math.round(imageWidth * scale));
+  canvas.height = Math.max(1, Math.round(imageHeight * scale));
+  ctx.scale(canvas.width / imageWidth, canvas.height / imageHeight);
+  // The default smoothing looks grainy when shrinking an image a lot.
+  ctx.imageSmoothingQuality = "high";
   ctx.drawImage(image, 0, 0);
 
-  // QR code: x/y are the top-left corner as a percentage of the canvas
+  // QR code: x/y are the top-left corner as a percentage of the image
   // (like CSS left/top), rotated (in degrees) about its centre. Only the
   // dark modules are drawn, so the image shows through the rest. `qrSize`
   // is the code itself, without a quiet zone.
-  const x = (qrXPosition / 100) * canvas.width;
-  const y = (qrYPosition / 100) * canvas.height;
+  const x = (qrXPosition / 100) * imageWidth;
+  const y = (qrYPosition / 100) * imageHeight;
   const moduleSize = qrSize / modules.size;
 
   // A single path avoids hairline gaps between adjacent modules.

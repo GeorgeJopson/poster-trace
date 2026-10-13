@@ -19,9 +19,9 @@ interface DesignPreviewProps {
 }
 
 /**
- * Renders a poster design with its QR code drawn on top. The canvas is drawn
- * at the image's natural size and displayed at `width` x `height`. If the
- * image fails to load, a placeholder is shown instead.
+ * Renders a poster design with its QR code drawn on top, displayed at
+ * `width` x `height`. If the image fails to load, a placeholder is shown
+ * instead.
  */
 export default function DesignPreview({
   width,
@@ -36,7 +36,7 @@ export default function DesignPreview({
   const [failed, setFailed] = useState(false);
 
   const { designUrl } = posterDesign;
-  usePosterCanvas(canvasRef, image, posterDesign, url);
+  usePosterCanvas(canvasRef, image, posterDesign, url, { width, height });
 
   useEffect(() => {
     let cancelled = false;
