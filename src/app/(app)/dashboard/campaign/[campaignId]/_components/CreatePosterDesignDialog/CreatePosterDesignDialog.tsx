@@ -5,13 +5,13 @@ import React, { useRef, useState, useTransition } from "react";
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
+import usePosterCanvas, { type QrValues } from "@/utils/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
 import { useCampaignId, useCampaignTarget } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
 import { getImageFileError } from "./posterDesignValidation";
-import PosterDesignFields, { QrValues } from "./PosterDesignFields";
-import useDrawCanvas from "./useDrawCanvas";
+import PosterDesignFields from "./PosterDesignFields";
 
 const DEFAULT_QR_VALUES: QrValues = {
   qrXPosition: "0",
@@ -31,7 +31,7 @@ export default function CreatePosterDesignDialog() {
     ? Math.min(image.naturalWidth, image.naturalHeight)
     : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawCanvas = useDrawCanvas(canvasRef, image, qrValues, target);
+  usePosterCanvas(canvasRef, image, qrValues, target);
 
   // The dialog content (including the file input and canvas) is recreated each
   // time it opens, so reset the state to match.
@@ -44,7 +44,6 @@ export default function CreatePosterDesignDialog() {
   function clearImage() {
     setImage(null);
     setQrValues(DEFAULT_QR_VALUES);
-    drawCanvas({ image: null });
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -75,7 +74,6 @@ export default function CreatePosterDesignDialog() {
       URL.revokeObjectURL(url);
       setImage(img);
       setQrValues(DEFAULT_QR_VALUES);
-      drawCanvas({ image: img, qrValues: DEFAULT_QR_VALUES });
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
@@ -92,9 +90,7 @@ export default function CreatePosterDesignDialog() {
   }
 
   function handleQrChange(key: keyof QrValues, value: string) {
-    const next = { ...qrValues, [key]: value };
-    setQrValues(next);
-    drawCanvas({ qrValues: next });
+    setQrValues((current) => ({ ...current, [key]: value }));
   }
 
   return (

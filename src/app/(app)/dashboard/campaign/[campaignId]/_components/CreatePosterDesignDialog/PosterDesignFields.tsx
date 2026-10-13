@@ -1,14 +1,9 @@
 import React from "react";
 
+import type { QrValues } from "@/utils/usePosterCanvas";
+
 import styles from "./PosterDesignFields.module.css";
 import { QR_RANGES } from "./posterDesignValidation";
-
-export type QrValues = {
-  qrXPosition: string;
-  qrYPosition: string;
-  qrSize: string;
-  qrRotation: string;
-};
 
 type QrSliderFieldProps = {
   name: keyof QrValues;
