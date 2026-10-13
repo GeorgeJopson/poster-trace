@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 
+import { DEFAULT_TARGET } from "@/data/campaignValidation";
 import type { PosterDesign } from "@/db/schema";
 
 /** Where the QR code goes on the poster; see drawPoster for the units. */
@@ -15,11 +16,14 @@ export type DrawablePosterDesign = QrPlacement & {
 export type QrModules = ReturnType<typeof QRCode.create>["modules"];
 
 /**
- * Encodes `url` as a QR code. Encoding is relatively slow, so callers should
- * keep the result rather than re-creating it on every draw.
+ * Encodes `url` as a QR code, or DEFAULT_TARGET if `url` is empty. Encoding is
+ * relatively slow, so callers should keep the result rather than re-creating
+ * it on every draw.
  */
 export function createQrModules(url: string): QrModules {
-  return QRCode.create(url, { errorCorrectionLevel: "Q" }).modules;
+  return QRCode.create(url.trim() || DEFAULT_TARGET, {
+    errorCorrectionLevel: "Q",
+  }).modules;
 }
 
 /** The CSS size a canvas is shown at. */

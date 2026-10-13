@@ -10,6 +10,13 @@
  */
 export const MAX_TARGET_LENGTH = 1000;
 
+/**
+ * The target new campaigns start with, and the one QR codes fall back to for
+ * a campaign saved with an empty target (before targets were validated), as
+ * a QR code can't encode an empty string.
+ */
+export const DEFAULT_TARGET = "https://www.campaigns.com";
+
 /** Returns why `target` can't be used as a campaign's URL, or null if it can. */
 export function getTargetError(target: string): string | null {
   if (target.trim() === "") {
