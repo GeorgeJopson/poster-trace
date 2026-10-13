@@ -5,12 +5,12 @@ import React, { useRef, useState, useTransition } from "react";
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
+import { getImageFileError } from "@/data/posterDesignValidation";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
 import { useCampaignId, useCampaignTarget } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
-import { getImageFileError } from "./posterDesignValidation";
 import PosterDesignFields, { type QrValues } from "./PosterDesignFields";
 
 const DEFAULT_QR_VALUES: QrValues = {

@@ -2,16 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import {
-  createPosterDesign as createPosterDesignForUser,
-  updateCampaign as updateCampaignForUser,
-} from "@/data/campaigns";
+import { updateCampaign as updateCampaignForUser } from "@/data/campaigns";
+import { createPosterDesign as createPosterDesignForUser } from "@/data/posterDesigns";
 import { routeNames } from "@/routeNames";
-
-import {
-  getImageFileError,
-  QR_RANGES,
-} from "./_components/CreatePosterDesignDialog/posterDesignValidation";
 
 export async function updateCampaign(campaignId: number, formData: FormData) {
   const name = String(formData.get("name") ?? "");
@@ -22,34 +15,23 @@ export async function updateCampaign(campaignId: number, formData: FormData) {
   revalidatePath(routeNames.campaign(campaignId));
 }
 
-function parseQrValue(formData: FormData, name: keyof typeof QR_RANGES) {
-  const { min, max } = QR_RANGES[name];
-  const value = parseFloat(String(formData.get(name)));
-  if (!Number.isFinite(value) || value < min || value > max) {
-    throw new Error(`Invalid ${name}`);
-  }
-  return value;
-}
-
 export async function createPosterDesign(
   campaignId: number,
   formData: FormData,
 ) {
   const image = formData.get("image");
-  if (!(image instanceof File) || image.size === 0) {
+  if (!(image instanceof File)) {
     throw new Error("A poster image is required");
   }
-  const imageError = getImageFileError(image);
-  if (imageError) {
-    throw new Error(imageError);
-  }
 
+  // Validated by createPosterDesignForUser, which rejects NaN, so a missing
+  // or non-numeric value fails there.
   await createPosterDesignForUser(campaignId, {
     image,
-    qrXPosition: parseQrValue(formData, "qrXPosition"),
-    qrYPosition: parseQrValue(formData, "qrYPosition"),
-    qrSize: parseQrValue(formData, "qrSize"),
-    qrRotation: parseQrValue(formData, "qrRotation"),
+    qrXPosition: parseFloat(String(formData.get("qrXPosition"))),
+    qrYPosition: parseFloat(String(formData.get("qrYPosition"))),
+    qrSize: parseFloat(String(formData.get("qrSize"))),
+    qrRotation: parseFloat(String(formData.get("qrRotation"))),
   });
 
   revalidatePath(routeNames.campaign(campaignId));

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type { PosterDesignWithUrl } from "@/data/campaigns";
+import type { ClientPosterDesign } from "@/data/posterDesigns";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 
 import styles from "./DesignPreview.module.css";
@@ -10,7 +10,7 @@ import styles from "./DesignPreview.module.css";
 interface DesignPreviewProps {
   width: number;
   height: number;
-  posterDesign: PosterDesignWithUrl;
+  posterDesign: ClientPosterDesign;
   /** The URL the QR code points to. */
   url: string;
   /** Describes the preview for screen readers, like an image's alt text. */

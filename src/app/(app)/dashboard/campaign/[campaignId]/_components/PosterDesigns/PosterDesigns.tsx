@@ -1,11 +1,11 @@
 import DesignPreview from "@/components/DesignPreview";
-import type { PosterDesignWithUrl } from "@/data/campaigns";
+import type { ClientPosterDesign } from "@/data/posterDesigns";
 
 import CreatePosterDesignDialog from "../CreatePosterDesignDialog/CreatePosterDesignDialog";
 import styles from "./PosterDesigns.module.css";
 
 interface PosterDesignsProps {
-  posterDesigns: PosterDesignWithUrl[];
+  posterDesigns: ClientPosterDesign[];
   /** The URL the designs' QR codes point to. */
   target: string;
 }

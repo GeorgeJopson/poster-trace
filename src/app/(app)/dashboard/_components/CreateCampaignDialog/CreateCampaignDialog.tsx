@@ -3,6 +3,7 @@
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
+import { MAX_TARGET_LENGTH } from "@/data/campaignValidation";
 
 import { createCampaign } from "./actions";
 import styles from "./CreateCampaignDialog.module.css";
@@ -37,6 +38,8 @@ export default function CreateCampaignDialog() {
             className={styles.input}
             id="target"
             name="target"
+            required
+            maxLength={MAX_TARGET_LENGTH}
             defaultValue="https://www.campaigns.com"
           />
         </div>
