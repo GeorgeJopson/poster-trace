@@ -5,6 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PosterDesignWithUrl } from "@/data/campaigns";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 
+import styles from "./DesignPreview.module.css";
+
 interface DesignPreviewProps {
   width: number;
   height: number;
@@ -18,7 +20,8 @@ interface DesignPreviewProps {
 
 /**
  * Renders a poster design with its QR code drawn on top. The canvas is drawn
- * at the image's natural size and displayed at `width` x `height`.
+ * at the image's natural size and displayed at `width` x `height`. If the
+ * image fails to load, a placeholder is shown instead.
  */
 export default function DesignPreview({
   width,
@@ -30,6 +33,7 @@ export default function DesignPreview({
 }: DesignPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const { designUrl, qrXPosition, qrYPosition, qrSize, qrRotation } =
     posterDesign;
@@ -50,11 +54,27 @@ export default function DesignPreview({
     img.onload = () => {
       if (!cancelled) setImage(img);
     };
+    img.onerror = () => {
+      if (!cancelled) setFailed(true);
+    };
     img.src = designUrl;
     return () => {
       cancelled = true;
     };
   }, [designUrl]);
+
+  if (failed) {
+    return (
+      <div
+        role="img"
+        aria-label={ariaLabel}
+        style={{ width, height }}
+        className={`${styles.unavailable} ${className ?? ""}`}
+      >
+        Preview unavailable
+      </div>
+    );
+  }
 
   return (
     <canvas

@@ -1,0 +1,12 @@
+.unavailable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 8px;
+  border: dashed 2px var(--color-green-800);
+  background-color: var(--color-green-50);
+  color: var(--color-green-800);
+  font-size: var(--font-size-body);
+  text-align: center;
+}
