@@ -5,13 +5,13 @@ import React, { useRef, useState, useTransition } from "react";
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
-import usePosterCanvas, { type QrValues } from "@/utils/usePosterCanvas";
+import usePosterCanvas from "@/utils/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
 import { useCampaignId, useCampaignTarget } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
 import { getImageFileError } from "./posterDesignValidation";
-import PosterDesignFields from "./PosterDesignFields";
+import PosterDesignFields, { type QrValues } from "./PosterDesignFields";
 
 const DEFAULT_QR_VALUES: QrValues = {
   qrXPosition: "0",
@@ -31,7 +31,17 @@ export default function CreatePosterDesignDialog() {
     ? Math.min(image.naturalWidth, image.naturalHeight)
     : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  usePosterCanvas(canvasRef, image, qrValues, target);
+  usePosterCanvas(
+    canvasRef,
+    image,
+    {
+      qrXPosition: parseFloat(qrValues.qrXPosition) || 0,
+      qrYPosition: parseFloat(qrValues.qrYPosition) || 0,
+      qrSize: parseFloat(qrValues.qrSize) || 0,
+      qrRotation: parseFloat(qrValues.qrRotation) || 0,
+    },
+    target,
+  );
 
   // The dialog content (including the file input and canvas) is recreated each
   // time it opens, so reset the state to match.

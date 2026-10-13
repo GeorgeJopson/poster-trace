@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { PosterDesignWithUrl } from "@/data/campaigns";
 import usePosterCanvas from "@/utils/usePosterCanvas";
@@ -35,18 +35,8 @@ export default function DesignPreview({
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [failed, setFailed] = useState(false);
 
-  const { designUrl, qrXPosition, qrYPosition, qrSize, qrRotation } =
-    posterDesign;
-  const qrValues = useMemo(
-    () => ({
-      qrXPosition: String(qrXPosition),
-      qrYPosition: String(qrYPosition),
-      qrSize: String(qrSize),
-      qrRotation: String(qrRotation),
-    }),
-    [qrXPosition, qrYPosition, qrSize, qrRotation],
-  );
-  usePosterCanvas(canvasRef, image, qrValues, url);
+  const { designUrl } = posterDesign;
+  usePosterCanvas(canvasRef, image, posterDesign, url);
 
   useEffect(() => {
     let cancelled = false;

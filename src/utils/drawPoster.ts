@@ -2,10 +2,13 @@ import QRCode from "qrcode";
 
 import type { PosterDesign } from "@/db/schema";
 
-export type DrawablePosterDesign = Pick<
+/** Where the QR code goes on the poster; see drawPoster for the units. */
+export type QrPlacement = Pick<
   PosterDesign,
   "qrXPosition" | "qrYPosition" | "qrSize" | "qrRotation"
-> & {
+>;
+
+export type DrawablePosterDesign = QrPlacement & {
   image: HTMLImageElement;
 };
 

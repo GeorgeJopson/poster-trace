@@ -1,13 +1,9 @@
 import { RefObject, useLayoutEffect, useMemo } from "react";
 
-import drawPoster, { createQrModules } from "@/utils/drawPoster";
-
-export type QrValues = {
-  qrXPosition: string;
-  qrYPosition: string;
-  qrSize: string;
-  qrRotation: string;
-};
+import drawPoster, {
+  createQrModules,
+  type QrPlacement,
+} from "@/utils/drawPoster";
 
 /**
  * Draws the image and QR code onto the canvas (or clears the canvas if there
@@ -17,10 +13,13 @@ export type QrValues = {
 export default function usePosterCanvas(
   canvasRef: RefObject<HTMLCanvasElement | null>,
   image: HTMLImageElement | null,
-  qrValues: QrValues,
+  qrPlacement: QrPlacement,
   target: string,
 ) {
   const qrModules = useMemo(() => createQrModules(target), [target]);
+  // Depend on the individual values, so callers can pass a new object each
+  // render without causing a redraw.
+  const { qrXPosition, qrYPosition, qrSize, qrRotation } = qrPlacement;
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -34,14 +33,16 @@ export default function usePosterCanvas(
 
     drawPoster(
       ctx,
-      {
-        image,
-        qrXPosition: parseFloat(qrValues.qrXPosition) || 0,
-        qrYPosition: parseFloat(qrValues.qrYPosition) || 0,
-        qrSize: parseFloat(qrValues.qrSize) || 0,
-        qrRotation: parseFloat(qrValues.qrRotation) || 0,
-      },
+      { image, qrXPosition, qrYPosition, qrSize, qrRotation },
       qrModules,
     );
-  }, [canvasRef, image, qrValues, qrModules]);
+  }, [
+    canvasRef,
+    image,
+    qrXPosition,
+    qrYPosition,
+    qrSize,
+    qrRotation,
+    qrModules,
+  ]);
 }
