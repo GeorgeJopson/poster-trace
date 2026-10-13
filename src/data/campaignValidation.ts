@@ -28,6 +28,17 @@ export function getTargetError(target: string): string | null {
   if (new TextEncoder().encode(target).length > MAX_TARGET_LENGTH) {
     return `The target URL is too long. It can be up to ${MAX_TARGET_LENGTH} characters, and some characters, like accented letters, count as more than one.`;
   }
+  // Every poster's QR code sends people here, so only allow web addresses
+  // (not e.g. javascript: or file: URLs).
+  let url: URL;
+  try {
+    url = new URL(target);
+  } catch {
+    return "Please enter a full URL, starting with https://.";
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return "The target URL must start with http:// or https://.";
+  }
   return null;
 }
 
