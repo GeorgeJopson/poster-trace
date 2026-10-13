@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import DashedCard from "@/components/DashedCard";
+import DesignPreview from "@/components/DesignPreview";
 import { icons } from "@/imageDetails";
 import { routeNames } from "@/routeNames";
 import type { CampaignWithDesigns } from "@/data/campaigns";
@@ -51,13 +52,13 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
             className={`${styles.posterDesignImageWrapper} ${wrapperClassByCount[posterDesigns.length] ?? ""}`}
           >
             {posterDesigns.map((posterDesign) => (
-              <Image
+              <DesignPreview
                 key={posterDesign.id}
                 width={IMAGE_WIDTH}
                 height={Math.round(IMAGE_WIDTH * ROOT_2)}
-                src={posterDesign.designUrl}
-                unoptimized
-                alt={campaign.name}
+                posterDesign={posterDesign}
+                url={campaign.target}
+                aria-label={campaign.name}
                 className={styles.posterDesignImage}
               />
             ))}

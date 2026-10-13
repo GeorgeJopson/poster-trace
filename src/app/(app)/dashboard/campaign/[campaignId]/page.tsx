@@ -27,7 +27,10 @@ export default async function CampaignPage({
     <CentralColumn>
       <CampaignProvider id={campaign.id} target={campaign.target}>
         <CampaignHeader campaign={campaign} />
-        <PosterDesigns posterDesigns={campaign.posterDesigns} />
+        <PosterDesigns
+          posterDesigns={campaign.posterDesigns}
+          target={campaign.target}
+        />
       </CampaignProvider>
     </CentralColumn>
   );

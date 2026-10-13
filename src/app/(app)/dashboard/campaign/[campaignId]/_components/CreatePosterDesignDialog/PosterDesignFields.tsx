@@ -1,7 +1,8 @@
 import React from "react";
 
+import { QR_RANGES } from "@/data/posterDesignValidation";
+
 import styles from "./PosterDesignFields.module.css";
-import { QR_RANGES } from "./posterDesignValidation";
 
 export type QrValues = {
   qrXPosition: string;

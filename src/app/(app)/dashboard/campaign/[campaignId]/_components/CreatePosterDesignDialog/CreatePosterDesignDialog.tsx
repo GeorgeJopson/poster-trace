@@ -5,13 +5,13 @@ import React, { useRef, useState, useTransition } from "react";
 import Button from "@/components/Button";
 import Dialog from "@/components/Dialog";
 import NewItemButton from "@/components/NewItemButton";
+import { getImageFileError } from "@/data/posterDesignValidation";
+import usePosterCanvas from "@/utils/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
 import { useCampaignId, useCampaignTarget } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
-import { getImageFileError } from "./posterDesignValidation";
-import PosterDesignFields, { QrValues } from "./PosterDesignFields";
-import useDrawCanvas from "./useDrawCanvas";
+import PosterDesignFields, { type QrValues } from "./PosterDesignFields";
 
 const DEFAULT_QR_VALUES: QrValues = {
   qrXPosition: "0",
@@ -31,7 +31,17 @@ export default function CreatePosterDesignDialog() {
     ? Math.min(image.naturalWidth, image.naturalHeight)
     : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawCanvas = useDrawCanvas(canvasRef, image, qrValues, target);
+  usePosterCanvas(
+    canvasRef,
+    image,
+    {
+      qrXPosition: parseFloat(qrValues.qrXPosition) || 0,
+      qrYPosition: parseFloat(qrValues.qrYPosition) || 0,
+      qrSize: parseFloat(qrValues.qrSize) || 0,
+      qrRotation: parseFloat(qrValues.qrRotation) || 0,
+    },
+    target,
+  );
 
   // The dialog content (including the file input and canvas) is recreated each
   // time it opens, so reset the state to match.
@@ -44,7 +54,6 @@ export default function CreatePosterDesignDialog() {
   function clearImage() {
     setImage(null);
     setQrValues(DEFAULT_QR_VALUES);
-    drawCanvas({ image: null });
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -75,7 +84,6 @@ export default function CreatePosterDesignDialog() {
       URL.revokeObjectURL(url);
       setImage(img);
       setQrValues(DEFAULT_QR_VALUES);
-      drawCanvas({ image: img, qrValues: DEFAULT_QR_VALUES });
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
@@ -92,9 +100,7 @@ export default function CreatePosterDesignDialog() {
   }
 
   function handleQrChange(key: keyof QrValues, value: string) {
-    const next = { ...qrValues, [key]: value };
-    setQrValues(next);
-    drawCanvas({ qrValues: next });
+    setQrValues((current) => ({ ...current, [key]: value }));
   }
 
   return (

@@ -1,4 +1,4 @@
-import { getMyPosterDesignImageKey } from "@/data/campaigns";
+import { getMyPosterDesignImageKey } from "@/data/posterDesigns";
 import { getImage } from "@/imageStorage";
 
 // Serves a poster design's image to the user who owns it. Blobs have no
