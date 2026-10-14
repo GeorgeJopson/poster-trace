@@ -105,6 +105,22 @@ export const auth = betterAuth({
             "Password reset emails aren't available right now. Please try again later.",
         });
       }
+
+      // The form sends a relative redirectTo, so it works from any origin the
+      // site is served on. Make it absolute here, on the base URL the email
+      // link uses, because Netlify appends the query string to relative
+      // redirect locations.
+      const redirectTo: unknown = ctx.body?.redirectTo;
+      if (typeof redirectTo === "string" && redirectTo.startsWith("/")) {
+        return {
+          context: {
+            body: {
+              ...ctx.body,
+              redirectTo: new URL(redirectTo, ctx.context.baseURL).href,
+            },
+          },
+        };
+      }
     }),
   },
   plugins: [oAuthProxy({ productionURL, currentURL })],

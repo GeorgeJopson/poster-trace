@@ -53,12 +53,8 @@ export default function RequestPasswordResetForm({
 
     const { error } = await authClient.requestPasswordReset({
       email: String(formData.get("email")),
-      // Absolute, because Netlify appends the query string to relative
-      // redirect locations.
-      redirectTo: new URL(
-        routeNames.passwordResetAuthorized,
-        window.location.origin,
-      ).href,
+      // Made absolute on the server (see src/auth/auth.ts).
+      redirectTo: routeNames.passwordResetAuthorized,
     });
 
     setIsPending(false);
