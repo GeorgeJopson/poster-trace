@@ -85,12 +85,19 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  // Without a handler, Better Auth waits for background tasks (such as the
-  // password reset email) before responding, so the response time would show
-  // whether an account exists. `after` sends the response first and keeps the
-  // Netlify Function running until the task finishes. Better Auth is only
-  // called inside Next requests, where `after` is available.
   advanced: {
+    // Rate limits are per client IP. Better Auth only reads `x-forwarded-for`
+    // by default and gives up when it holds more than one address, putting
+    // everyone in one shared bucket. Netlify sets `x-nf-client-connection-ip`
+    // to the connecting address itself, so clients can't fake it.
+    ipAddress: {
+      ipAddressHeaders: ["x-nf-client-connection-ip", "x-forwarded-for"],
+    },
+    // Without a handler, Better Auth waits for background tasks (such as the
+    // password reset email) before responding, so the response time would show
+    // whether an account exists. `after` sends the response first and keeps
+    // the Netlify Function running until the task finishes. Better Auth is
+    // only called inside Next requests, where `after` is available.
     backgroundTasks: {
       handler: (promise) => after(() => promise),
     },
