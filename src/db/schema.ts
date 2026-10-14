@@ -92,6 +92,15 @@ export const rateLimit = pgTable("rate_limit", {
   lastRequest: bigint({ mode: "number" }).notNull(),
 });
 
+// When each user was last sent a password reset email, to send at most one a
+// minute (see src/auth/auth.ts).
+export const passwordResetEmail = pgTable("password_reset_email", {
+  userId: text()
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  sentAt: timestamp().notNull(),
+});
+
 // Poster tables. Deleting a campaign deletes its designs, their posters and
 // those posters' scans.
 

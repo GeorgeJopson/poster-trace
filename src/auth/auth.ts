@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { oAuthProxy } from "better-auth/plugins";
-import { and, count, eq, gt, like } from "drizzle-orm";
+import { lt } from "drizzle-orm";
 import { after } from "next/server";
 import db from "@/db";
 import * as schema from "@/db/schema";
@@ -36,22 +36,24 @@ export const auth = betterAuth({
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
       // The rate limit below is per IP, so this also caps emails per account.
-      // Better Auth creates this request's token before calling here, so
-      // another token from the last minute means an email was just sent.
-      const [{ recentTokens }] = await db
-        .select({ recentTokens: count() })
-        .from(schema.verification)
-        .where(
-          and(
-            eq(schema.verification.value, user.id),
-            like(schema.verification.identifier, "reset-password:%"),
-            gt(
-              schema.verification.createdAt,
-              new Date(Date.now() - RESET_EMAIL_INTERVAL_MS),
-            ),
+      // The upsert only writes, and returns a row, if no email was sent in
+      // the last minute, so of several concurrent requests exactly one sends.
+      // Requests that don't send don't move the timestamp, so repeated
+      // requests can't keep pushing the next email back.
+      const now = new Date();
+      const claimed = await db
+        .insert(schema.passwordResetEmail)
+        .values({ userId: user.id, sentAt: now })
+        .onConflictDoUpdate({
+          target: schema.passwordResetEmail.userId,
+          set: { sentAt: now },
+          setWhere: lt(
+            schema.passwordResetEmail.sentAt,
+            new Date(now.getTime() - RESET_EMAIL_INTERVAL_MS),
           ),
-        );
-      if (recentTokens > 1) return;
+        })
+        .returning();
+      if (claimed.length === 0) return;
 
       await sendPasswordResetEmail({ to: user.email, name: user.name, url });
     },
