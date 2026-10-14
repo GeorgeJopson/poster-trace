@@ -6,10 +6,8 @@ import { lt } from "drizzle-orm";
 import { after } from "next/server";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { getEmailConfigError, sendPasswordResetEmail } from "@/email";
-
-// At most one password reset email per account in this time.
-const RESET_EMAIL_INTERVAL_MS = 60 * 1000;
+import { getEmailConfig } from "@/email/config";
+import { RESET_EMAIL_INTERVAL_SECONDS } from "./passwordRules";
 
 // BETTER_AUTH_URL is the production URL in every Netlify context, because
 // Google only accepts exact redirect URIs. Deploy previews and branch deploys
@@ -49,12 +47,15 @@ export const auth = betterAuth({
           set: { sentAt: now },
           setWhere: lt(
             schema.passwordResetEmail.sentAt,
-            new Date(now.getTime() - RESET_EMAIL_INTERVAL_MS),
+            new Date(now.getTime() - RESET_EMAIL_INTERVAL_SECONDS * 1000),
           ),
         })
         .returning();
       if (claimed.length === 0) return;
 
+      // Loaded here so Resend and the templates stay out of every other
+      // request that imports auth.
+      const { sendPasswordResetEmail } = await import("@/email");
       await sendPasswordResetEmail({ to: user.email, name: user.name, url });
     },
     // A reset signs the account out everywhere, in case the old password was
@@ -70,9 +71,13 @@ export const auth = betterAuth({
   },
   // Stored in the database, because each Netlify Function instance has its own
   // memory. Better Auth only rate limits in production, and allows 3 password
-  // reset requests per 60 seconds per IP.
+  // reset requests per 60 seconds per IP. Session reads aren't limited, so the
+  // useSession calls on most pages don't each write to the database.
   rateLimit: {
     storage: "database",
+    customRules: {
+      "/get-session": false,
+    },
   },
   socialProviders: {
     google: {
@@ -97,31 +102,13 @@ export const auth = betterAuth({
       // The email is sent in the background, where a failure is only logged.
       // Fail here instead, for every email so it doesn't show whether an
       // account exists.
-      const emailConfigError = getEmailConfigError();
-      if (emailConfigError) {
-        ctx.context.logger.error(
-          `Password reset is unavailable: ${emailConfigError}`,
-        );
+      const { error } = getEmailConfig();
+      if (error) {
+        ctx.context.logger.error(`Password reset is unavailable: ${error}`);
         throw new APIError("SERVICE_UNAVAILABLE", {
           message:
             "Password reset emails aren't available right now. Please try again later.",
         });
-      }
-
-      // The form sends a relative redirectTo, so it works from any origin the
-      // site is served on. Make it absolute here, on the base URL the email
-      // link uses, because Netlify appends the query string to relative
-      // redirect locations.
-      const redirectTo: unknown = ctx.body?.redirectTo;
-      if (typeof redirectTo === "string" && redirectTo.startsWith("/")) {
-        return {
-          context: {
-            body: {
-              ...ctx.body,
-              redirectTo: new URL(redirectTo, ctx.context.baseURL).href,
-            },
-          },
-        };
       }
     }),
   },

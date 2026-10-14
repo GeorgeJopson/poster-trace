@@ -1,7 +1,5 @@
-import Link from "next/link";
-
 import AuthCard from "@/components/AuthCard";
-import { routeNames } from "@/routeNames";
+import PasswordResetLink from "@/components/PasswordResetLink";
 
 import styles from "./InvalidResetLink.module.css";
 
@@ -14,7 +12,7 @@ export default function InvalidResetLink() {
         expire after 1 hour.
       </p>
       <p className={styles.message}>
-        <Link href={routeNames.passwordReset}>Send another reset email</Link>
+        <PasswordResetLink>Send another reset email</PasswordResetLink>
       </p>
     </AuthCard>
   );

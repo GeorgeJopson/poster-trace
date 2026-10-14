@@ -3,15 +3,12 @@
 import { useEffect, useState } from "react";
 
 import { authClient } from "@/auth/auth-client";
+import { RESET_EMAIL_INTERVAL_SECONDS } from "@/auth/passwordRules";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
 import useAuthFormSubmit from "@/utils/useAuthFormSubmit";
 
 import styles from "./RequestPasswordResetForm.module.css";
-
-// Better Auth allows 3 requests per 60 seconds per IP in production, so one
-// email a minute keeps users under the limit.
-const COOLDOWN_SECONDS = 60;
 
 export default function RequestPasswordResetForm() {
   // Signed-in users (e.g. from the account page) get their email filled in.
@@ -34,13 +31,14 @@ export default function RequestPasswordResetForm() {
     async (formData) => {
       const { error } = await authClient.requestPasswordReset({
         email: String(formData.get("email")),
-        // Made absolute on the server (see src/auth/auth.ts).
+        // Better Auth resolves this against its base URL, the same one the
+        // email link uses, so it works from any origin the site is served on.
         redirectTo: routeNames.passwordResetAuthorized,
       });
       if (error) return { error };
 
       setHasSent(true);
-      setSecondsLeft(COOLDOWN_SECONDS);
+      setSecondsLeft(RESET_EMAIL_INTERVAL_SECONDS);
       return { error: null };
     },
     {
