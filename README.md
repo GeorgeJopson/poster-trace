@@ -82,8 +82,15 @@ or `drizzle-kit migrate` against a Netlify-hosted database.
 Users sign up at `/sign-up` and log in at `/sign-in`, with either an email
 and password or Google OAuth. Signing in with Google for the first time
 creates the account, so both pages offer it. There's no email verification
-or password reset yet. Poster campaigns are owned by the user who created
-them, so `/dashboard` always requires signing in.
+yet. Poster campaigns are owned by the user who created them, so `/dashboard`
+always requires signing in.
+
+Users can reset their password from `/password-reset`, linked from the log-in
+and account pages. Better Auth emails a link (sent with Resend, see
+[Email](#email)) that works once and expires after 1 hour. It leads to
+`/password-reset/authorized`, where the user chooses a new password. A reset
+signs the account out everywhere. If the account only used Google before, the
+reset adds an email and password login, so the user can log in either way.
 
 `npm run seed` assigns its campaigns to the test account `test@example.com`
 (password `password123`), creating it if needed and resetting its password.

@@ -8,6 +8,7 @@ import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
 
+import styles from "./LogIn.module.css";
 import ResetSuccessNotice from "./_components/ResetSuccessNotice";
 
 export default function SignIn() {
@@ -43,6 +44,9 @@ export default function SignIn() {
         type="password"
         autoComplete="current-password"
       />
+      <Link className={styles.resetLink} href={routeNames.passwordReset}>
+        Reset my password
+      </Link>
     </AuthCardForm>
   );
 }
