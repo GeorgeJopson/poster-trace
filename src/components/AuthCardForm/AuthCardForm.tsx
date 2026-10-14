@@ -23,6 +23,8 @@ interface AuthCardFormProps {
     formData: FormData,
   ) => Promise<{ error: { message?: string } | null }>;
   switchPrompt: React.ReactNode;
+  // Shown above the form, e.g. after a password reset.
+  notice?: React.ReactNode;
 }
 
 export default function AuthCardForm({
@@ -32,6 +34,7 @@ export default function AuthCardForm({
   children,
   submit,
   switchPrompt,
+  notice,
 }: AuthCardFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +58,8 @@ export default function AuthCardForm({
 
   return (
     <AuthCard heading={actionName}>
+      {notice}
+
       <Form
         handleSubmit={handleSubmit}
         error={error}

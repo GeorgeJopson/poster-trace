@@ -1,0 +1,7 @@
+.message {
+  font-size: var(--font-size-body);
+}
+
+.message a {
+  color: var(--color-green-800);
+}

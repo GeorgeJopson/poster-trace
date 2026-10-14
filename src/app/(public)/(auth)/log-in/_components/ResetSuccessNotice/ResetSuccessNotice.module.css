@@ -1,0 +1,7 @@
+.notice {
+  font-size: var(--font-size-body);
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--color-green-100);
+  color: var(--color-green-950);
+}
