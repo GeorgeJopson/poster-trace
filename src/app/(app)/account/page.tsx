@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import CentralColumn from "@/components/CentralColumn";
+import PasswordResetLink from "@/components/PasswordResetLink";
 import { getCurrentUser } from "@/data/users";
-import { routeNames } from "@/routeNames";
 
 import styles from "./Account.module.css";
 import DeleteAccountDialog from "./_components/DeleteAccountDialog";
@@ -23,9 +22,7 @@ export default async function AccountPage() {
           <dt>Email</dt>
           <dd>{email}</dd>
         </dl>
-        <Link className={styles.resetLink} href={routeNames.passwordReset}>
-          Reset my password
-        </Link>
+        <PasswordResetLink className={styles.resetLink} />
       </div>
       <DeleteAccountDialog />
     </CentralColumn>
