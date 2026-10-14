@@ -66,7 +66,10 @@ default).
 
 - **Don't block the response on the email send.** Better Auth warns that
   waiting for `sendResetPassword` before responding lets an attacker tell from
-  the response time whether an account exists. Netlify Functions are
+  the response time whether an account exists. By default Better Auth does
+  wait: `requestPasswordReset` sends through `runInBackgroundOrAwait`, which
+  awaits the send unless `advanced.backgroundTasks.handler` is set. Setting the
+  handler is what stops the response waiting. Netlify Functions are
   serverless, though, so the send can't just be left running unawaited. Set
   `advanced.backgroundTasks.handler` to `(promise) => after(() => promise)`,
   using `after` from `next/server`. The Better Auth route handler runs inside
