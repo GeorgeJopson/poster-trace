@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { oAuthProxy } from "better-auth/plugins";
-import { lt } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { after } from "next/server";
 import db from "@/db";
 import * as schema from "@/db/schema";
@@ -56,7 +56,22 @@ export const auth = betterAuth({
       // Loaded here so Resend and the templates stay out of every other
       // request that imports auth.
       const { sendPasswordResetEmail } = await import("@/email");
-      await sendPasswordResetEmail({ to: user.email, name: user.name, url });
+      try {
+        await sendPasswordResetEmail({ to: user.email, name: user.name, url });
+      } catch (error) {
+        // Give the claim back so a failed send doesn't block the next request.
+        // Any earlier row was already outside the interval, so deleting it is
+        // the same as restoring it.
+        await db
+          .delete(schema.passwordResetEmail)
+          .where(
+            and(
+              eq(schema.passwordResetEmail.userId, user.id),
+              eq(schema.passwordResetEmail.sentAt, now),
+            ),
+          );
+        throw error;
+      }
     },
     // A reset signs the account out everywhere, in case the old password was
     // compromised.
