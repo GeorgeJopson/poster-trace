@@ -3,7 +3,7 @@
   display: inline-block;
 }
 
-.wrapper:hover button,
+.wrapper:hover button:not(:disabled, [aria-disabled="true"]),
 .wrapper:hover a {
   transform: scale(0.95);
 }

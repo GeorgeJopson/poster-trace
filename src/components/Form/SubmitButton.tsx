@@ -12,17 +12,21 @@ export default function SubmitButton({
   children: React.ReactNode;
   isPendingText: string;
   isPending: boolean;
-  // Disables the button and shows it greyed out, without the pending text.
+  // Shows the button as disabled and blocks submitting, without the pending
+  // text. Uses aria-disabled so the button keeps focus.
   disabled?: boolean;
   variant?: ButtonVariant;
 }) {
   return (
     <div className={styles.submitButtonWrapper}>
       <Button
-        variant={disabled ? "disabled" : variant}
+        variant={variant}
         fontSize={"1.25rem"}
         type="submit"
-        disabled={isPending || disabled}
+        disabled={isPending}
+        aria-disabled={disabled || undefined}
+        // Also catches pressing Enter in a field, which clicks this button.
+        onClick={disabled ? (event) => event.preventDefault() : undefined}
       >
         {isPending ? isPendingText : children}
       </Button>
