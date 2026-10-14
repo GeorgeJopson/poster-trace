@@ -19,10 +19,17 @@ const VARIANTS = {
   },
   // No effect wrappers, so the button can be a Dialog trigger.
   danger: { className: styles.danger, particles: false, shrink: false },
+  // No effects, so a button that can't be clicked doesn't react to hover.
+  disabled: { className: styles.disabled, particles: false, shrink: false },
 } as const;
 
 export type ButtonVariant =
-  "filled" | "filledWithOutline" | "outline" | "transparent" | "danger";
+  | "filled"
+  | "filledWithOutline"
+  | "outline"
+  | "transparent"
+  | "danger"
+  | "disabled";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: React.ReactNode;

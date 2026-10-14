@@ -44,3 +44,11 @@
   background-color: #b91c1c;
   color: white;
 }
+
+.disabled {
+  background-color: #e4e4e7;
+  border-color: #e4e4e7;
+  color: #71717a;
+  font-family: var(--font-bungee), sans-serif;
+  cursor: not-allowed;
+}
