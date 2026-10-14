@@ -7,7 +7,7 @@ import { after } from "next/server";
 import db from "@/db";
 import * as schema from "@/db/schema";
 import { getEmailConfig } from "@/email/config";
-import { RESET_EMAIL_INTERVAL_SECONDS } from "./passwordRules";
+import { RESET_EMAIL_COOLDOWN_SECONDS } from "./passwordRules";
 
 // BETTER_AUTH_URL is the production URL in every Netlify context, because
 // Google only accepts exact redirect URIs. Deploy previews and branch deploys
@@ -35,7 +35,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       // The rate limit below is per IP, so this also caps emails per account.
       // The upsert only writes, and returns a row, if no email was sent in
-      // the last minute, so of several concurrent requests exactly one sends.
+      // the cooldown, so of several concurrent requests exactly one sends.
       // Requests that don't send don't move the timestamp, so repeated
       // requests can't keep pushing the next email back.
       const now = new Date();
@@ -47,7 +47,7 @@ export const auth = betterAuth({
           set: { sentAt: now },
           setWhere: lt(
             schema.passwordResetEmail.sentAt,
-            new Date(now.getTime() - RESET_EMAIL_INTERVAL_SECONDS * 1000),
+            new Date(now.getTime() - RESET_EMAIL_COOLDOWN_SECONDS * 1000),
           ),
         })
         .returning();
