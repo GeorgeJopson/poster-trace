@@ -11,7 +11,7 @@ import styles from "./RequestPasswordResetForm.module.css";
 
 // Better Auth allows 3 requests per 60 seconds per IP in production, so one
 // email a minute keeps users under the limit.
-const COOLDOWN_MS = 60 * 1000;
+const COOLDOWN_SECONDS = 60;
 
 export default function RequestPasswordResetForm() {
   // Signed-in users (e.g. from the account page) get their email filled in.
@@ -19,28 +19,16 @@ export default function RequestPasswordResetForm() {
   const { data: session } = authClient.useSession();
   const defaultEmail = session?.user.email ?? "";
 
-  // When the last email was sent, and the time the countdown was last
-  // updated. Both are set together after a successful request.
-  const [sentAt, setSentAt] = useState<number | null>(null);
-  const [now, setNow] = useState(0);
+  const [hasSent, setHasSent] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
+  // Counts down one second at a time until the cooldown ends.
   useEffect(() => {
-    if (sentAt === null) return;
+    if (secondsLeft === 0) return;
 
-    const interval = setInterval(() => {
-      const time = Date.now();
-      setNow(time);
-      if (time - sentAt >= COOLDOWN_MS) {
-        clearInterval(interval);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [sentAt]);
-
-  const secondsLeft =
-    sentAt === null
-      ? 0
-      : Math.max(0, Math.ceil((COOLDOWN_MS - (now - sentAt)) / 1000));
+    const timeout = setTimeout(() => setSecondsLeft(secondsLeft - 1), 1000);
+    return () => clearTimeout(timeout);
+  }, [secondsLeft]);
 
   const { isPending, error, handleSubmit } = useAuthFormSubmit(
     async (formData) => {
@@ -51,9 +39,8 @@ export default function RequestPasswordResetForm() {
       });
       if (error) return { error };
 
-      const time = Date.now();
-      setSentAt(time);
-      setNow(time);
+      setHasSent(true);
+      setSecondsLeft(COOLDOWN_SECONDS);
       return { error: null };
     },
     {
@@ -97,7 +84,7 @@ export default function RequestPasswordResetForm() {
 
       <div className={styles.status}>
         <div role="status">
-          {sentAt !== null ? (
+          {hasSent ? (
             <p>
               If an account exists for that email, we&apos;ve sent a reset link.
             </p>
