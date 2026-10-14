@@ -2,9 +2,8 @@
 
 import React, { useState } from "react";
 
-import CentralColumn from "@/components/CentralColumn";
+import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton } from "@/components/Form";
-import Header from "@/components/Header";
 import SocialSignOn from "@/components/SocialSignOn";
 import { routeNames } from "@/routeNames";
 import useRedirectIfSignedIn from "@/utils/useRedirectIfSignedIn";
@@ -55,29 +54,23 @@ export default function AuthCardForm({
   }
 
   return (
-    <CentralColumn>
-      <div className={styles.wrapper}>
-        <div className={styles.card}>
-          <Header variant={"heading"}>{actionName}</Header>
+    <AuthCard heading={actionName}>
+      <Form
+        handleSubmit={handleSubmit}
+        error={error}
+        fields={children}
+        submitBtn={
+          <SubmitButton isPending={isPending} isPendingText={pendingText}>
+            {actionName}
+          </SubmitButton>
+        }
+      />
 
-          <Form
-            handleSubmit={handleSubmit}
-            error={error}
-            fields={children}
-            submitBtn={
-              <SubmitButton isPending={isPending} isPendingText={pendingText}>
-                {actionName}
-              </SubmitButton>
-            }
-          />
+      <p className={styles.divider}>or</p>
 
-          <p className={styles.divider}>or</p>
+      <SocialSignOn actionName={actionName} />
 
-          <SocialSignOn actionName={actionName} />
-
-          <p className={styles.switchPrompt}>{switchPrompt}</p>
-        </div>
-      </div>
-    </CentralColumn>
+      <p className={styles.switchPrompt}>{switchPrompt}</p>
+    </AuthCard>
   );
 }

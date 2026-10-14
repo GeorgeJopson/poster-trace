@@ -3,12 +3,10 @@
 import Link from "next/link";
 
 import { authClient } from "@/auth/auth-client";
+import { MIN_PASSWORD_LENGTH } from "@/auth/passwordRules";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
-
-// Matches Better Auth's default minPasswordLength.
-const MIN_PASSWORD_LENGTH = 8;
 
 export default function SignUp() {
   return (
