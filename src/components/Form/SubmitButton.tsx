@@ -6,11 +6,14 @@ export default function SubmitButton({
   children,
   isPendingText,
   isPending,
+  disabled = false,
   variant = "filled",
 }: {
   children: React.ReactNode;
   isPendingText: string;
   isPending: boolean;
+  // Disables the button without showing the pending text.
+  disabled?: boolean;
   variant?: ButtonVariant;
 }) {
   return (
@@ -19,7 +22,7 @@ export default function SubmitButton({
         variant={variant}
         fontSize={"1.25rem"}
         type="submit"
-        disabled={isPending}
+        disabled={isPending || disabled}
       >
         {isPending ? isPendingText : children}
       </Button>
