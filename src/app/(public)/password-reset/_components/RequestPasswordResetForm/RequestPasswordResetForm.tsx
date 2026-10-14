@@ -102,12 +102,16 @@ export default function RequestPasswordResetForm({
         }
       />
 
-      <div className={styles.status} role="status">
-        {sentAt !== null ? (
-          <p>
-            If an account exists for that email, we&apos;ve sent a reset link.
-          </p>
-        ) : null}
+      <div className={styles.status}>
+        <div role="status">
+          {sentAt !== null ? (
+            <p>
+              If an account exists for that email, we&apos;ve sent a reset link.
+            </p>
+          ) : null}
+        </div>
+        {/* Outside the live region, so screen readers don't announce every
+            tick. */}
         {secondsLeft > 0 ? (
           <p>You can send another email in {secondsLeft}s.</p>
         ) : null}
