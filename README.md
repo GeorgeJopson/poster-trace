@@ -27,11 +27,14 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    BETTER_AUTH_SECRET=<any long random string, e.g. from `openssl rand -base64 32`>
    GOOGLE_CLIENT_ID=<Google OAuth client ID>
    GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
+   RESEND_KEY=<Resend API key>
+   EMAIL_FROM=<optional sender, e.g. Poster Trace <noreply@example.com>>
    ```
 
    The Google OAuth client must list
    `http://localhost:3000/api/auth/callback/google` as an authorised redirect
-   URI. Don't set `NETLIFY_DB_URL`: `netlify dev` provides it.
+   URI. Don't set `NETLIFY_DB_URL`: `netlify dev` provides it. See
+   [Email](#email) for `RESEND_KEY` and `EMAIL_FROM`.
 
 4. Start the dev server, which also starts a local database:
 
@@ -85,6 +88,24 @@ them, so `/dashboard` always requires signing in.
 `npm run seed` assigns its campaigns to the test account `test@example.com`
 (password `password123`), creating it if needed and resetting its password.
 
+## Email
+
+Emails are sent with [Resend](https://resend.com) from `src/email/`, using
+templates built with [React Email](https://react.email) in
+`src/email/templates/`.
+
+- `RESEND_KEY` is the Resend API key.
+- `EMAIL_FROM` is the sender address, e.g.
+  `Poster Trace <noreply@<verified-domain>>`. If it isn't set, emails come from
+  `Poster Trace <onboarding@resend.dev>`, which Resend only delivers to the
+  Resend account's own address.
+
+To preview the templates in a browser, run:
+
+```bash
+npm run email:dev
+```
+
 ## Deployment
 
 The site is hosted on Netlify (configured in `netlify.toml`). Netlify detects
@@ -100,6 +121,9 @@ Environment variables), scoped to the Builds and Functions:
 - `BETTER_AUTH_URL` — public site URL, e.g. `https://www.postertrace.app`
 - `BETTER_AUTH_SECRET` — random secret for signing sessions
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
+- `RESEND_KEY` — Resend API key, in every deploy context
+- `EMAIL_FROM` — sender address on a domain verified in Resend (optional,
+  see [Email](#email))
 
 The Google OAuth client must list
 `<BETTER_AUTH_URL>/api/auth/callback/google` as an authorised redirect URI.
