@@ -12,13 +12,12 @@ import styles from "./RequestPasswordResetForm.module.css";
 // email a minute keeps users under the limit.
 const COOLDOWN_MS = 60 * 1000;
 
-interface RequestPasswordResetFormProps {
-  defaultEmail: string;
-}
+export default function RequestPasswordResetForm() {
+  // Signed-in users (e.g. from the account page) get their email filled in.
+  // Read on the client so the page stays static.
+  const { data: session } = authClient.useSession();
+  const defaultEmail = session?.user.email ?? "";
 
-export default function RequestPasswordResetForm({
-  defaultEmail,
-}: RequestPasswordResetFormProps) {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // When the last email was sent, and the time the countdown was last
@@ -84,6 +83,8 @@ export default function RequestPasswordResetForm({
         error={error}
         fields={
           <TextInput
+            // Remounts with the email once the session loads.
+            key={defaultEmail}
             label="Email"
             name="email"
             type="email"
