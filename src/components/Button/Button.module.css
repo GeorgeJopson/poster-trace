@@ -40,7 +40,7 @@
   border: solid 2px #b91c1c;
   cursor: pointer;
 }
-.danger:hover {
+.danger:hover:not(:disabled, [aria-disabled="true"]) {
   background-color: #b91c1c;
   color: white;
 }

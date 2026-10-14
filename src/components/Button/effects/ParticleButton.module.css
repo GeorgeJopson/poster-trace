@@ -23,6 +23,11 @@
   animation: shimmer forwards 1000ms;
 }
 
+.particleBtn:disabled .shimmer,
+.particleBtn[aria-disabled="true"] .shimmer {
+  display: none;
+}
+
 .particleBtn {
   position: relative;
   overflow: hidden;

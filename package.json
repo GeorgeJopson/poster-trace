@@ -12,13 +12,15 @@
     "db:migrate": "netlify database migrations apply",
     "seed": "tsx scripts/seed.ts",
     "db:reset": "netlify database reset && netlify database migrations apply",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "email:dev": "email dev --dir src/email/templates"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.4",
     "@netlify/database": "^2.0.1",
     "@radix-ui/react-dialog": "^1.2.0",
     "@radix-ui/react-visually-hidden": "^1.2.12",
+    "@react-email/render": "2.1.0",
     "@react-spring/web": "^10.1.2",
     "better-auth": "^1.7.7",
     "drizzle-orm": "1.0.0-rc.4",
@@ -26,10 +28,13 @@
     "pg": "^8.23.1",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-email": "6.11.1",
+    "resend": "^6.33.0"
   },
   "devDependencies": {
     "@csstools/postcss-global-data": "^4.0.0",
+    "@react-email/ui": "6.11.1",
     "@types/node": "^26.5.0",
     "@types/pg": "^8.23.1",
     "@types/qrcode": "^1.5.6",

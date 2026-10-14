@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
-import CentralColumn from "@/components/CentralColumn";
+import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton } from "@/components/Form";
-import Header from "@/components/Header";
 import SocialSignOn from "@/components/SocialSignOn";
 import { routeNames } from "@/routeNames";
+import useAuthFormSubmit from "@/utils/useAuthFormSubmit";
 import useRedirectIfSignedIn from "@/utils/useRedirectIfSignedIn";
 
 import styles from "./AuthCardForm.module.css";
@@ -24,6 +24,8 @@ interface AuthCardFormProps {
     formData: FormData,
   ) => Promise<{ error: { message?: string } | null }>;
   switchPrompt: React.ReactNode;
+  // Shown above the form, e.g. after a password reset.
+  notice?: React.ReactNode;
 }
 
 export default function AuthCardForm({
@@ -33,51 +35,34 @@ export default function AuthCardForm({
   children,
   submit,
   switchPrompt,
+  notice,
 }: AuthCardFormProps) {
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { isPending, error, handleSubmit } = useAuthFormSubmit(submit, {
+    fallbackErrorMessage,
+  });
 
   useRedirectIfSignedIn(routeNames.dashboard);
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-
-    setIsPending(true);
-    setError(null);
-
-    const { error } = await submit(formData);
-
-    if (error) {
-      setIsPending(false);
-      setError(error.message || fallbackErrorMessage);
-    }
-  }
-
   return (
-    <CentralColumn>
-      <div className={styles.wrapper}>
-        <div className={styles.card}>
-          <Header variant={"heading"}>{actionName}</Header>
+    <AuthCard heading={actionName}>
+      {notice}
 
-          <Form
-            handleSubmit={handleSubmit}
-            error={error}
-            fields={children}
-            submitBtn={
-              <SubmitButton isPending={isPending} isPendingText={pendingText}>
-                {actionName}
-              </SubmitButton>
-            }
-          />
+      <Form
+        handleSubmit={handleSubmit}
+        error={error}
+        fields={children}
+        submitBtn={
+          <SubmitButton isPending={isPending} isPendingText={pendingText}>
+            {actionName}
+          </SubmitButton>
+        }
+      />
 
-          <p className={styles.divider}>or</p>
+      <p className={styles.divider}>or</p>
 
-          <SocialSignOn actionName={actionName} />
+      <SocialSignOn actionName={actionName} />
 
-          <p className={styles.switchPrompt}>{switchPrompt}</p>
-        </div>
-      </div>
-    </CentralColumn>
+      <p className={styles.switchPrompt}>{switchPrompt}</p>
+    </AuthCard>
   );
 }

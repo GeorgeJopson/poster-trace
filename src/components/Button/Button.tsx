@@ -21,6 +21,8 @@ const VARIANTS = {
   danger: { className: styles.danger, particles: false, shrink: false },
 } as const;
 
+// Disabled buttons keep their variant and are styled in BaseButton.module.css,
+// so disabling a button doesn't swap the element (and lose focus).
 export type ButtonVariant =
   "filled" | "filledWithOutline" | "outline" | "transparent" | "danger";
 

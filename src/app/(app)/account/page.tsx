@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import CentralColumn from "@/components/CentralColumn";
+import PasswordResetLink from "@/components/PasswordResetLink";
 import { getCurrentUser } from "@/data/users";
 
 import styles from "./Account.module.css";
@@ -21,6 +22,7 @@ export default async function AccountPage() {
           <dt>Email</dt>
           <dd>{email}</dd>
         </dl>
+        <PasswordResetLink className={styles.resetLink} />
       </div>
       <DeleteAccountDialog />
     </CentralColumn>

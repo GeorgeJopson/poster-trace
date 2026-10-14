@@ -14,3 +14,11 @@
   justify-content: center;
   text-align: center;
 }
+
+/* aria-disabled buttons stay focusable, e.g. during a cooldown. */
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: 0.6;
+}

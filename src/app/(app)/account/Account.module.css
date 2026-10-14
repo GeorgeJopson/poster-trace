@@ -17,3 +17,9 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+.resetLink {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: var(--font-size-body);
+}

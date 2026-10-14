@@ -27,11 +27,14 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    BETTER_AUTH_SECRET=<any long random string, e.g. from `openssl rand -base64 32`>
    GOOGLE_CLIENT_ID=<Google OAuth client ID>
    GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
+   RESEND_KEY=<Resend API key>
+   EMAIL_FROM=<optional sender, e.g. Poster Trace <noreply@example.com>>
    ```
 
    The Google OAuth client must list
    `http://localhost:3000/api/auth/callback/google` as an authorised redirect
-   URI. Don't set `NETLIFY_DB_URL`: `netlify dev` provides it.
+   URI. Don't set `NETLIFY_DB_URL`: `netlify dev` provides it. See
+   [Email](#email) for `RESEND_KEY` and `EMAIL_FROM`.
 
 4. Start the dev server, which also starts a local database:
 
@@ -79,11 +82,40 @@ or `drizzle-kit migrate` against a Netlify-hosted database.
 Users sign up at `/sign-up` and log in at `/sign-in`, with either an email
 and password or Google OAuth. Signing in with Google for the first time
 creates the account, so both pages offer it. There's no email verification
-or password reset yet. Poster campaigns are owned by the user who created
-them, so `/dashboard` always requires signing in.
+yet. Poster campaigns are owned by the user who created them, so `/dashboard`
+always requires signing in.
+
+Users can reset their password from `/password-reset`, linked from the log-in
+and account pages. Better Auth emails a link (sent with Resend, see
+[Email](#email)) that works once and expires after 1 hour. It leads to
+`/password-reset/authorized`, where the user chooses a new password. A reset
+signs the account out everywhere. If the account only used Google before, the
+reset adds an email and password login, so the user can log in either way.
 
 `npm run seed` assigns its campaigns to the test account `test@example.com`
 (password `password123`), creating it if needed and resetting its password.
+
+## Email
+
+Emails are sent with [Resend](https://resend.com) from `src/email/`, using
+templates built with [React Email](https://react.email) in
+`src/email/templates/`.
+
+- `RESEND_KEY` is the Resend API key.
+- `EMAIL_FROM` is the sender address, e.g.
+  `Poster Trace <noreply@<verified-domain>>`. In development, if it isn't set,
+  emails come from `Poster Trace <onboarding@resend.dev>`, which Resend only
+  delivers to the Resend account's own address. Production builds (including
+  deploy previews) require it.
+
+If either is missing, password reset requests fail with an error instead of
+appearing to send an email.
+
+To preview the templates in a browser, run:
+
+```bash
+npm run email:dev
+```
 
 ## Deployment
 
@@ -100,6 +132,9 @@ Environment variables), scoped to the Builds and Functions:
 - `BETTER_AUTH_URL` — public site URL, e.g. `https://www.postertrace.app`
 - `BETTER_AUTH_SECRET` — random secret for signing sessions
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
+- `RESEND_KEY` — Resend API key, in every deploy context
+- `EMAIL_FROM` — sender address on a domain verified in Resend, in every
+  deploy context (see [Email](#email))
 
 The Google OAuth client must list
 `<BETTER_AUTH_URL>/api/auth/callback/google` as an authorised redirect URI.

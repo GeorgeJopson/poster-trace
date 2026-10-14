@@ -1,11 +1,16 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 
 import { authClient } from "@/auth/auth-client";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
+import PasswordResetLink from "@/components/PasswordResetLink";
 import { routeNames } from "@/routeNames";
+
+import styles from "./LogIn.module.css";
+import ResetSuccessNotice from "./_components/ResetSuccessNotice";
 
 export default function SignIn() {
   return (
@@ -25,6 +30,13 @@ export default function SignIn() {
           <Link href={routeNames.signUp}>Sign up</Link>
         </>
       }
+      notice={
+        // useSearchParams needs a Suspense boundary so the page can still be
+        // prerendered.
+        <Suspense fallback={null}>
+          <ResetSuccessNotice />
+        </Suspense>
+      }
     >
       <TextInput label="Email" name="email" type="email" autoComplete="email" />
       <TextInput
@@ -33,6 +45,7 @@ export default function SignIn() {
         type="password"
         autoComplete="current-password"
       />
+      <PasswordResetLink className={styles.resetLink} />
     </AuthCardForm>
   );
 }
