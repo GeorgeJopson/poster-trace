@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { authClient } from "@/auth/auth-client";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
+import useAuthFormSubmit from "@/utils/useAuthFormSubmit";
 
 import styles from "./RequestPasswordResetForm.module.css";
 
@@ -18,8 +19,6 @@ export default function RequestPasswordResetForm() {
   const { data: session } = authClient.useSession();
   const defaultEmail = session?.user.email ?? "";
 
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   // When the last email was sent, and the time the countdown was last
   // updated. Both are set together after a successful request.
   const [sentAt, setSentAt] = useState<number | null>(null);
@@ -43,33 +42,26 @@ export default function RequestPasswordResetForm() {
       ? 0
       : Math.max(0, Math.ceil((COOLDOWN_MS - (now - sentAt)) / 1000));
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  const { isPending, error, handleSubmit } = useAuthFormSubmit(
+    async (formData) => {
+      const { error } = await authClient.requestPasswordReset({
+        email: String(formData.get("email")),
+        // Made absolute on the server (see src/auth/auth.ts).
+        redirectTo: routeNames.passwordResetAuthorized,
+      });
+      if (error) return { error };
 
-    setIsPending(true);
-    setError(null);
-
-    const { error } = await authClient.requestPasswordReset({
-      email: String(formData.get("email")),
-      // Made absolute on the server (see src/auth/auth.ts).
-      redirectTo: routeNames.passwordResetAuthorized,
-    });
-
-    setIsPending(false);
-
-    if (error) {
-      setError(
-        error.message ||
-          "Something went wrong sending the reset email. Please try again.",
-      );
-      return;
-    }
-
-    const time = Date.now();
-    setSentAt(time);
-    setNow(time);
-  }
+      const time = Date.now();
+      setSentAt(time);
+      setNow(time);
+      return { error: null };
+    },
+    {
+      fallbackErrorMessage:
+        "Something went wrong sending the reset email. Please try again.",
+      keepPendingOnSuccess: false,
+    },
+  );
 
   return (
     <>

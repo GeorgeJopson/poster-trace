@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { authClient } from "@/auth/auth-client";
@@ -8,6 +8,7 @@ import { MIN_PASSWORD_LENGTH } from "@/auth/passwordRules";
 import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
+import useAuthFormSubmit from "@/utils/useAuthFormSubmit";
 
 import InvalidResetLink from "../InvalidResetLink";
 
@@ -17,43 +18,33 @@ interface ResetPasswordFormProps {
 
 export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   // The token can expire or be used up (e.g. in another tab) after the page
   // loads, which only shows up when submitting.
   const [isTokenInvalid, setIsTokenInvalid] = useState(false);
 
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const newPassword = String(formData.get("newPassword"));
-
-    if (newPassword !== String(formData.get("confirmPassword"))) {
-      setError("The passwords don't match.");
-      return;
-    }
-
-    setIsPending(true);
-    setError(null);
-
-    const { error } = await authClient.resetPassword({ newPassword, token });
-
-    if (error) {
-      setIsPending(false);
-      if (error.code === "INVALID_TOKEN") {
-        setIsTokenInvalid(true);
-      } else {
-        setError(
-          error.message ||
-            "Something went wrong resetting your password. Please try again.",
-        );
+  const { isPending, error, handleSubmit } = useAuthFormSubmit(
+    async (formData) => {
+      const newPassword = String(formData.get("newPassword"));
+      if (newPassword !== String(formData.get("confirmPassword"))) {
+        return { error: { message: "The passwords don't match." } };
       }
-      return;
-    }
 
-    // The reset signs out every session, so the user logs in again.
-    router.push(`${routeNames.signIn}?reset=success`);
-  }
+      const { error } = await authClient.resetPassword({ newPassword, token });
+      if (error?.code === "INVALID_TOKEN") {
+        setIsTokenInvalid(true);
+        return { error: null };
+      }
+      if (error) return { error };
+
+      // The reset signs out every session, so the user logs in again.
+      router.push(`${routeNames.signIn}?reset=success`);
+      return { error: null };
+    },
+    {
+      fallbackErrorMessage:
+        "Something went wrong resetting your password. Please try again.",
+    },
+  );
 
   if (isTokenInvalid) {
     return <InvalidResetLink />;

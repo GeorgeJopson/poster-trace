@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
 import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton } from "@/components/Form";
 import SocialSignOn from "@/components/SocialSignOn";
 import { routeNames } from "@/routeNames";
+import useAuthFormSubmit from "@/utils/useAuthFormSubmit";
 import useRedirectIfSignedIn from "@/utils/useRedirectIfSignedIn";
 
 import styles from "./AuthCardForm.module.css";
@@ -36,25 +37,11 @@ export default function AuthCardForm({
   switchPrompt,
   notice,
 }: AuthCardFormProps) {
-  const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { isPending, error, handleSubmit } = useAuthFormSubmit(submit, {
+    fallbackErrorMessage,
+  });
 
   useRedirectIfSignedIn(routeNames.dashboard);
-
-  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-
-    setIsPending(true);
-    setError(null);
-
-    const { error } = await submit(formData);
-
-    if (error) {
-      setIsPending(false);
-      setError(error.message || fallbackErrorMessage);
-    }
-  }
 
   return (
     <AuthCard heading={actionName}>
