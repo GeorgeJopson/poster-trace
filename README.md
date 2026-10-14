@@ -103,9 +103,13 @@ templates built with [React Email](https://react.email) in
 
 - `RESEND_KEY` is the Resend API key.
 - `EMAIL_FROM` is the sender address, e.g.
-  `Poster Trace <noreply@<verified-domain>>`. If it isn't set, emails come from
-  `Poster Trace <onboarding@resend.dev>`, which Resend only delivers to the
-  Resend account's own address.
+  `Poster Trace <noreply@<verified-domain>>`. In development, if it isn't set,
+  emails come from `Poster Trace <onboarding@resend.dev>`, which Resend only
+  delivers to the Resend account's own address. Production builds (including
+  deploy previews) require it.
+
+If either is missing, password reset requests fail with an error instead of
+appearing to send an email.
 
 To preview the templates in a browser, run:
 
@@ -129,8 +133,8 @@ Environment variables), scoped to the Builds and Functions:
 - `BETTER_AUTH_SECRET` — random secret for signing sessions
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
 - `RESEND_KEY` — Resend API key, in every deploy context
-- `EMAIL_FROM` — sender address on a domain verified in Resend (optional,
-  see [Email](#email))
+- `EMAIL_FROM` — sender address on a domain verified in Resend, in every
+  deploy context (see [Email](#email))
 
 The Google OAuth client must list
 `<BETTER_AUTH_URL>/api/auth/callback/google` as an authorised redirect URI.

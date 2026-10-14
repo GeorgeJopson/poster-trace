@@ -1,11 +1,12 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { oAuthProxy } from "better-auth/plugins";
 import { and, count, eq, gt, like } from "drizzle-orm";
 import { after } from "next/server";
 import db from "@/db";
 import * as schema from "@/db/schema";
-import { sendPasswordResetEmail } from "@/email";
+import { getEmailConfigError, sendPasswordResetEmail } from "@/email";
 
 // At most one password reset email per account in this time.
 const RESET_EMAIL_INTERVAL_MS = 60 * 1000;
@@ -86,6 +87,25 @@ export const auth = betterAuth({
     backgroundTasks: {
       handler: (promise) => after(() => promise),
     },
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== "/request-password-reset") return;
+
+      // The email is sent in the background, where a failure is only logged.
+      // Fail here instead, for every email so it doesn't show whether an
+      // account exists.
+      const emailConfigError = getEmailConfigError();
+      if (emailConfigError) {
+        ctx.context.logger.error(
+          `Password reset is unavailable: ${emailConfigError}`,
+        );
+        throw new APIError("SERVICE_UNAVAILABLE", {
+          message:
+            "Password reset emails aren't available right now. Please try again later.",
+        });
+      }
+    }),
   },
   plugins: [oAuthProxy({ productionURL, currentURL })],
 });
