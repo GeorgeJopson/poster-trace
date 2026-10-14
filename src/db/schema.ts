@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   doublePrecision,
   index,
@@ -80,6 +81,16 @@ export const verification = pgTable(
   },
   (table) => [index().on(table.identifier)],
 );
+
+// Better Auth's rate limit counters. They're kept in the database because each
+// Netlify Function instance has its own memory.
+export const rateLimit = pgTable("rate_limit", {
+  id: text().primaryKey(),
+  key: text().notNull().unique(),
+  count: integer().notNull(),
+  // Milliseconds since the epoch.
+  lastRequest: bigint({ mode: "number" }).notNull(),
+});
 
 // Poster tables. Deleting a campaign deletes its designs, their posters and
 // those posters' scans.
