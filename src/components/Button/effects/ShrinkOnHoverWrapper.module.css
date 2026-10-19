@@ -1,6 +1,8 @@
 .wrapper {
   will-change: transform;
-  display: inline-block;
+  display: flex;
+  align-items: stretch;
+
 }
 
 .wrapper:hover button:not(:disabled, [aria-disabled="true"]),

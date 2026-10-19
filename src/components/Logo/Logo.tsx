@@ -14,8 +14,8 @@ export default function Logo({ showTitle = true }: LogoProps) {
   return (
     <Link className={styles.logoWrapper} href={routeNames.root}>
       <Image
-        width={36}
-        height={36}
+        width={28}
+        height={28}
         src={"/logo.svg"}
         alt={"Poster Trace Logo"}
       />
