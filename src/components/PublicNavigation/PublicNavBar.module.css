@@ -17,13 +17,24 @@
   padding: 4px;
   border-radius: 12px;
 
-  background-color: color-mix(in oklab, white 80%, transparent);
-  backdrop-filter: blur(12px);
-  box-shadow: var(--shadow-elevation-medium);
-
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  overflow: clip;
+  position:relative;
+  isolation: isolate;
+}
+
+.background{
+  position:absolute;
+  inset:0;
+  background-color: color-mix(in oklab, white 70%, transparent);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-elevation-medium);
+  height: calc(36px * 3);
+  top:-36px;
+  z-index: -1;
 }
 
 .buttonGroup {

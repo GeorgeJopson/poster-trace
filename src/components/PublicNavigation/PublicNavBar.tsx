@@ -30,7 +30,10 @@ export default function PublicNavBar() {
       <div className={styles.spacer}></div>
       <nav className={styles.navBarWrapper} aria-label="Primary">
         <CentralColumn>
+
+
           <div className={styles.contentWrapper}>
+            <div className={styles.background}></div>
             <Logo />
             <div className={styles.buttonGroup}>
               {targets.map(({ targetUrl, name, buttonStyle }) => (
@@ -45,6 +48,8 @@ export default function PublicNavBar() {
               ))}
             </div>
           </div>
+
+
         </CentralColumn>
       </nav>
     </>
