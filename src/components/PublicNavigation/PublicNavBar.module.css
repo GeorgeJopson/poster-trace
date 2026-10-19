@@ -30,7 +30,6 @@
   z-index: -1;
   background-color: color-mix(in oklab, white 70%, transparent);
   backdrop-filter: blur(12px);
-  box-shadow: var(--shadow-elevation-medium);
 }
 
 .buttonGroup {

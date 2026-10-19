@@ -8,7 +8,7 @@
   color: var(--color-green-950);
   padding: 12px 12px 12px 72px;
 
-  box-shadow: var(--shadow-elevation-medium);
+  box-shadow: var(--shadow-elevation-low);
 
   display: flex;
   justify-content: center;

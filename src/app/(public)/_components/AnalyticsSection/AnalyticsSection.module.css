@@ -22,7 +22,7 @@
   background-color: white;
   border-radius: 8px;
   --shadow-color: 52deg 90% 33%;
-  box-shadow: var(--shadow-elevation-medium);
+  box-shadow: var(--shadow-elevation-low);
   display: flex;
   justify-content: center;
 }
