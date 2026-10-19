@@ -1,4 +1,6 @@
-/* Height of the area the fixed PublicNavBar covers */
 .spacer {
+  /* Height of the area the fixed PublicNavBar covers */
   height: 44px;
+  /* Gap between the nav and the start of the page's content */
+  margin-bottom: 8px;
 }
