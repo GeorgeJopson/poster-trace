@@ -1,8 +1,8 @@
 import React from "react";
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
-import PosterFan from "@/app/_components/Hero/PosterFan";
-import HeaderContent from "@/app/_components/Hero/HeaderContent";
+import PosterFan from "@/app/(public)/_components/Hero/PosterFan";
+import HeaderContent from "@/app/(public)/_components/Hero/HeaderContent";
 import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 import PosterRow from "@/components/PosterRow";
 import { stockPosters } from "@/imageDetails";

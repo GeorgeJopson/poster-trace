@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
-import ProblemCard from "@/app/_components/ProblemSection/ProblemCard";
+import ProblemCard from "@/app/(public)/_components/ProblemSection/ProblemCard";
 import Image from "next/image";
 import { icons } from "@/imageDetails";
 import styles from "./ProblemSection.module.css";
