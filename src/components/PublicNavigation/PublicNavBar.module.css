@@ -1,4 +1,9 @@
-.navBarWrapper {
+.spacer {
+  height: 44px;
+  background-color: var(--color-yellow-300);
+}
+
+.navBar {
   position: fixed;
   top: 10px;
   left: 0;
@@ -6,40 +11,34 @@
   z-index: 100;
 }
 
-.spacer{
-  height: 44px;
-  background-color: var(--color-yellow-300);
-}
-
-.contentWrapper {
+.content {
+  /* Let the glass extend 4px past the column edges */
   margin: -4px;
-
   padding: 4px;
   border-radius: 12px;
+  overflow: clip;
+  position: relative;
+  box-shadow: var(--shadow-elevation-low);
+  /* Keeps the background's negative z-index inside this element */
+  isolation: isolate;
 
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
-
-  overflow: clip;
-  position:relative;
-  isolation: isolate;
 }
 
-.background{
-  position:absolute;
-  inset:0;
+.background {
+  /* Extends well past the clipped area so the blur has no soft edges */
+  --blur-bleed: 36px;
+
+  position: absolute;
+  inset: calc(-1 * var(--blur-bleed)) 0;
+  z-index: -1;
   background-color: color-mix(in oklab, white 70%, transparent);
   backdrop-filter: blur(12px);
   box-shadow: var(--shadow-elevation-medium);
-  height: calc(36px * 3);
-  top:-36px;
-  z-index: -1;
 }
 
 .buttonGroup {
   display: flex;
-  flex-direction: row;
   gap: 8px;
-  align-items: stretch;
 }

@@ -1,4 +1,3 @@
-import React from "react";
 import Logo from "@/components/Logo";
 import Button, { ButtonVariant } from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
@@ -27,29 +26,25 @@ const targets: PublicNavBarTarget[] = [
 export default function PublicNavBar() {
   return (
     <>
-      <div className={styles.spacer}></div>
-      <nav className={styles.navBarWrapper} aria-label="Primary">
+      <div className={styles.spacer} />
+      <nav className={styles.navBar} aria-label="Primary">
         <CentralColumn>
-
-
-          <div className={styles.contentWrapper}>
-            <div className={styles.background}></div>
+          <div className={styles.content}>
+            <div className={styles.background} />
             <Logo />
             <div className={styles.buttonGroup}>
               {targets.map(({ targetUrl, name, buttonStyle }) => (
                 <Button
-                  key={targetUrl + name}
+                  key={targetUrl}
                   variant={buttonStyle}
                   href={targetUrl}
-                  fontSize={`${16 / 16}rem`}
+                  fontSize="1rem"
                 >
                   {name}
                 </Button>
               ))}
             </div>
           </div>
-
-
         </CentralColumn>
       </nav>
     </>
