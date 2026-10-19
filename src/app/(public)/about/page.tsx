@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import UnderConstruction from "@/components/UnderConstruction";
-import pageStyles from "@/app/(public)/PublicPage.module.css";
+import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 
 export const metadata: Metadata = {
   title: "About",
@@ -9,8 +9,9 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className={pageStyles.page}>
+    <>
+      <PublicNavBarSpacer />
       <UnderConstruction />
-    </div>
+    </>
   );
 }

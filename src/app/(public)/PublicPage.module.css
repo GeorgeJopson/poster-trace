@@ -1,4 +1,0 @@
-/* Shared by public pages so their content starts below the fixed nav bar */
-.page {
-  padding-top: var(--public-nav-height);
-}

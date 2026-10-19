@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import InvalidResetLink from "./_components/InvalidResetLink";
 import ResetPasswordForm from "./_components/ResetPasswordForm";
-import pageStyles from "@/app/(public)/PublicPage.module.css";
+import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 
 export const metadata: Metadata = {
   title: "Choose a new password",
@@ -17,12 +17,13 @@ export default async function PasswordResetAuthorizedPage(
   const tokenValue = Array.isArray(token) ? token[0] : token;
 
   return (
-    <div className={pageStyles.page}>
+    <>
+      <PublicNavBarSpacer />
       {error || !tokenValue ? (
         <InvalidResetLink />
       ) : (
         <ResetPasswordForm token={tokenValue} />
       )}
-    </div>
+    </>
   );
 }

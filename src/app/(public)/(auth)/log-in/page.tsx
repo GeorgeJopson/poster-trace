@@ -9,13 +9,14 @@ import { TextInput } from "@/components/Form";
 import PasswordResetLink from "@/components/PasswordResetLink";
 import { routeNames } from "@/routeNames";
 
-import pageStyles from "@/app/(public)/PublicPage.module.css";
+import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 import styles from "./LogIn.module.css";
 import ResetSuccessNotice from "./_components/ResetSuccessNotice";
 
 export default function SignIn() {
   return (
-    <div className={pageStyles.page}>
+    <>
+      <PublicNavBarSpacer />
       <AuthCardForm
         actionName="Log In"
         pendingText="Logging In …"
@@ -54,6 +55,6 @@ export default function SignIn() {
         />
         <PasswordResetLink className={styles.resetLink} />
       </AuthCardForm>
-    </div>
+    </>
   );
 }

@@ -1,8 +1,4 @@
 .wrapper {
-  /* Space taken by the fixed PublicNavBar. Pages pad their tops by this so
-     their content starts below it. */
-  --public-nav-height: 44px;
-
   min-height: 100%;
   display: grid;
   /* The fixed nav bar takes no grid row */

@@ -7,11 +7,12 @@ import { MIN_PASSWORD_LENGTH } from "@/auth/passwordRules";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
-import pageStyles from "@/app/(public)/PublicPage.module.css";
+import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 
 export default function SignUp() {
   return (
-    <div className={pageStyles.page}>
+    <>
+      <PublicNavBarSpacer />
       <AuthCardForm
         actionName="Sign Up"
         pendingText="Signing Up …"
@@ -46,6 +47,6 @@ export default function SignUp() {
           minLength={MIN_PASSWORD_LENGTH}
         />
       </AuthCardForm>
-    </div>
+    </>
   );
 }
