@@ -1,4 +1,6 @@
 .wrapper {
+  /* Pad below the fixed nav bar here, so the yellow runs up behind it */
+  padding-top: var(--public-nav-height);
   overflow-x: clip;
   margin-bottom: 36px;
   isolation: isolate;

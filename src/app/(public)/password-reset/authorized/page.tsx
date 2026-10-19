@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import InvalidResetLink from "./_components/InvalidResetLink";
 import ResetPasswordForm from "./_components/ResetPasswordForm";
+import pageStyles from "@/app/(public)/PublicPage.module.css";
 
 export const metadata: Metadata = {
   title: "Choose a new password",
@@ -15,9 +16,13 @@ export default async function PasswordResetAuthorizedPage(
   const { token, error } = await props.searchParams;
   const tokenValue = Array.isArray(token) ? token[0] : token;
 
-  if (error || !tokenValue) {
-    return <InvalidResetLink />;
-  }
-
-  return <ResetPasswordForm token={tokenValue} />;
+  return (
+    <div className={pageStyles.page}>
+      {error || !tokenValue ? (
+        <InvalidResetLink />
+      ) : (
+        <ResetPasswordForm token={tokenValue} />
+      )}
+    </div>
+  );
 }

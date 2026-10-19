@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { routeNames } from "@/routeNames";
+import pageStyles from "@/app/(public)/PublicPage.module.css";
 
 const ERROR_MESSAGES: Record<string, string> = {
   no_code:
@@ -40,7 +41,7 @@ export default async function ErrorPage(props: PageProps<"/error">) {
     "Something went wrong while signing you in.";
 
   return (
-    <div>
+    <div className={pageStyles.page}>
       <p>{message}</p>
       {description ? <p>{description}</p> : null}
       <Link href={routeNames.signIn}>Back to sign in</Link>

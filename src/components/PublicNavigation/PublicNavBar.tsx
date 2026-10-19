@@ -25,28 +25,25 @@ const targets: PublicNavBarTarget[] = [
 
 export default function PublicNavBar() {
   return (
-    <>
-      <div className={styles.spacer} />
-      <nav className={styles.navBar} aria-label="Primary">
-        <CentralColumn>
-          <div className={styles.content}>
-            <div className={styles.background} />
-            <Logo />
-            <div className={styles.buttonGroup}>
-              {targets.map(({ targetUrl, name, buttonStyle }) => (
-                <Button
-                  key={targetUrl}
-                  variant={buttonStyle}
-                  href={targetUrl}
-                  fontSize="1rem"
-                >
-                  {name}
-                </Button>
-              ))}
-            </div>
+    <nav className={styles.navBar} aria-label="Primary">
+      <CentralColumn>
+        <div className={styles.content}>
+          <div className={styles.background} />
+          <Logo />
+          <div className={styles.buttonGroup}>
+            {targets.map(({ targetUrl, name, buttonStyle }) => (
+              <Button
+                key={targetUrl}
+                variant={buttonStyle}
+                href={targetUrl}
+                fontSize="1rem"
+              >
+                {name}
+              </Button>
+            ))}
           </div>
-        </CentralColumn>
-      </nav>
-    </>
+        </div>
+      </CentralColumn>
+    </nav>
   );
 }
