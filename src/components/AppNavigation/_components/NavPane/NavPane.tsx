@@ -3,7 +3,7 @@ import React from "react";
 import Logo from "@/components/Logo";
 import { routeNames } from "@/routeNames";
 
-import NavLink from "../NavLink";
+import NavSubSection from "../../NavSubSection";
 import SignOutButton from "../SignOutButton";
 import styles from "./NavPane.module.css";
 
@@ -16,15 +16,21 @@ export default function NavPane({ pageNav }: NavPaneProps) {
   return (
     <nav className={styles.navPane} aria-label="Main">
       <Logo showTitle={false} />
-      <p className={styles.sectionTitles}>General</p>
-      <div className={styles.linkGroup}>
-        <NavLink href={routeNames.dashboard}>Campaigns</NavLink>
-        <NavLink href={routeNames.register}>Register</NavLink>
-      </div>
+      <NavSubSection
+        title="General"
+        links={[
+          { name: "Campaigns", href: routeNames.dashboard },
+          { name: "Register", href: routeNames.register },
+        ]}
+      />
       {pageNav}
-      <div className={`${styles.linkGroup} ${styles.footerLinks}`}>
-        <NavLink href={routeNames.account}>Account</NavLink>
-        <SignOutButton />
+      <div className={styles.footerLinks}>
+        <NavSubSection
+          title="Settings"
+          links={[{ name: "Account", href: routeNames.account }]}
+        >
+          <SignOutButton />
+        </NavSubSection>
       </div>
     </nav>
   );

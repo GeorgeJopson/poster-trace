@@ -6,11 +6,17 @@ import styles from "./NavSubSection.module.css";
 type NavSubSectionProps = {
   title: string;
   links: { name: string; href: string }[];
+  // Extra items after the links, e.g. a button that isn't a link.
+  children?: React.ReactNode;
 };
 
-// Page-specific navigation shown in the navigation pane, e.g. a campaign's
-// pages under the campaign's name.
-export default function NavSubSection({ title, links }: NavSubSectionProps) {
+// A group of links in the navigation pane, under a title, e.g. a
+// campaign's pages under the campaign's name.
+export default function NavSubSection({
+  title,
+  links,
+  children,
+}: NavSubSectionProps) {
   const titleId = useId();
 
   return (
@@ -23,6 +29,9 @@ export default function NavSubSection({ title, links }: NavSubSectionProps) {
           <li key={href}>
             <NavLink href={href}>{name}</NavLink>
           </li>
+        ))}
+        {React.Children.map(children, (child) => (
+          <li>{child}</li>
         ))}
       </ul>
     </section>

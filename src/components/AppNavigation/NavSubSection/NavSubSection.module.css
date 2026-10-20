@@ -1,7 +1,6 @@
 .subSection {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 
   /*
   box-shadow: var(--inset-shadow);
@@ -26,7 +25,6 @@
   flex-direction: column;
   align-items: flex-start;
 
-  /* The 2px bar plus a 6px gap before the links. */
   padding: 0;
   margin: 0;
   list-style: none;
