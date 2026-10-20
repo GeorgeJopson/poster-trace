@@ -4,11 +4,5 @@
   border-radius: 16px;
   text-decoration: none;
   min-height: 128px;
-  background-color: transparent;
-  transition: background-color 0.2s ease;
   box-sizing: border-box;
-}
-
-.card:hover {
-  background-color: color-mix(in srgb, var(--color-green-600) 10%, transparent);
 }
