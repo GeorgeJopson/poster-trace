@@ -1,5 +1,6 @@
 .wrapper {
   min-height: 100%;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* The fixed nav bar takes no grid row */
+  grid-template-rows: 1fr auto;
 }

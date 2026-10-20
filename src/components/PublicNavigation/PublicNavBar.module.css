@@ -1,26 +1,23 @@
-.navBarWrapper {
-  padding: 4px;
-
-  position: sticky;
-  top: 0;
+.navBar {
+  position: fixed;
+  top: 10px;
   left: 0;
   right: 0;
   z-index: 100;
-
-  background-color: white;
-
-  border-bottom: 2px solid var(--color-green-800);
 }
 
-.contentWrapper {
+.content {
+  /* Let the glass extend 4px past the column edges */
+  margin: -4px;
+  padding: 4px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-elevation-low);
+
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
 }
 
 .buttonGroup {
   display: flex;
-  flex-direction: row;
   gap: 8px;
-  align-items: center;
 }

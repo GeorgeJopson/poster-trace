@@ -9,7 +9,7 @@ import { routeNames } from "@/routeNames";
 import type { CampaignWithDesigns } from "@/data/campaigns";
 
 import styles from "./CampaignCard.module.css";
-import useBoop from "@/utils/useBoop";
+import useHoverRotation from "@/utils/useHoverRotation";
 import { animated } from "@react-spring/web";
 
 const IMAGE_WIDTH = 150;
@@ -28,10 +28,10 @@ const wrapperClassByCount: Record<number, string> = {
 export default function CampaignCard({ campaign }: CampaignCardProps) {
   const posterDesigns = campaign.posterDesigns.slice(0, 3);
 
-  const [style, trigger] = useBoop({ rotation: 10 });
+  const [style, hoverHandlers] = useHoverRotation({ rotation: 10 });
 
   return (
-    <div className={styles.boopWrapper} onMouseEnter={trigger}>
+    <div className={styles.boopWrapper} {...hoverHandlers}>
       <DashedCard
         as={Link}
         href={routeNames.campaign(campaign.id)}

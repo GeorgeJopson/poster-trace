@@ -3,7 +3,7 @@
 import React, { useRef, useState, useTransition } from "react";
 
 import Button from "@/components/Button";
-import Dialog from "@/components/Dialog";
+import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
 import { getImageFileError } from "@/data/posterDesignValidation";
 import usePosterCanvas from "@/utils/usePosterCanvas";
@@ -104,7 +104,7 @@ export default function CreatePosterDesignDialog() {
   }
 
   return (
-    <Dialog
+    <CentralDialog
       open={open}
       onOpenChange={handleOpenChange}
       title="Create new poster design"
@@ -136,6 +136,6 @@ export default function CreatePosterDesignDialog() {
           </Button>
         </div>
       </form>
-    </Dialog>
+    </CentralDialog>
   );
 }

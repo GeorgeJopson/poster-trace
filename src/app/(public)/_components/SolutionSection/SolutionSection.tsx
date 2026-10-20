@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import CentralColumn from "@/components/CentralColumn";
 import React from "react";
-import List from "@/app/_components/SolutionSection/List";
+import List from "@/app/(public)/_components/SolutionSection/List";
 import PosterRow from "@/components/PosterRow";
 import { stockPosters } from "@/imageDetails";
 import styles from "./SolutionSection.module.css";

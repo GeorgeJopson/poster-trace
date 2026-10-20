@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { animated } from "@react-spring/web";
 
-import Dialog from "@/components/Dialog";
+import CentralDialog from "@/components/CentralDialog";
 import useBoop from "@/utils/useBoop";
 import EditCampaignForm from "../EditCampaignForm/EditCampaignForm";
 import styles from "./EditCampaignDialog.module.css";
@@ -22,7 +22,7 @@ export default function EditCampaignDialog({
   const [boopStyle, trigger] = useBoop({ rotation: 25 });
 
   return (
-    <Dialog
+    <CentralDialog
       open={open}
       onOpenChange={setOpen}
       title="Edit campaign"
@@ -44,6 +44,6 @@ export default function EditCampaignDialog({
       }
     >
       <EditCampaignForm campaign={campaign} onSaved={() => setOpen(false)} />
-    </Dialog>
+    </CentralDialog>
   );
 }

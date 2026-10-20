@@ -1,10 +1,10 @@
 "use client";
 
-import type { ButtonHTMLAttributes, MouseEvent } from "react";
+import type { ButtonHTMLAttributes, FocusEvent, MouseEvent } from "react";
 import { animated } from "@react-spring/web";
 
 import DashedCard from "@/components/DashedCard";
-import useBoop from "@/utils/useBoop";
+import useHoverRotation from "@/utils/useHoverRotation";
 
 import styles from "./NewItemButton.module.css";
 
@@ -19,9 +19,12 @@ export default function NewItemButton({
   label,
   className,
   onMouseEnter,
+  onMouseLeave,
+  onFocus,
+  onBlur,
   ...props
 }: NewItemButtonProps) {
-  const [style, trigger] = useBoop({ rotation: 10 });
+  const [style, hoverHandlers] = useHoverRotation({ rotation: 10 });
 
   return (
     <DashedCard
@@ -29,8 +32,20 @@ export default function NewItemButton({
       type="button"
       className={className ? `${styles.button} ${className}` : styles.button}
       onMouseEnter={(event: MouseEvent<HTMLButtonElement>) => {
-        trigger();
+        hoverHandlers.onMouseEnter();
         onMouseEnter?.(event);
+      }}
+      onMouseLeave={(event: MouseEvent<HTMLButtonElement>) => {
+        hoverHandlers.onMouseLeave();
+        onMouseLeave?.(event);
+      }}
+      onFocus={(event: FocusEvent<HTMLButtonElement>) => {
+        hoverHandlers.onFocus();
+        onFocus?.(event);
+      }}
+      onBlur={(event: FocusEvent<HTMLButtonElement>) => {
+        hoverHandlers.onBlur();
+        onBlur?.(event);
       }}
       {...props}
     >

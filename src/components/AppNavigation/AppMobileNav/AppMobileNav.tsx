@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 
+import BlurredGlass from "@/components/BlurredGlass";
 import CentralColumn from "@/components/CentralColumn";
-import Dialog from "@/components/Dialog";
-import Logo from "@/components/Logo";
+import IconButton from "@/components/IconButton";
+import SlideDownDialog from "@/components/SlideDownDialog";
 import { icons } from "@/imageDetails";
 
 import NavPane from "../_components/NavPane";
+import MobileNavBar from "./_components/MobileNavBar";
 import styles from "./AppMobileNav.module.css";
 
 type AppMobileNavProps = {
@@ -18,7 +19,8 @@ type AppMobileNavProps = {
 
 // A bar with the logo and a menu button that opens the navigation pane in a
 // drawer from the top, shown only at the breakpoint where AppDesktopNav is
-// hidden. No padding around the pane, as the dialog adds its own.
+// hidden. The drawer repeats the bar with a close button in place of the menu
+// button. No padding around the pane, as the dialog adds its own.
 export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
   const [open, setOpen] = useState(false);
 
@@ -31,31 +33,26 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
   }
 
   return (
-    <div className={styles.mobileNav}>
+    <BlurredGlass className={styles.mobileNav}>
       <CentralColumn>
-        <div className={styles.contentWrapper}>
-          <Logo showTitle={false} />
-          <Dialog
-            title="Navigation"
-            hideTitle
-            variant="drawer"
-            open={open}
-            onOpenChange={setOpen}
-            trigger={
-              <button
-                className={styles.menuButton}
-                aria-label="Open navigation"
-              >
-                <Image width={24} height={24} src={icons.menu.src} alt="" />
-              </button>
-            }
-          >
-            <div onClick={handleClick}>
-              <NavPane pageNav={pageNav} />
-            </div>
-          </Dialog>
-        </div>
+        <MobileNavBar
+          button={
+            <SlideDownDialog
+              title="Navigation"
+              open={open}
+              onOpenChange={setOpen}
+              header={MobileNavBar}
+              trigger={
+                <IconButton label="Open navigation" iconSrc={icons.menu.src} />
+              }
+            >
+              <div onClick={handleClick}>
+                <NavPane pageNav={pageNav} showLogo={false} />
+              </div>
+            </SlideDownDialog>
+          }
+        />
       </CentralColumn>
-    </div>
+    </BlurredGlass>
   );
 }

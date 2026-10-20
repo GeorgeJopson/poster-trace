@@ -1,4 +1,4 @@
-import React from "react";
+import BlurredGlass from "@/components/BlurredGlass";
 import Logo from "@/components/Logo";
 import Button, { ButtonVariant } from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
@@ -26,23 +26,23 @@ const targets: PublicNavBarTarget[] = [
 
 export default function PublicNavBar() {
   return (
-    <nav className={styles.navBarWrapper} aria-label="Primary">
+    <nav className={styles.navBar} aria-label="Primary">
       <CentralColumn>
-        <div className={styles.contentWrapper}>
+        <BlurredGlass className={styles.content}>
           <Logo />
           <div className={styles.buttonGroup}>
             {targets.map(({ targetUrl, name, buttonStyle }) => (
               <Button
-                key={targetUrl + name}
+                key={targetUrl}
                 variant={buttonStyle}
                 href={targetUrl}
-                fontSize={`${20 / 16}rem`}
+                fontSize="1rem"
               >
                 {name}
               </Button>
             ))}
           </div>
-        </div>
+        </BlurredGlass>
       </CentralColumn>
     </nav>
   );

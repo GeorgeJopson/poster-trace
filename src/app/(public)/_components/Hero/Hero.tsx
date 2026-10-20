@@ -1,8 +1,9 @@
 import React from "react";
 import ContentGroup from "@/components/ContentGroup";
 import CentralColumn from "@/components/CentralColumn";
-import PosterFan from "@/app/_components/Hero/PosterFan";
-import HeaderContent from "@/app/_components/Hero/HeaderContent";
+import PosterFan from "@/app/(public)/_components/Hero/PosterFan";
+import HeaderContent from "@/app/(public)/_components/Hero/HeaderContent";
+import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 import PosterRow from "@/components/PosterRow";
 import { stockPosters } from "@/imageDetails";
 import styles from "./Hero.module.css";
@@ -10,6 +11,8 @@ import styles from "./Hero.module.css";
 function Hero() {
   return (
     <ContentGroup as="section" aria-label="Overview" className={styles.wrapper}>
+      {/* Inside the yellow section, so the yellow runs up behind the nav */}
+      <PublicNavBarSpacer />
       <CentralColumn>
         <div className={styles.contentWrapper}>
           <header className={styles.headerSection}>
