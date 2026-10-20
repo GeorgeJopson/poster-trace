@@ -2,31 +2,6 @@
   display: none;
 }
 
-.contentWrapper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.menuButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background-color: transparent;
-  cursor: pointer;
-  transition: background-color 150ms ease;
-}
-
-.menuButton:hover {
-  background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
-}
-
 /* Matches the query in AppDesktopNav, so no width shows both navigations or
    neither. */
 @media (--phone-and-down) {

@@ -1,0 +1,19 @@
+.iconButton {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.iconButton:hover {
+  background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
+}

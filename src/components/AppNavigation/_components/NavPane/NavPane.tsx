@@ -10,12 +10,14 @@ import styles from "./NavPane.module.css";
 type NavPaneProps = {
   // Page-specific navigation, shown between the primary and footer links.
   pageNav?: React.ReactNode;
+  // Hide when the logo is already shown nearby, as in the mobile drawer.
+  showLogo?: boolean;
 };
 
-export default function NavPane({ pageNav }: NavPaneProps) {
+export default function NavPane({ pageNav, showLogo = true }: NavPaneProps) {
   return (
     <nav className={styles.navPane} aria-label="Main">
-      <Logo showTitle={false} />
+      {showLogo && <Logo showTitle={false} />}
       <NavSubSection
         title="General"
         links={[

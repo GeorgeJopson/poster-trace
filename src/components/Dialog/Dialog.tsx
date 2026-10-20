@@ -2,10 +2,10 @@
 
 import BlurredGlass from "@/components/BlurredGlass";
 import CentralColumn from "@/components/CentralColumn";
+import IconButton from "@/components/IconButton";
 import { icons } from "@/imageDetails";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Image from "next/image";
 import type { ReactNode } from "react";
 
 import styles from "./Dialog.module.css";
@@ -13,8 +13,10 @@ import styles from "./Dialog.module.css";
 interface DialogProps {
   trigger: ReactNode;
   title: string;
-  // Hides the title visually, keeping it for screen readers.
-  hideTitle?: boolean;
+  // Replaces the default header of title and close button with a custom
+  // layout around the close button. The title is then kept only for screen
+  // readers.
+  renderHeader?: (closeButton: ReactNode) => ReactNode;
   children: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -26,7 +28,7 @@ interface DialogProps {
 export default function Dialog({
   trigger,
   title,
-  hideTitle = false,
+  renderHeader,
   children,
   open,
   onOpenChange,
@@ -34,20 +36,18 @@ export default function Dialog({
 }: DialogProps) {
   const closeButton = (
     <RadixDialog.Close asChild>
-      <button className={styles.iconButton} aria-label="Close">
-        <Image width={22} height={22} src={icons.x.src} alt={icons.x.alt} />
-      </button>
+      <IconButton label="Close" iconSrc={icons.x.src} iconSize={22} />
     </RadixDialog.Close>
   );
 
   const body = (
     <>
-      {hideTitle ? (
+      {renderHeader ? (
         <>
           <VisuallyHidden asChild>
             <RadixDialog.Title>{title}</RadixDialog.Title>
           </VisuallyHidden>
-          <div className={styles.floatingClose}>{closeButton}</div>
+          {renderHeader(closeButton)}
         </>
       ) : (
         <div className={styles.dialogHeader}>
@@ -74,7 +74,9 @@ export default function Dialog({
               className={styles.drawerGlass}
               backgroundOpacity={0.8}
             >
-              <CentralColumn>{body}</CentralColumn>
+              <CentralColumn>
+                <div className={styles.drawerBody}>{body}</div>
+              </CentralColumn>
             </BlurredGlass>
           ) : (
             body
