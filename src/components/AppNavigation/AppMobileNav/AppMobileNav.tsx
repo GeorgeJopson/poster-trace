@@ -41,9 +41,7 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
               title="Navigation"
               open={open}
               onOpenChange={setOpen}
-              renderHeader={(closeButton) => (
-                <MobileNavBar button={closeButton} />
-              )}
+              header={MobileNavBar}
               trigger={
                 <IconButton label="Open navigation" iconSrc={icons.menu.src} />
               }

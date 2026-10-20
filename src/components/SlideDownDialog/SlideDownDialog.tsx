@@ -8,22 +8,27 @@ import BlurredGlass from "@/components/BlurredGlass";
 import CentralColumn from "@/components/CentralColumn";
 import * as RadixDialog from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 import styles from "./SlideDownDialog.module.css";
+
+export interface SlideDownDialogHeaderProps {
+  // The dialog's close button.
+  button: ReactNode;
+}
 
 interface SlideDownDialogProps extends BaseDialogProps {
   // Kept only for screen readers.
   title: string;
   // Lays out the close button above the content.
-  renderHeader: (closeButton: ReactNode) => ReactNode;
+  header: ComponentType<SlideDownDialogHeaderProps>;
 }
 
 // A drawer that slides down from the top edge at full width on blurred glass,
 // with its content in a CentralColumn to line up with the page.
 export default function SlideDownDialog({
   title,
-  renderHeader,
+  header: Header,
   children,
   ...props
 }: SlideDownDialogProps) {
@@ -35,7 +40,7 @@ export default function SlideDownDialog({
             <VisuallyHidden asChild>
               <RadixDialog.Title>{title}</RadixDialog.Title>
             </VisuallyHidden>
-            {renderHeader(<DialogCloseButton />)}
+            <Header button={<DialogCloseButton />} />
             {children}
           </div>
         </CentralColumn>
