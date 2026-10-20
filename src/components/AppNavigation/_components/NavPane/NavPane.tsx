@@ -16,6 +16,7 @@ export default function NavPane({ pageNav }: NavPaneProps) {
   return (
     <nav className={styles.navPane} aria-label="Main">
       <Logo showTitle={false} />
+      <p className={styles.sectionTitles}>General</p>
       <div className={styles.linkGroup}>
         <NavLink href={routeNames.dashboard}>Campaigns</NavLink>
         <NavLink href={routeNames.register}>Register</NavLink>

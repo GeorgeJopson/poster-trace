@@ -16,3 +16,9 @@
 .footerLinks {
   margin-top: auto;
 }
+
+.sectionTitles{
+  font-family: var(--font-nunito);
+  font-size: 1rem;
+  font-weight: 300;
+}

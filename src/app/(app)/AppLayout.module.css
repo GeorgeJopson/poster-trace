@@ -23,7 +23,7 @@
   align-self: start;
   height: 100dvh;
   overflow-y: auto;
-  box-shadow: var(--shadow-elevation-medium);
+  box-shadow: var(--shadow-elevation-low);
 }
 
 /* A bar stuck to the top, above the content scrolling beneath it. */

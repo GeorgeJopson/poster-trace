@@ -3,15 +3,15 @@
   flex-direction: column;
   gap: 4px;
 
-  padding: 8px;
-  border-radius: 6px;
+  /*
   box-shadow: var(--inset-shadow);
+  */
 }
 
 .title {
   font-family: var(--font-nunito), sans-serif;
-  font-size: var(--font-size-body);
-  font-weight: normal;
+  font-weight: 300;
+  font-size: 1rem;
   line-height: 1.4;
   color: var(--color-green-900);
   /* Wrap long campaign names rather than overflowing the pane. */
@@ -27,19 +27,7 @@
   align-items: flex-start;
 
   /* The 2px bar plus a 6px gap before the links. */
-  padding: 0 0 0 8px;
+  padding: 0;
   margin: 0;
   list-style: none;
-}
-
-/* A bar down the left of the links, inset from the top and bottom. */
-.linkList::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 10%;
-  bottom: 10%;
-  width: 2px;
-  border-radius: 4px;
-  background-color: var(--color-green-800);
 }
