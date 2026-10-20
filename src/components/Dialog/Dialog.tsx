@@ -1,5 +1,6 @@
 "use client";
 
+import BlurredGlass from "@/components/BlurredGlass";
 import CentralColumn from "@/components/CentralColumn";
 import { icons } from "@/imageDetails";
 import * as RadixDialog from "@radix-ui/react-dialog";
@@ -17,8 +18,8 @@ interface DialogProps {
   children: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  // "drawer" anchors the dialog to the top edge at full width, with its content
-  // in a CentralColumn to line up with the page.
+  // "drawer" anchors the dialog to the top edge at full width on blurred glass,
+  // with its content in a CentralColumn to line up with the page.
   variant?: "centered" | "drawer";
 }
 
@@ -68,7 +69,16 @@ export default function Dialog({
         <RadixDialog.Content
           className={`${styles.dialogContent} ${variant === "drawer" ? styles.drawer : ""}`}
         >
-          {variant === "drawer" ? <CentralColumn>{body}</CentralColumn> : body}
+          {variant === "drawer" ? (
+            <BlurredGlass
+              className={styles.drawerGlass}
+              backgroundOpacity={0.8}
+            >
+              <CentralColumn>{body}</CentralColumn>
+            </BlurredGlass>
+          ) : (
+            body
+          )}
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>
