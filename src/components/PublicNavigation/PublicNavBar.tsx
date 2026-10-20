@@ -1,3 +1,4 @@
+import BlurredGlass from "@/components/BlurredGlass";
 import Logo from "@/components/Logo";
 import Button, { ButtonVariant } from "@/components/Button";
 import CentralColumn from "@/components/CentralColumn";
@@ -27,8 +28,7 @@ export default function PublicNavBar() {
   return (
     <nav className={styles.navBar} aria-label="Primary">
       <CentralColumn>
-        <div className={styles.content}>
-          <div className={styles.background} />
+        <BlurredGlass className={styles.content}>
           <Logo />
           <div className={styles.buttonGroup}>
             {targets.map(({ targetUrl, name, buttonStyle }) => (
@@ -42,7 +42,7 @@ export default function PublicNavBar() {
               </Button>
             ))}
           </div>
-        </div>
+        </BlurredGlass>
       </CentralColumn>
     </nav>
   );

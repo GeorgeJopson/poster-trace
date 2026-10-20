@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
+import BlurredGlass from "@/components/BlurredGlass";
 import CentralColumn from "@/components/CentralColumn";
 import Dialog from "@/components/Dialog";
 import Logo from "@/components/Logo";
@@ -31,7 +32,7 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
   }
 
   return (
-    <div className={styles.mobileNav}>
+    <BlurredGlass className={styles.mobileNav}>
       <CentralColumn>
         <div className={styles.contentWrapper}>
           <Logo showTitle={false} />
@@ -56,6 +57,6 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
           </Dialog>
         </div>
       </CentralColumn>
-    </div>
+    </BlurredGlass>
   );
 }

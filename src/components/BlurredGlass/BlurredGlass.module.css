@@ -1,0 +1,17 @@
+.wrapper {
+  position: relative;
+  overflow: clip;
+  /* Keeps the glass's negative z-index inside this element */
+  isolation: isolate;
+}
+
+.glass {
+  /* Extends well past the clipped area so the blur has no soft edges */
+  --blur-bleed: 36px;
+
+  position: absolute;
+  inset: calc(-1 * var(--blur-bleed)) 0;
+  z-index: -1;
+  background-color: color-mix(in oklab, white 70%, transparent);
+  backdrop-filter: blur(12px);
+}
