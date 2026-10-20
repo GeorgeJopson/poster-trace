@@ -66,7 +66,7 @@
   border-radius: 0 0 8px 8px;
   /* CentralColumn adds the side padding. The top matches the page's mobile
      navigation bar, so the content lines up with it. */
-  padding: 4px 0 16px;
+  padding: 16px 0;
   overflow-y: auto;
 
   animation: drawerShow 250ms cubic-bezier(0.16, 1, 0.3, 1);
