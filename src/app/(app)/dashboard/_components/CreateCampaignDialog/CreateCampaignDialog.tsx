@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/Button";
-import Dialog from "@/components/Dialog";
+import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
 import {
   DEFAULT_TARGET,
@@ -14,7 +14,7 @@ import styles from "./CreateCampaignDialog.module.css";
 
 export default function CreateCampaignDialog() {
   return (
-    <Dialog
+    <CentralDialog
       title="Create new campaign"
       trigger={
         <NewItemButton
@@ -59,6 +59,6 @@ export default function CreateCampaignDialog() {
           </Button>
         </div>
       </form>
-    </Dialog>
+    </CentralDialog>
   );
 }

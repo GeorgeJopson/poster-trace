@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 
 import Button from "@/components/Button";
-import Dialog from "@/components/Dialog";
+import CentralDialog from "@/components/CentralDialog";
 import { SubmitButton, TextInput } from "@/components/Form";
 
 import { deleteAccount } from "./actions";
@@ -13,7 +13,7 @@ export default function DeleteAccountDialog() {
   const [error, formAction, isPending] = useActionState(deleteAccount, null);
 
   return (
-    <Dialog
+    <CentralDialog
       title="Are you sure?"
       trigger={
         <Button variant="danger" fontSize="1.25rem">
@@ -49,6 +49,6 @@ export default function DeleteAccountDialog() {
           Delete Account
         </SubmitButton>
       </form>
-    </Dialog>
+    </CentralDialog>
   );
 }

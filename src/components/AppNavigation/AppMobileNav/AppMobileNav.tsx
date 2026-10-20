@@ -4,8 +4,8 @@ import React, { useState } from "react";
 
 import BlurredGlass from "@/components/BlurredGlass";
 import CentralColumn from "@/components/CentralColumn";
-import Dialog from "@/components/Dialog";
 import IconButton from "@/components/IconButton";
+import SlideDownDialog from "@/components/SlideDownDialog";
 import { icons } from "@/imageDetails";
 
 import NavPane from "../_components/NavPane";
@@ -37,9 +37,8 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
       <CentralColumn>
         <MobileNavBar
           button={
-            <Dialog
+            <SlideDownDialog
               title="Navigation"
-              variant="drawer"
               open={open}
               onOpenChange={setOpen}
               renderHeader={(closeButton) => (
@@ -52,7 +51,7 @@ export default function AppMobileNav({ pageNav }: AppMobileNavProps) {
               <div onClick={handleClick}>
                 <NavPane pageNav={pageNav} showLogo={false} />
               </div>
-            </Dialog>
+            </SlideDownDialog>
           }
         />
       </CentralColumn>
