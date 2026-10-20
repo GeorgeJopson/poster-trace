@@ -1,4 +1,5 @@
 import React, { useId } from "react";
+import Link from "next/link";
 
 import NavLink from "../_components/NavLink";
 import styles from "./NavSubSection.module.css";
@@ -18,11 +19,19 @@ export default function NavSubSection({
   children,
 }: NavSubSectionProps) {
   const titleId = useId();
+  const firstHref = links[0]?.href;
 
   return (
     <section className={styles.subSection} aria-labelledby={titleId}>
       <h2 className={styles.title} id={titleId}>
-        {title}
+        {/* A shortcut to the first link, styled as plain title text. */}
+        {firstHref ? (
+          <Link className={styles.titleLink} href={firstHref}>
+            {title}
+          </Link>
+        ) : (
+          title
+        )}
       </h2>
       <ul className={styles.linkList}>
         {links.map(({ name, href }) => (
