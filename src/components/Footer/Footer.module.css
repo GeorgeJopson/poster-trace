@@ -1,8 +1,8 @@
 .linkWrapper {
   display: flex;
   flex-direction: column;
-  padding: 12px 0;
-  gap: 8px;
+  padding: 20px 0 16px;
+  gap: 4px;
 }
 
 .linkRow {
@@ -18,4 +18,9 @@
   font-size: var(--font-size-body);
   color: var(--color-green-950);
   text-decoration: none;
+}
+
+.copyright {
+  font-size: var(--font-size-body);
+  color: var(--color-green-950);
 }
