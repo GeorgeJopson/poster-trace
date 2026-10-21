@@ -31,7 +31,8 @@ const socialSignOnMethods: SocialSignOnMethod[] = [
       return authClient.signIn.social({
         provider: "google",
         callbackURL: dashboardURL,
-        errorCallbackURL: new URL("/error", window.location.origin).href,
+        errorCallbackURL: new URL(routeNames.error, window.location.origin)
+          .href,
         newUserCallbackURL: dashboardURL,
         fetchOptions: {
           onError: (context) => onError(context.error.message),
