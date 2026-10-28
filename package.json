@@ -14,7 +14,8 @@
     "db:reset": "netlify database reset && netlify database migrations apply",
     "prettier": "prettier --write .",
     "email:dev": "email dev --dir src/email/templates",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test": "vitest run"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.4",
@@ -31,7 +32,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-email": "6.11.1",
-    "resend": "^6.33.0"
+    "resend": "^6.33.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@csstools/postcss-global-data": "^4.0.0",
@@ -51,7 +53,9 @@
     "postcss-custom-media": "^12.0.1",
     "prettier": "^3.9.6",
     "tsx": "^4.23.13",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^5.0.5"
   },
   "allowScripts": {
     "unrs-resolver@1.12.2": true,
