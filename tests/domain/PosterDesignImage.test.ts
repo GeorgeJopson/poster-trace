@@ -24,8 +24,15 @@ describe("PosterDesignImageRules", () => {
       { type: "application/octet-stream", size: 0 },
       "A poster image is required",
     ],
-    [{ type: "application/pdf", size: 10 }, "Please choose an image file."],
-    [{ type: "", size: 10 }, "Please choose an image file."],
+    [
+      { type: "application/pdf", size: 10 },
+      "Please choose a PNG, JPEG, WebP or GIF image.",
+    ],
+    [{ type: "", size: 10 }, "Please choose a PNG, JPEG, WebP or GIF image."],
+    [
+      { type: "image/svg+xml", size: 10 },
+      "Please choose a PNG, JPEG, WebP or GIF image.",
+    ],
     [{ type: "image/jpeg", size: MAX + 1 }, "The image must be 5 MB or less."],
   ])("rejects %j", (file, message) => {
     expect(() => PosterDesignImageRules.assertValid(file)).toThrow(

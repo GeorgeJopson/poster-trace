@@ -1,5 +1,6 @@
 import React from "react";
 
+import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 
 import styles from "./PosterDesignFields.module.css";
@@ -83,7 +84,7 @@ export default function PosterDesignFields({
         id="posterImage"
         name="image"
         type="file"
-        accept="image/*"
+        accept={PosterDesignImageRules.ALLOWED_TYPES.join(",")}
         required
         onChange={onFileChange}
       />
