@@ -93,7 +93,7 @@ export const rateLimit = pgTable("rate_limit", {
 });
 
 // When each user was last sent a password reset email, to send at most one per
-// cooldown (see src/auth/auth.ts).
+// cooldown (see infrastructure/auth/betterAuth.ts).
 export const passwordResetEmail = pgTable("password_reset_email", {
   userId: text()
     .primaryKey()

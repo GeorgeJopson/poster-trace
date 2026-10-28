@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 
-import { authClient } from "@/auth/auth-client";
-import { MIN_PASSWORD_LENGTH } from "@/auth/passwordRules";
+import { authClient } from "@infrastructure/auth/authClient";
+import { MIN_PASSWORD_LENGTH } from "@infrastructure/auth/passwordRules";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";

@@ -7,7 +7,7 @@ export const MIN_PASSWORD_LENGTH = 8;
 export const RESET_EMAIL_INTERVAL_SECONDS = 60;
 
 // At most one password reset email per account in this time (see
-// src/auth/auth.ts). A little shorter than the form's wait, so a retry as soon
+// infrastructure/auth/betterAuth.ts). A little shorter than the form's wait, so a retry as soon
 // as the countdown ends isn't silently skipped because of timer or clock
 // differences between the browser and Netlify Function instances.
 export const RESET_EMAIL_COOLDOWN_SECONDS = RESET_EMAIL_INTERVAL_SECONDS - 5;

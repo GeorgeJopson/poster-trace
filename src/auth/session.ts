@@ -4,7 +4,7 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { auth } from "@/auth/auth";
+import { auth } from "@infrastructure/auth/betterAuth";
 import { routeNames } from "@/routeNames";
 
 // Cached so every layout, page and action in a request shares one lookup.

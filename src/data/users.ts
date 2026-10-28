@@ -3,11 +3,11 @@ import "server-only";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
-import db from "@/db";
-import { posterCampaign, posterDesign } from "@/db/schema";
-import { auth } from "@/auth/auth";
+import db from "@infrastructure/db/client";
+import { posterCampaign, posterDesign } from "@infrastructure/db/schema";
+import { auth } from "@infrastructure/auth/betterAuth";
 import { requireUserId } from "@/auth/session";
-import { deleteImage } from "@/imageStorage";
+import { deleteImage } from "@infrastructure/storage";
 
 export async function getCurrentUser() {
   const userId = await requireUserId();

@@ -10,7 +10,7 @@ const from =
     ? undefined
     : "Poster Trace <onboarding@resend.dev>");
 
-// Emails are sent after the response (see src/auth/auth.ts), where errors are
+// Emails are sent after the response (see infrastructure/auth/betterAuth.ts), where errors are
 // only logged. Callers check this first so missing config fails the request
 // instead.
 export function getEmailConfig() {

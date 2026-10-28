@@ -4,9 +4,9 @@ import { APIError, createAuthMiddleware } from "better-auth/api";
 import { oAuthProxy } from "better-auth/plugins";
 import { lt } from "drizzle-orm";
 import { after } from "next/server";
-import db from "@/db";
-import * as schema from "@/db/schema";
-import { getEmailConfig } from "@/email/config";
+import db from "@infrastructure/db/client";
+import * as schema from "@infrastructure/db/schema";
+import { getEmailConfig } from "@infrastructure/email/emailConfig";
 import { RESET_EMAIL_COOLDOWN_SECONDS } from "./passwordRules";
 
 // BETTER_AUTH_URL is the production URL in every Netlify context, because
@@ -55,7 +55,7 @@ export const auth = betterAuth({
 
       // Loaded here so Resend and the templates stay out of every other
       // request that imports auth.
-      const { sendPasswordResetEmail } = await import("@/email");
+      const { sendPasswordResetEmail } = await import("@infrastructure/email");
       await sendPasswordResetEmail({ to: user.email, name: user.name, url });
     },
     // A reset signs the account out everywhere, in case the old password was

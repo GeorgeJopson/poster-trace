@@ -1,6 +1,6 @@
 import { defineRelations } from "drizzle-orm";
 
-import * as schema from "@/db/schema";
+import * as schema from "@infrastructure/db/schema";
 
 export const relations = defineRelations(schema, (r) => ({
   user: {

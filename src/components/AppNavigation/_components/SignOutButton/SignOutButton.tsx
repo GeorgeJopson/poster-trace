@@ -3,7 +3,7 @@
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { authClient } from "@/auth/auth-client";
+import { authClient } from "@infrastructure/auth/authClient";
 import { routeNames } from "@/routeNames";
 
 import styles from "./SignOutButton.module.css";

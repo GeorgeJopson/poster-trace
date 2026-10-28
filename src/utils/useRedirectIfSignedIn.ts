@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { authClient } from "@/auth/auth-client";
+import { authClient } from "@infrastructure/auth/authClient";
 
 // Sends visitors who already have a session (including one just created on
 // the current page) straight to `route`.

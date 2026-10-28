@@ -1,5 +1,5 @@
 import { getMyPosterDesignImageKey } from "@/data/posterDesigns";
-import { getImage } from "@/imageStorage";
+import { getImage } from "@infrastructure/storage";
 
 // Serves a poster design's image to the user who owns it. Blobs have no
 // access control of their own, so this route is what keeps images private.

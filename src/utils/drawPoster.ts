@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 
 import { DEFAULT_TARGET } from "@/data/campaignValidation";
-import type { PosterDesign } from "@/db/schema";
+import type { PosterDesign } from "@infrastructure/db/schema";
 
 /** Where the QR code goes on the poster; see drawPoster for the units. */
 export type QrPlacement = Pick<

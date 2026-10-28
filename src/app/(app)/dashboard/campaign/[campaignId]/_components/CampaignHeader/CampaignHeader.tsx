@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { PosterCampaign } from "@/db/schema";
+import type { PosterCampaign } from "@infrastructure/db/schema";
 
 import EditCampaignDialog from "../EditCampaignDialog/EditCampaignDialog";
 import styles from "./CampaignHeader.module.css";

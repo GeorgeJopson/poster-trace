@@ -1,6 +1,6 @@
 import "server-only";
 import { Resend } from "resend";
-import { getEmailConfig } from "./config";
+import { getEmailConfig } from "./emailConfig";
 import PasswordResetEmail from "./templates/PasswordResetEmail";
 
 // The only module that talks to Resend. Import it lazily, so it's only loaded

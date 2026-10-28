@@ -13,7 +13,7 @@
     "seed": "tsx scripts/seed.ts",
     "db:reset": "netlify database reset && netlify database migrations apply",
     "prettier": "prettier --write .",
-    "email:dev": "email dev --dir src/email/templates",
+    "email:dev": "email dev --dir infrastructure/email/templates",
     "test:e2e": "playwright test",
     "test": "vitest run"
   },

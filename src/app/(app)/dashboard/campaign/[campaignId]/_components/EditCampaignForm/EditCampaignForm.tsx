@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 
 import Button from "@/components/Button";
-import type { PosterCampaign } from "@/db/schema";
+import type { PosterCampaign } from "@infrastructure/db/schema";
 import { getTargetError, MAX_TARGET_LENGTH } from "@/data/campaignValidation";
 
 import { updateCampaign } from "../../actions";

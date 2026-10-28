@@ -14,9 +14,9 @@ import {
   posterDesign,
   scan,
   user,
-} from "@/db/schema";
-import { deleteImage, saveImage } from "@/imageStorage";
-import { connectToLocalImageStorage } from "@/imageStorage/localDev";
+} from "@infrastructure/db/schema";
+import { deleteImage, saveImage } from "@infrastructure/storage";
+import { connectToLocalImageStorage } from "@infrastructure/storage/localDev";
 
 // Seeds the local database started by `netlify dev`, the same one the app
 // uses there. Never point this at a Netlify-hosted database: it deletes all

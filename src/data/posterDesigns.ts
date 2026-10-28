@@ -2,10 +2,14 @@ import "server-only";
 
 import { and, eq } from "drizzle-orm";
 
-import db from "@/db";
-import { posterCampaign, posterDesign, type PosterDesign } from "@/db/schema";
+import db from "@infrastructure/db/client";
+import {
+  posterCampaign,
+  posterDesign,
+  type PosterDesign,
+} from "@infrastructure/db/schema";
 import { requireUserId } from "@/auth/session";
-import { deleteImage, saveImage } from "@/imageStorage";
+import { deleteImage, saveImage } from "@infrastructure/storage";
 import {
   type PosterDesignFields,
   validatePosterDesignFields,

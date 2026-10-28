@@ -3,8 +3,8 @@ import "server-only";
 import { cache } from "react";
 import { and, eq } from "drizzle-orm";
 
-import db from "@/db";
-import { posterCampaign } from "@/db/schema";
+import db from "@infrastructure/db/client";
+import { posterCampaign } from "@infrastructure/db/schema";
 import { requireUserId } from "@/auth/session";
 import {
   type CampaignFields,

@@ -1,7 +1,7 @@
 import { getDatabase } from "@netlify/database";
 import { drizzle } from "drizzle-orm/netlify-db";
 
-import { relations } from "@/db/relations";
+import { relations } from "@infrastructure/db/relations";
 
 // Connects to Netlify Database using NETLIFY_DB_URL, which Netlify sets in
 // builds and functions, and `netlify dev` sets locally. Each deploy preview
@@ -35,7 +35,7 @@ function getDb() {
 }
 
 // Schema metadata (`db._`) that needs no connection. Better Auth's adapter
-// reads it as soon as src/lib/auth.ts is imported.
+// reads it as soon as infrastructure/auth/betterAuth.ts is imported.
 const metadata = drizzle.mock({ relations })._;
 
 // getDatabase() throws if NETLIFY_DB_URL is missing, and `next build` imports
