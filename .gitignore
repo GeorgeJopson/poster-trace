@@ -50,3 +50,9 @@ TODO.md
 
 # created by netlify dev
 /deno.lock
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
