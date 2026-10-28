@@ -1,12 +1,12 @@
 import { defineRelations } from "drizzle-orm";
 
-import * as schema from "@infrastructure/db/schema";
+import * as schema from "./schema";
 
 export const relations = defineRelations(schema, (r) => ({
   user: {
     sessions: r.many.session(),
     accounts: r.many.account(),
-    posterCampaigns: r.many.posterCampaign(),
+    campaigns: r.many.campaign(),
   },
   session: {
     user: r.one.user({
@@ -22,18 +22,18 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
   },
-  posterCampaign: {
+  campaign: {
     user: r.one.user({
-      from: r.posterCampaign.userId,
+      from: r.campaign.userId,
       to: r.user.id,
       optional: false,
     }),
     posterDesigns: r.many.posterDesign(),
   },
   posterDesign: {
-    posterCampaign: r.one.posterCampaign({
-      from: r.posterDesign.posterCampaignId,
-      to: r.posterCampaign.id,
+    campaign: r.one.campaign({
+      from: r.posterDesign.campaignId,
+      to: r.campaign.id,
       optional: false,
     }),
     posters: r.many.poster(),

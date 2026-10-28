@@ -1,7 +1,7 @@
 import { getDatabase } from "@netlify/database";
 import { drizzle } from "drizzle-orm/netlify-db";
 
-import { relations } from "@infrastructure/db/relations";
+import { relations } from "./relations";
 
 // Connects to Netlify Database using NETLIFY_DB_URL, which Netlify sets in
 // builds and functions, and `netlify dev` sets locally. Each deploy preview
@@ -24,11 +24,11 @@ function createDb() {
   });
 }
 
-type Db = ReturnType<typeof createDb>;
+export type Db = ReturnType<typeof createDb>;
 
 const globalForDb = global as unknown as { db?: Db };
 
-function getDb() {
+function connectDb() {
   // Reuse one client across hot reloads in development.
   globalForDb.db ??= createDb();
   return globalForDb.db;
@@ -43,9 +43,15 @@ const metadata = drizzle.mock({ relations })._;
 const db = new Proxy({} as Db, {
   get(_target, property) {
     if (property === "_" && !globalForDb.db) return metadata;
-    const value = Reflect.get(getDb(), property);
-    return typeof value === "function" ? value.bind(getDb()) : value;
+    const value = Reflect.get(connectDb(), property);
+    return typeof value === "function" ? value.bind(connectDb()) : value;
   },
 });
 
-export default db;
+/**
+ * The database. Calling this never connects: it returns a client that
+ * connects on first use, so it's safe at import time and during `next build`.
+ */
+export function getDb(): Db {
+  return db;
+}

@@ -8,6 +8,7 @@ import {
   snakeCase,
   text,
   timestamp,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 // snakeCase.table maps camelCase fields to snake_case columns, so
@@ -93,7 +94,7 @@ export const rateLimit = pgTable("rate_limit", {
 });
 
 // When each user was last sent a password reset email, to send at most one per
-// cooldown (see infrastructure/auth/betterAuth.ts).
+// cooldown (see infrastructure/email/resetEmailCooldown.ts).
 export const passwordResetEmail = pgTable("password_reset_email", {
   userId: text()
     .primaryKey()
@@ -104,15 +105,21 @@ export const passwordResetEmail = pgTable("password_reset_email", {
 // Poster tables. Deleting a campaign deletes its designs, their posters and
 // those posters' scans.
 
-export const posterCampaign = pgTable(
-  "poster_campaign",
+// Campaigns and designs are keyed by UUIDs the domain generates, so their ids
+// have no default: an insert without one fails rather than getting an id the
+// domain doesn't know about. Lists are ordered by created_at, as random UUIDs
+// don't sort by age.
+
+export const campaign = pgTable(
+  "campaign",
   {
-    id: serial().primaryKey(),
+    id: uuid().primaryKey(),
     name: text().notNull(),
     target: text().notNull(),
     userId: text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    createdAt: timestamp().notNull().defaultNow(),
   },
   (table) => [index().on(table.userId)],
 );
@@ -120,19 +127,24 @@ export const posterCampaign = pgTable(
 export const posterDesign = pgTable(
   "poster_design",
   {
-    id: serial().primaryKey(),
-    // Key of the design image in imageStorage.
+    id: uuid().primaryKey(),
+    // Key of the design image in the blob store.
     designImageKey: text().notNull(),
-    qrXPosition: doublePrecision().notNull(),
-    qrYPosition: doublePrecision().notNull(),
-    qrSize: doublePrecision().notNull(),
-    qrRotation: doublePrecision().notNull(),
-    posterCampaignId: integer()
+    // Where the QR code goes on the image (see the domain's QrPlacement).
+    x: doublePrecision().notNull(),
+    y: doublePrecision().notNull(),
+    size: doublePrecision().notNull(),
+    rotation: doublePrecision().notNull(),
+    campaignId: uuid()
       .notNull()
-      .references(() => posterCampaign.id, { onDelete: "cascade" }),
+      .references(() => campaign.id, { onDelete: "cascade" }),
+    createdAt: timestamp().notNull().defaultNow(),
   },
-  (table) => [index().on(table.posterCampaignId)],
+  (table) => [index().on(table.campaignId)],
 );
+
+// Posters and scans aren't modelled in the domain yet, so they keep
+// database-assigned ids.
 
 export const poster = pgTable(
   "poster",
@@ -141,7 +153,7 @@ export const poster = pgTable(
     activated: boolean().notNull(),
     latitude: doublePrecision().notNull(),
     longitude: doublePrecision().notNull(),
-    posterDesignId: integer()
+    posterDesignId: uuid()
       .notNull()
       .references(() => posterDesign.id, { onDelete: "cascade" }),
   },
@@ -159,6 +171,3 @@ export const scan = pgTable(
   },
   (table) => [index().on(table.posterId)],
 );
-
-export type PosterCampaign = typeof posterCampaign.$inferSelect;
-export type PosterDesign = typeof posterDesign.$inferSelect;

@@ -7,16 +7,23 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { hashPassword } from "better-auth/crypto";
 
+import { CampaignId } from "@domain/campaign/CampaignId";
+import { CampaignTarget } from "@domain/campaign/CampaignTarget";
+import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import {
+  QrPlacement,
+  type QrPlacementFields,
+} from "@domain/campaign/design/QrPlacement";
 import {
   account,
+  campaign,
   poster,
-  posterCampaign,
   posterDesign,
   scan,
   user,
 } from "@infrastructure/db/schema";
-import { deleteImage, saveImage } from "@infrastructure/storage";
-import { connectToLocalImageStorage } from "@infrastructure/storage/localDev";
+import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
+import { connectToLocalBlobStorage } from "@infrastructure/storage/localDev";
 
 // Seeds the local database started by `netlify dev`, the same one the app
 // uses there. Never point this at a Netlify-hosted database: it deletes all
@@ -33,14 +40,56 @@ function getLocalConnectionString() {
   return JSON.parse(output).connection_string as string;
 }
 
+// Its own connection rather than the app's getDb(), which reads
+// NETLIFY_DB_URL and so could point at a hosted database.
 const db = drizzle({ connection: getLocalConnectionString() });
-// The same sandboxed local store `netlify dev` serves images from.
-const imageStorage = connectToLocalImageStorage();
+// The same sandboxed local store `netlify dev` serves images from. It sets the
+// Blobs environment, so the store is only used once it's connected.
+const blobStorage = connectToLocalBlobStorage();
+let blobStore: NetlifyBlobStore;
 
 const posterImagesDir = path.join(process.cwd(), "public/poster-images");
-function uploadDesignImage(filename: string) {
+async function uploadDesignImage(filename: string) {
   const data = fs.readFileSync(path.join(posterImagesDir, filename));
-  return saveImage(new Blob([data], { type: "image/webp" }));
+  // The store doesn't assign keys, so generate one, as the app does.
+  const key = crypto.randomUUID();
+  await blobStore.set(key, new Blob([data]), "image/webp");
+  return key;
+}
+
+// Ids come from the domain, and values go through its factories, so an invalid
+// seeded value fails here rather than when a page loads it.
+
+async function insertCampaign(userId: string, name: string, target: string) {
+  const id = CampaignId.generate();
+  await db.insert(campaign).values({
+    id,
+    name,
+    target: CampaignTarget.create(target).value,
+    userId,
+  });
+  return id;
+}
+
+// The images are 1587 x 2245 (1414 x 2000 for stock-poster-3), and `size` is
+// in image pixels, so every QR code fits on its image.
+async function insertDesign(
+  campaignId: CampaignId,
+  filename: string,
+  fields: QrPlacementFields,
+) {
+  const id = PosterDesignId.generate();
+  const { x, y, size, rotation } = QrPlacement.create(fields);
+  await db.insert(posterDesign).values({
+    id,
+    designImageKey: await uploadDesignImage(filename),
+    x,
+    y,
+    size,
+    rotation,
+    campaignId,
+  });
+  return id;
 }
 
 // Scan timestamps relative to now, spread over the last couple of weeks.
@@ -91,7 +140,11 @@ async function getSeedUser() {
 }
 
 async function main() {
-  await imageStorage;
+  await blobStorage;
+  blobStore = new NetlifyBlobStore(
+    NetlifyBlobStore.POSTER_DESIGN_STORE,
+    NetlifyBlobStore.deletesAllowedIn(process.env.NETLIFY_CONTEXT),
+  );
 
   // Clear existing poster data so the seed is repeatable. Deleting campaigns
   // cascades to their designs, posters and scans, so delete the designs'
@@ -100,105 +153,62 @@ async function main() {
     .select({ designImageKey: posterDesign.designImageKey })
     .from(posterDesign);
   await Promise.all(
-    oldDesigns.map(({ designImageKey }) => deleteImage(designImageKey)),
+    oldDesigns.map(({ designImageKey }) => blobStore.delete(designImageKey)),
   );
-  await db.delete(posterCampaign);
+  await db.delete(campaign);
 
   const { id: userId } = await getSeedUser();
 
-  const [summerFest] = await db
-    .insert(posterCampaign)
-    .values({
-      name: "Summer Music Festival 2026",
-      target: "https://posters.example.com/campaigns/summer-fest-2026",
-      userId,
-    })
-    .returning();
-
-  const [cafeOpening] = await db
-    .insert(posterCampaign)
-    .values({
-      name: "Downtown Cafe Grand Opening",
-      target: "https://posters.example.com/campaigns/cafe-opening",
-      userId,
-    })
-    .returning();
-
-  const [marathon] = await db
-    .insert(posterCampaign)
-    .values({
-      name: "City Marathon 2026 Registration",
-      target: "https://posters.example.com/campaigns/marathon-2026",
-      userId,
-    })
-    .returning();
-
-  // Newly created campaign: no design or posters exist
-  await db.insert(posterCampaign).values({
-    name: "Neighborhood Art Walk 2026",
-    target: "https://posters.example.com/campaigns/art-walk-2026",
+  const summerFest = await insertCampaign(
     userId,
+    "Summer Music Festival 2026",
+    "https://posters.example.com/campaigns/summer-fest-2026",
+  );
+  const cafeOpening = await insertCampaign(
+    userId,
+    "Downtown Cafe Grand Opening",
+    "https://posters.example.com/campaigns/cafe-opening",
+  );
+  const marathon = await insertCampaign(
+    userId,
+    "City Marathon 2026 Registration",
+    "https://posters.example.com/campaigns/marathon-2026",
+  );
+  // Newly created campaign: no design or posters exist
+  await insertCampaign(
+    userId,
+    "Neighborhood Art Walk 2026",
+    "https://posters.example.com/campaigns/art-walk-2026",
+  );
+
+  const summerFestDesignA = await insertDesign(
+    summerFest,
+    "stock-poster-1.webp",
+    { x: 82, y: 85, size: 190, rotation: 0 },
+  );
+  const summerFestDesignB = await insertDesign(
+    summerFest,
+    "stock-poster-2.webp",
+    { x: 50, y: 85, size: 238, rotation: 5 },
+  );
+  const cafeDesign = await insertDesign(cafeOpening, "stock-poster-3.webp", {
+    x: 75,
+    y: 80,
+    size: 141,
+    rotation: 357,
   });
-
-  const [summerFestDesignA] = await db
-    .insert(posterDesign)
-    .values({
-      designImageKey: await uploadDesignImage("stock-poster-1.webp"),
-      qrXPosition: 0.82,
-      qrYPosition: 0.85,
-      qrSize: 0.12,
-      qrRotation: 0,
-      posterCampaignId: summerFest.id,
-    })
-    .returning();
-
-  const [summerFestDesignB] = await db
-    .insert(posterDesign)
-    .values({
-      designImageKey: await uploadDesignImage("stock-poster-2.webp"),
-      qrXPosition: 0.5,
-      qrYPosition: 0.9,
-      qrSize: 0.15,
-      qrRotation: 5,
-      posterCampaignId: summerFest.id,
-    })
-    .returning();
-
-  const [cafeDesign] = await db
-    .insert(posterDesign)
-    .values({
-      designImageKey: await uploadDesignImage("stock-poster-3.webp"),
-      qrXPosition: 0.75,
-      qrYPosition: 0.8,
-      qrSize: 0.1,
-      qrRotation: -3,
-      posterCampaignId: cafeOpening.id,
-    })
-    .returning();
-
-  const [marathonDesignA] = await db
-    .insert(posterDesign)
-    .values({
-      designImageKey: await uploadDesignImage("stock-poster-4.webp"),
-      qrXPosition: 0.2,
-      qrYPosition: 0.15,
-      qrSize: 0.18,
-      qrRotation: 0,
-      posterCampaignId: marathon.id,
-    })
-    .returning();
-
-  const [marathonDesignB] = await db
-    .insert(posterDesign)
-    .values({
-      designImageKey: await uploadDesignImage("stock-poster-5.webp"),
-      qrXPosition: 0.85,
-      qrYPosition: 0.1,
-      qrSize: 0.1,
-      qrRotation: 90,
-      posterCampaignId: marathon.id,
-    })
-    .returning();
+  const marathonDesignA = await insertDesign(marathon, "stock-poster-4.webp", {
+    x: 20,
+    y: 15,
+    size: 286,
+    rotation: 0,
+  });
+  const marathonDesignB = await insertDesign(marathon, "stock-poster-5.webp", {
+    x: 85,
+    y: 10,
+    size: 159,
+    rotation: 90,
+  });
 
   // Physical posters, placed around San Francisco. Most are activated
   // (already put up); a couple are still pending deployment.
@@ -208,7 +218,7 @@ async function main() {
       activated: true,
       latitude: 37.7749,
       longitude: -122.4194,
-      posterDesignId: summerFestDesignA.id,
+      posterDesignId: summerFestDesignA,
     })
     .returning();
 
@@ -218,7 +228,7 @@ async function main() {
       activated: true,
       latitude: 37.7849,
       longitude: -122.4094,
-      posterDesignId: summerFestDesignA.id,
+      posterDesignId: summerFestDesignA,
     })
     .returning();
 
@@ -226,7 +236,7 @@ async function main() {
     activated: false,
     latitude: 37.8049,
     longitude: -122.4294,
-    posterDesignId: summerFestDesignA.id,
+    posterDesignId: summerFestDesignA,
   });
 
   const [posterB1] = await db
@@ -235,7 +245,7 @@ async function main() {
       activated: true,
       latitude: 37.7649,
       longitude: -122.4394,
-      posterDesignId: summerFestDesignB.id,
+      posterDesignId: summerFestDesignB,
     })
     .returning();
 
@@ -245,7 +255,7 @@ async function main() {
       activated: true,
       latitude: 37.7949,
       longitude: -122.3994,
-      posterDesignId: cafeDesign.id,
+      posterDesignId: cafeDesign,
     })
     .returning();
 
@@ -255,7 +265,7 @@ async function main() {
       activated: true,
       latitude: 37.7549,
       longitude: -122.4494,
-      posterDesignId: cafeDesign.id,
+      posterDesignId: cafeDesign,
     })
     .returning();
 
@@ -263,7 +273,7 @@ async function main() {
     activated: false,
     latitude: 37.8149,
     longitude: -122.4594,
-    posterDesignId: marathonDesignA.id,
+    posterDesignId: marathonDesignA,
   });
 
   const [posterD1] = await db
@@ -272,7 +282,7 @@ async function main() {
       activated: true,
       latitude: 37.7349,
       longitude: -122.3894,
-      posterDesignId: marathonDesignB.id,
+      posterDesignId: marathonDesignB,
     })
     .returning();
 
@@ -311,6 +321,6 @@ main()
   })
   .finally(async () => {
     await db.$client.end();
-    const stopImageStorage = await imageStorage;
-    await stopImageStorage();
+    const stopBlobStorage = await blobStorage;
+    await stopBlobStorage();
   });

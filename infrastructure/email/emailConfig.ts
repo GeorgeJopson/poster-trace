@@ -10,9 +10,9 @@ const from =
     ? undefined
     : "Poster Trace <onboarding@resend.dev>");
 
-// Emails are sent after the response (see infrastructure/auth/betterAuth.ts), where errors are
-// only logged. Callers check this first so missing config fails the request
-// instead.
+// Emails are sent after the response (see infrastructure/auth/betterAuth.ts),
+// where errors are only logged. Callers check this first so missing config
+// fails the request instead.
 export function getEmailConfig() {
   const apiKey = process.env.RESEND_KEY;
   if (!apiKey) return { error: "RESEND_KEY isn't set" } as const;

@@ -2,12 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { oAuthProxy } from "better-auth/plugins";
-import { lt } from "drizzle-orm";
 import { after } from "next/server";
-import db from "@infrastructure/db/client";
-import * as schema from "@infrastructure/db/schema";
-import { getEmailConfig } from "@infrastructure/email/emailConfig";
-import { RESET_EMAIL_COOLDOWN_SECONDS } from "./passwordRules";
+import { getDb } from "../db/client";
+import * as schema from "../db/schema";
+import { getEmailConfig } from "../email/emailConfig";
+import { tryClaimResetEmailCooldown } from "../email/resetEmailCooldown";
 
 // BETTER_AUTH_URL is the production URL in every Netlify context, because
 // Google only accepts exact redirect URIs. Deploy previews and branch deploys
@@ -22,6 +21,10 @@ const currentURL =
     ? process.env.NETLIFY_DEPLOY_PRIME_URL
     : productionURL;
 
+// The lazy client, which connects on first use, so importing this module
+// (e.g. during `next build`) never connects.
+const db = getDb();
+
 export const auth = betterAuth({
   baseURL: currentURL,
   database: drizzleAdapter(db, {
@@ -33,29 +36,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url }) => {
-      // The rate limit below is per IP, so this also caps emails per account.
-      // The upsert only writes, and returns a row, if no email was sent in
-      // the cooldown, so of several concurrent requests exactly one sends.
-      // Requests that don't send don't move the timestamp, so repeated
-      // requests can't keep pushing the next email back.
-      const now = new Date();
-      const claimed = await db
-        .insert(schema.passwordResetEmail)
-        .values({ userId: user.id, sentAt: now })
-        .onConflictDoUpdate({
-          target: schema.passwordResetEmail.userId,
-          set: { sentAt: now },
-          setWhere: lt(
-            schema.passwordResetEmail.sentAt,
-            new Date(now.getTime() - RESET_EMAIL_COOLDOWN_SECONDS * 1000),
-          ),
-        })
-        .returning();
-      if (claimed.length === 0) return;
+      // At most one email per account per cooldown, on top of the per-IP
+      // rate limit below.
+      if (!(await tryClaimResetEmailCooldown(db, user.id, new Date()))) return;
 
       // Loaded here so Resend and the templates stay out of every other
       // request that imports auth.
-      const { sendPasswordResetEmail } = await import("@infrastructure/email");
+      const { sendPasswordResetEmail } = await import("../email");
       await sendPasswordResetEmail({ to: user.email, name: user.name, url });
     },
     // A reset signs the account out everywhere, in case the old password was
@@ -121,3 +108,5 @@ export const auth = betterAuth({
   },
   plugins: [oAuthProxy({ productionURL, currentURL })],
 });
+
+export type BetterAuth = typeof auth;

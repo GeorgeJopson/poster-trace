@@ -15,7 +15,8 @@
     "prettier": "prettier --write .",
     "email:dev": "email dev --dir infrastructure/email/templates",
     "test:e2e": "playwright test",
-    "test": "vitest run"
+    "test": "vitest run --project unit",
+    "test:db": "vitest run --project db"
   },
   "dependencies": {
     "@netlify/blobs": "^11.1.4",
