@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { authClient } from "@/auth/auth-client";
-import { MIN_PASSWORD_LENGTH } from "@/auth/passwordRules";
+import { authClient } from "@infrastructure/auth/authClient";
+import { MIN_PASSWORD_LENGTH } from "@infrastructure/auth/passwordRules";
 import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";

@@ -1,11 +1,11 @@
 import Link from "next/link";
-import type { PosterCampaign } from "@/db/schema";
+import type { CampaignDto } from "@application/dto/CampaignDto";
 
 import EditCampaignDialog from "../EditCampaignDialog/EditCampaignDialog";
 import styles from "./CampaignHeader.module.css";
 
 interface CampaignHeaderProps {
-  campaign: PosterCampaign;
+  campaign: CampaignDto;
 }
 
 export default function CampaignHeader({ campaign }: CampaignHeaderProps) {

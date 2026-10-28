@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 
-import { authClient } from "@/auth/auth-client";
+import { authClient } from "@infrastructure/auth/authClient";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import PasswordResetLink from "@/components/PasswordResetLink";

@@ -1,7 +1,7 @@
 "use client";
 
 import { icons } from "@/imageDetails";
-import type { PosterCampaign } from "@/db/schema";
+import type { CampaignDto } from "@application/dto/CampaignDto";
 import Image from "next/image";
 import { useState } from "react";
 import { animated } from "@react-spring/web";
@@ -12,7 +12,7 @@ import EditCampaignForm from "../EditCampaignForm/EditCampaignForm";
 import styles from "./EditCampaignDialog.module.css";
 
 interface EditCampaignDialogProps {
-  campaign: PosterCampaign;
+  campaign: CampaignDto;
 }
 
 export default function EditCampaignDialog({

@@ -6,6 +6,6 @@ import { defineConfig } from "drizzle-kit";
 // only reach it as committed migration files.
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./src/db/schema.ts",
+  schema: "./infrastructure/db/schema.ts",
   out: "netlify/database/migrations",
 });

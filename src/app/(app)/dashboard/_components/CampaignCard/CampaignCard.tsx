@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
+import type { CampaignDto } from "@application/dto/CampaignDto";
 import Link from "next/link";
 
 import DashedCard from "@/components/DashedCard";
 import DesignPreview from "@/components/DesignPreview";
 import { icons } from "@/imageDetails";
 import { routeNames } from "@/routeNames";
-import type { CampaignWithDesigns } from "@/data/campaigns";
 
 import styles from "./CampaignCard.module.css";
 import useHoverRotation from "@/utils/useHoverRotation";
@@ -16,7 +16,7 @@ const IMAGE_WIDTH = 150;
 const ROOT_2 = 1.4142;
 
 interface CampaignCardProps {
-  campaign: CampaignWithDesigns;
+  campaign: CampaignDto;
 }
 
 const wrapperClassByCount: Record<number, string> = {

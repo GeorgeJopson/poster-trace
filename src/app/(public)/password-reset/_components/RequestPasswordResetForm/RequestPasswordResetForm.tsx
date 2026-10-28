@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { authClient } from "@/auth/auth-client";
-import { RESET_EMAIL_INTERVAL_SECONDS } from "@/auth/passwordRules";
+import { authClient } from "@infrastructure/auth/authClient";
+import { RESET_EMAIL_INTERVAL_SECONDS } from "@infrastructure/auth/passwordRules";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
 import useAuthFormSubmit from "@/utils/useAuthFormSubmit";

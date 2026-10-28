@@ -1,12 +1,15 @@
+import { getCampaignService } from "@di/container";
 import CentralColumn from "@/components/CentralColumn";
-import { getMyCampaigns } from "@/data/campaigns";
+import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 import styles from "./Dashboard.module.css";
 import CampaignCard from "./_components/CampaignCard";
 import CreateCampaignDialog from "./_components/CreateCampaignDialog";
 
 export default async function DashboardPage() {
-  const campaigns = await getMyCampaigns();
+  const campaigns = await withSignInRedirect(() =>
+    getCampaignService().listMyCampaigns(),
+  );
   return (
     <CentralColumn>
       <div className={styles.wrapper}>
