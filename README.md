@@ -58,12 +58,62 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
 `next dev` has no database. Local data persists between runs; re-run
 `npm run db:migrate` after pulling new migrations.
 
+## Project layout
+
+The app follows a four-layer Domain Driven Design architecture (see
+[architecture-redesign/](architecture-redesign/ARCHITECTURE_REDESIGN_PLAN.md)):
+
+| Folder            | Alias               | Layer                                                                              |
+| ----------------- | ------------------- | ---------------------------------------------------------------------------------- |
+| `src/`            | `@/*`               | Presentation: Next.js routes and components                                        |
+| `application/`    | `@application/*`    | Use cases (services), DTOs, form validation, and ports for the session and account |
+| `domain/`         | `@domain/*`         | Entities, value objects, business rules and repository interfaces                  |
+| `infrastructure/` | `@infrastructure/*` | Drizzle, Netlify Blobs, Better Auth and Resend                                     |
+| `di/`             | `@di/*`             | The composition root, wiring infrastructure to the interfaces                      |
+
+```
+presentation ──► application ──► domain ◄── infrastructure
+```
+
+Pages, layouts and Server Actions get services from `@di/container` and call
+them through `withSignInRedirect`. ESLint enforces which layer may import
+which (`npm run lint`).
+
+## Tests
+
+```bash
+npm test                 # domain, application and infrastructure unit tests
+npm run test:db          # repository tests against a local Postgres (below)
+npm run test:e2e         # end-to-end tests with Playwright
+```
+
+`npm run test:db` drops and recreates the schema of the database in
+`TEST_DATABASE_URL`, which must be on localhost, by applying every migration
+from the baseline up. For example, with Docker:
+
+```bash
+docker run -d --rm --name poster-trace-test-db -e POSTGRES_PASSWORD=postgres \
+  -p 54329:5432 postgres:17-alpine
+TEST_DATABASE_URL=postgres://postgres:postgres@localhost:54329/postgres npm run test:db
+```
+
+The end-to-end tests start `netlify dev` (or reuse one already running on
+port 3000). Run them on a freshly reset and seeded local database:
+
+```bash
+npx playwright install chromium   # once
+npm run db:reset && npm run seed && npm run test:e2e
+```
+
+They sign up their own users, and don't cover Google sign-in or the content
+of the password reset email.
+
 ## Local database
 
 `netlify dev` runs a local Postgres database and sets `NETLIFY_DB_URL` for
 the app, so there's no connection string to configure.
 
-The schema lives in `src/db/schema.ts`. After changing it, generate a
+The schema lives in `infrastructure/db/schema.ts`. After changing it, generate a
 migration and apply it locally:
 
 ```bash
@@ -79,7 +129,7 @@ or `drizzle-kit migrate` against a Netlify-hosted database.
 
 ## Authentication
 
-Users sign up at `/sign-up` and log in at `/sign-in`, with either an email
+Users sign up at `/sign-up` and log in at `/log-in`, with either an email
 and password or Google OAuth. Signing in with Google for the first time
 creates the account, so both pages offer it. There's no email verification
 yet. Poster campaigns are owned by the user who created them, so `/dashboard`
@@ -97,9 +147,9 @@ reset adds an email and password login, so the user can log in either way.
 
 ## Email
 
-Emails are sent with [Resend](https://resend.com) from `src/email/`, using
-templates built with [React Email](https://react.email) in
-`src/email/templates/`.
+Emails are sent with [Resend](https://resend.com) from
+`infrastructure/email/`, using templates built with
+[React Email](https://react.email) in `infrastructure/email/templates/`.
 
 - `RESEND_KEY` is the Resend API key.
 - `EMAIL_FROM` is the sender address, e.g.
@@ -141,7 +191,7 @@ The Google OAuth client must list
 
 Google doesn't allow wildcard redirect URIs, so deploy previews and branch
 deploys sign in through production using Better Auth's OAuth proxy plugin
-(see `src/auth/auth.ts`). For this to work, `BETTER_AUTH_URL` must be the
+(see `infrastructure/auth/betterAuth.ts`). For this to work, `BETTER_AUTH_URL` must be the
 production URL in every context, and `BETTER_AUTH_SECRET` must be the same in
 production and previews.
 

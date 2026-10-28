@@ -7,7 +7,6 @@ import nextTypeScript from "eslint-config-next/typescript";
 //   presentation (src/) ──► application ──► domain ◄── infrastructure
 //
 // di/, scripts/ and tests/ have no import restrictions.
-const LAYER_RULE_SEVERITY = "off";
 
 const frameworks = {
   group: [
@@ -79,10 +78,7 @@ const BETTER_AUTH_CLIENT = ["auth/authClient", "auth/passwordRules"];
 
 function layerRule(patterns) {
   return {
-    "@typescript-eslint/no-restricted-imports": [
-      LAYER_RULE_SEVERITY,
-      { patterns },
-    ],
+    "@typescript-eslint/no-restricted-imports": ["error", { patterns }],
   };
 }
 
