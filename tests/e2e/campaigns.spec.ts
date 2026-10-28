@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 import { addPosterDesign, createCampaign, mainNav, signUp } from "./helpers";
 
@@ -116,17 +116,23 @@ test("renders the analytics page and the campaign's navigation", async ({
   });
 
   await page.goto(`${campaignUrl}/analytics`);
+  // The heading's letters are animated one by one, so its accessible name
+  // isn't the plain text; check the paragraph instead.
   await expect(
-    page.getByRole("heading", { name: "Under Construction" }),
+    page.getByRole("main").getByText("This page isn't ready yet."),
   ).toBeVisible();
 
   const campaignNav = mainNav(page).getByRole("region", {
     name: "Analytics campaign",
   });
-  await expect(campaignNav.getByRole("link", { name: "Create" })).toBeVisible();
-  await campaignNav.getByRole("link", { name: "Create" }).click();
+  await expect(
+    campaignNav.getByRole("link", { name: "Create", exact: true }),
+  ).toBeVisible();
+  await campaignNav.getByRole("link", { name: "Create", exact: true }).click();
   await expect(page).toHaveURL(campaignUrl);
-  await campaignNav.getByRole("link", { name: "Analytics" }).click();
+  await campaignNav
+    .getByRole("link", { name: "Analytics", exact: true })
+    .click();
   await expect(page).toHaveURL(`${campaignUrl}/analytics`);
 });
 
