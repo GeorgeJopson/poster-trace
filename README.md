@@ -97,12 +97,14 @@ docker run -d --rm --name poster-trace-test-db -e POSTGRES_PASSWORD=postgres \
 TEST_DATABASE_URL=postgres://postgres:postgres@localhost:54329/postgres npm run test:db
 ```
 
-The end-to-end tests start `netlify dev` (or reuse one already running on
-port 3000). Run them on a freshly reset and seeded local database:
+The end-to-end tests run against a freshly reset and seeded local database.
+The seed needs the database `netlify dev` serves, so start it first; the tests
+reuse it (or start their own if nothing is running on port 3000):
 
 ```bash
 npx playwright install chromium   # once
-npm run db:reset && npm run seed && npm run test:e2e
+netlify dev                       # in one terminal
+npm run db:reset && npm run seed && npm run test:e2e   # in another
 ```
 
 They sign up their own users, and don't cover Google sign-in or the content
