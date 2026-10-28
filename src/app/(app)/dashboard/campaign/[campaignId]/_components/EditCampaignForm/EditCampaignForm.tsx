@@ -2,15 +2,16 @@
 
 import { useTransition } from "react";
 
+import type { CampaignDto } from "@application/dto/CampaignDto";
+import { validateCampaignTarget } from "@application/validation/validateCampaignTarget";
+import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import Button from "@/components/Button";
-import type { PosterCampaign } from "@infrastructure/db/schema";
-import { getTargetError, MAX_TARGET_LENGTH } from "@/data/campaignValidation";
 
 import { updateCampaign } from "../../actions";
 import styles from "./EditCampaignForm.module.css";
 
 interface EditCampaignFormProps {
-  campaign: PosterCampaign;
+  campaign: CampaignDto;
   onSaved?: () => void;
 }
 
@@ -48,11 +49,11 @@ export default function EditCampaignForm({
           id="target"
           name="target"
           required
-          maxLength={MAX_TARGET_LENGTH}
+          maxLength={CampaignTarget.MAX_LENGTH}
           defaultValue={campaign.target}
           onChange={(event) =>
             event.currentTarget.setCustomValidity(
-              getTargetError(event.currentTarget.value.trim()) ?? "",
+              validateCampaignTarget(event.currentTarget.value) ?? "",
             )
           }
         />

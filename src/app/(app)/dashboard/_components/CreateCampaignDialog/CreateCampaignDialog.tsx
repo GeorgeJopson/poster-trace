@@ -1,13 +1,11 @@
 "use client";
 
+import { validateCampaignTarget } from "@application/validation/validateCampaignTarget";
+import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
-import {
-  DEFAULT_TARGET,
-  getTargetError,
-  MAX_TARGET_LENGTH,
-} from "@/data/campaignValidation";
+import { DEFAULT_TARGET } from "@/utils/drawPoster";
 
 import { createCampaign } from "./actions";
 import styles from "./CreateCampaignDialog.module.css";
@@ -43,11 +41,11 @@ export default function CreateCampaignDialog() {
             id="target"
             name="target"
             required
-            maxLength={MAX_TARGET_LENGTH}
+            maxLength={CampaignTarget.MAX_LENGTH}
             defaultValue={DEFAULT_TARGET}
             onChange={(event) =>
               event.currentTarget.setCustomValidity(
-                getTargetError(event.currentTarget.value.trim()) ?? "",
+                validateCampaignTarget(event.currentTarget.value) ?? "",
               )
             }
           />

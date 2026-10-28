@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import type { BetterFetchOption } from "better-auth/react";
-
-import { authClient } from "@infrastructure/auth/authClient";
+import {
+  authClient,
+  type BetterFetchOption,
+} from "@infrastructure/auth/authClient";
 import { icons } from "@/imageDetails";
 import { routeNames } from "@/routeNames";
 import styles from "./SocialSignOn.module.css";

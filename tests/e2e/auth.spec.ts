@@ -26,7 +26,8 @@ test("redirects signed-in users away from log in and sign up", async ({
 test("redirects signed-out users from app pages to log in", async ({
   page,
 }) => {
-  const campaignPath = "/dashboard/campaign/1";
+  const campaignPath =
+    "/dashboard/campaign/00000000-0000-4000-8000-000000000000";
   for (const path of [
     "/dashboard",
     "/account",

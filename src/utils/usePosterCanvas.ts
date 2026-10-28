@@ -3,7 +3,7 @@ import { RefObject, useLayoutEffect, useMemo } from "react";
 import drawPoster, {
   createQrModules,
   type DisplaySize,
-  type QrPlacement,
+  type DrawableQrPlacement,
 } from "@/utils/drawPoster";
 
 /**
@@ -15,14 +15,14 @@ import drawPoster, {
 export default function usePosterCanvas(
   canvasRef: RefObject<HTMLCanvasElement | null>,
   image: HTMLImageElement | null,
-  qrPlacement: QrPlacement,
+  qrPlacement: DrawableQrPlacement,
   target: string,
   displaySize?: DisplaySize,
 ) {
   const qrModules = useMemo(() => createQrModules(target), [target]);
   // Depend on the individual values, so callers can pass a new object each
   // render without causing a redraw.
-  const { qrXPosition, qrYPosition, qrSize, qrRotation } = qrPlacement;
+  const { x, y, size, rotation } = qrPlacement;
   const displayWidth = displaySize?.width;
   const displayHeight = displaySize?.height;
 
@@ -38,7 +38,7 @@ export default function usePosterCanvas(
 
     drawPoster(
       ctx,
-      { image, qrXPosition, qrYPosition, qrSize, qrRotation },
+      { image, x, y, size, rotation },
       qrModules,
       displayWidth !== undefined && displayHeight !== undefined
         ? { width: displayWidth, height: displayHeight }
@@ -47,10 +47,10 @@ export default function usePosterCanvas(
   }, [
     canvasRef,
     image,
-    qrXPosition,
-    qrYPosition,
-    qrSize,
-    qrRotation,
+    x,
+    y,
+    size,
+    rotation,
     qrModules,
     displayWidth,
     displayHeight,

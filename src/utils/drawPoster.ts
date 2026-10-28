@@ -1,15 +1,17 @@
 import QRCode from "qrcode";
 
-import { DEFAULT_TARGET } from "@/data/campaignValidation";
-import type { PosterDesign } from "@infrastructure/db/schema";
+import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
+
+/**
+ * The target new campaigns start with, and the one QR codes fall back to for
+ * an empty target, as a QR code can't encode an empty string.
+ */
+export const DEFAULT_TARGET = "https://www.campaigns.com";
 
 /** Where the QR code goes on the poster; see drawPoster for the units. */
-export type QrPlacement = Pick<
-  PosterDesign,
-  "qrXPosition" | "qrYPosition" | "qrSize" | "qrRotation"
->;
+export type DrawableQrPlacement = PosterDesignDto["qrPlacement"];
 
-export type DrawablePosterDesign = QrPlacement & {
+export type DrawablePosterDesign = DrawableQrPlacement & {
   image: HTMLImageElement;
 };
 
@@ -55,7 +57,7 @@ export default function drawPoster(
   modules: QrModules,
   displaySize?: DisplaySize,
 ) {
-  const { image, qrXPosition, qrYPosition, qrSize, qrRotation } = posterDesign;
+  const { image, x: xPercent, y: yPercent, size, rotation } = posterDesign;
   const canvas = ctx.canvas;
   const imageWidth = image.naturalWidth;
   const imageHeight = image.naturalHeight;
@@ -72,24 +74,24 @@ export default function drawPoster(
 
   // QR code: x/y are the top-left corner as a percentage of the image
   // (like CSS left/top), rotated (in degrees) about its centre. Only the
-  // dark modules are drawn, so the image shows through the rest. `qrSize`
-  // is the code itself, without a quiet zone.
-  const x = (qrXPosition / 100) * imageWidth;
-  const y = (qrYPosition / 100) * imageHeight;
-  const moduleSize = qrSize / modules.size;
+  // dark modules are drawn, so the image shows through the rest. `size` is
+  // the code itself, without a quiet zone.
+  const x = (xPercent / 100) * imageWidth;
+  const y = (yPercent / 100) * imageHeight;
+  const moduleSize = size / modules.size;
 
   // A single path avoids hairline gaps between adjacent modules.
   ctx.save();
-  ctx.translate(x + qrSize / 2, y + qrSize / 2);
-  ctx.rotate((qrRotation * Math.PI) / 180);
+  ctx.translate(x + size / 2, y + size / 2);
+  ctx.rotate((rotation * Math.PI) / 180);
   ctx.fillStyle = "black";
   ctx.beginPath();
   for (let row = 0; row < modules.size; row++) {
     for (let col = 0; col < modules.size; col++) {
       if (modules.get(row, col)) {
         ctx.rect(
-          -qrSize / 2 + col * moduleSize,
-          -qrSize / 2 + row * moduleSize,
+          -size / 2 + col * moduleSize,
+          -size / 2 + row * moduleSize,
           moduleSize,
           moduleSize,
         );

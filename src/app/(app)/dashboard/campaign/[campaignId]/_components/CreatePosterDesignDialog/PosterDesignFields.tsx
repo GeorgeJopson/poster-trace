@@ -1,21 +1,22 @@
 import React from "react";
 
-import { QR_RANGES } from "@/data/posterDesignValidation";
+import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 
 import styles from "./PosterDesignFields.module.css";
 
+/** The QR inputs' values, named as in QrPlacement. */
 export type QrValues = {
-  qrXPosition: string;
-  qrYPosition: string;
-  qrSize: string;
-  qrRotation: string;
+  x: string;
+  y: string;
+  size: string;
+  rotation: string;
 };
 
 type QrSliderFieldProps = {
   name: keyof QrValues;
   label: string;
   value: string;
-  /** Overrides the max from QR_RANGES, e.g. for a limit based on the image. */
+  /** Overrides the max from QrPlacement.RANGES, e.g. a limit from the image. */
   max?: number;
   unit: string;
   disabled?: boolean;
@@ -26,7 +27,7 @@ function QrSliderField({
   name,
   label,
   value,
-  max = QR_RANGES[name].max,
+  max = QrPlacement.RANGES[name].max,
   unit,
   disabled,
   onChange,
@@ -42,9 +43,9 @@ function QrSliderField({
           id={name}
           name={name}
           type="range"
-          min={QR_RANGES[name].min}
+          min={QrPlacement.RANGES[name].min}
           max={max}
-          step={QR_RANGES[name].step}
+          step={QrPlacement.RANGES[name].step}
           value={value}
           disabled={disabled}
           onChange={(event) => onChange(name, event.target.value)}
@@ -88,32 +89,32 @@ export default function PosterDesignFields({
       />
 
       <QrSliderField
-        name="qrXPosition"
+        name="x"
         label="QR X position"
-        value={qrValues.qrXPosition}
+        value={qrValues.x}
         unit="%"
         onChange={onQrChange}
       />
       <QrSliderField
-        name="qrYPosition"
+        name="y"
         label="QR Y position"
-        value={qrValues.qrYPosition}
+        value={qrValues.y}
         unit="%"
         onChange={onQrChange}
       />
       <QrSliderField
-        name="qrSize"
+        name="size"
         label="QR size"
-        value={qrValues.qrSize}
+        value={qrValues.size}
         max={maxQrSize}
         unit="px"
         disabled={maxQrSize === 0}
         onChange={onQrChange}
       />
       <QrSliderField
-        name="qrRotation"
+        name="rotation"
         label="QR rotation"
-        value={qrValues.qrRotation}
+        value={qrValues.rotation}
         unit="°"
         onChange={onQrChange}
       />
