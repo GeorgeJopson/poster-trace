@@ -153,6 +153,12 @@ const eslintConfig = defineConfig([
     files: ["src/app/api/auth/**"],
     rules: layerRule(presentationPatterns(["auth/betterAuth"], ["next-js"])),
   },
+  {
+    // Playwright fixtures call `use(...)`, which the hooks rule mistakes for
+    // React's `use`. The e2e tests contain no React.
+    files: ["tests/e2e/**"],
+    rules: { "react-hooks/rules-of-hooks": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
