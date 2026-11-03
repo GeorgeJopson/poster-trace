@@ -1,13 +1,12 @@
 import { fileURLToPath } from "node:url";
-import tsconfigPaths from "vite-tsconfig-paths";
 import { configDefaults, defineConfig } from "vitest/config";
 
 const DB_TESTS = "tests/**/*.db.test.ts";
 
 export default defineConfig({
-  // Resolves @domain/*, @application/* etc. as in the app.
-  plugins: [tsconfigPaths()],
   resolve: {
+    // Resolves @domain/*, @application/* etc. as in the app.
+    tsconfigPaths: true,
     alias: {
       // Every application service imports "server-only", which throws when
       // imported outside Next.

@@ -54,7 +54,7 @@ Pins today's behaviour, against today's code, before anything changes.
 ### 2. Tooling
 No app code changes.
 
-- **Vitest**, as in the main plan's [Testing](ARCHITECTURE_REDESIGN_PLAN.md#testing) and Next's `testing/vitest.md` guide: install `vitest` and `vite-tsconfig-paths`, add `vitest.config.mts` (`node` environment; `resolve.alias` maps `server-only` to an empty module; excludes `tests/e2e/`), and an `npm test` script.
+- **Vitest**, as in the main plan's [Testing](ARCHITECTURE_REDESIGN_PLAN.md#testing) and Next's `testing/vitest.md` guide: install `vitest`, add `vitest.config.mts` (`node` environment; `resolve.tsconfigPaths: true` for the path aliases; `resolve.alias` maps `server-only` to an empty module; excludes `tests/e2e/`), and an `npm test` script.
 - Install `server-only` as an explicit dependency.
 - **`tsconfig.json` paths:** add `@domain/*` → `./domain/*`, `@application/*` → `./application/*`, `@infrastructure/*` → `./infrastructure/*`, `@di/*` → `./di/*`, next to `@/*`.
 - **ESLint:** add the `no-restricted-imports` rules per folder from the main plan's [Dependency rules](ARCHITECTURE_REDESIGN_PLAN.md#dependency-rules), with the [presentation allow-list](presentation/README.md) and [Better Auth exception](presentation/README.md#better-auth-exception). Set them to **`"off"`** for now; they're written here so the rules are reviewed early, and turned on in [commit 9](#9-lint-rules-and-clean-up).

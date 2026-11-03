@@ -55,7 +55,7 @@ An ESLint `no-restricted-imports` rule per folder enforces these rules, with the
 Test at the layer boundaries, in `tests/`, constructing the class under test directly with fakes for its constructor arguments. Each sub-plan has a Tests section.
 
 The runner is **Vitest**, set up as in Next's `testing/vitest.md` guide, with an `npm test` script:
-- `vite-tsconfig-paths` reuses the `tsconfig.json` paths, so `@domain/*`, `@application/*` etc. resolve as in the app.
+- Vite's built-in `resolve.tsconfigPaths: true` reuses the `tsconfig.json` paths, so `@domain/*`, `@application/*` etc. resolve as in the app.
 - `server-only` is installed explicitly as a dependency (today only Next's compiled copy exists), and aliased to an empty module in `vitest.config.mts` (`resolve.alias`), so tests can import the services (every service file imports it). Outside Next, importing it otherwise fails.
 - Domain, application and infrastructure tests run in the `node` environment.
 - Presentation is covered by end-to-end tests instead.
