@@ -2,7 +2,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTypeScript from "eslint-config-next/typescript";
 
-// Layer dependency rules (see architecture-redesign/ARCHITECTURE_REDESIGN_PLAN.md):
+// Layer dependency rules (see docs/adr/0001-four-layer-ddd-architecture.md):
 //
 //   presentation (src/) ──► application ──► domain ◄── infrastructure
 //            │                                            ▲
@@ -149,9 +149,15 @@ const eslintConfig = defineConfig([
   },
   {
     // Better Auth's route handler serves the module-level `auth` (see
-    // architecture-redesign/presentation/README.md).
+    // docs/adr/0003-better-auth-owns-authentication.md).
     files: ["src/app/api/auth/**"],
     rules: layerRule(presentationPatterns(["auth/betterAuth"], ["next-js"])),
+  },
+  {
+    // Playwright fixtures call `use(...)`, which the hooks rule mistakes for
+    // React's `use`. The e2e tests contain no React.
+    files: ["tests/e2e/**"],
+    rules: { "react-hooks/rules-of-hooks": "off" },
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([

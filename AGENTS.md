@@ -8,8 +8,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-Before committing, run all tests (needs Docker running; resets your local dev
-database):
-```bash
-npm run test:all
-```
+Run tests with the command: `npm run test:all`

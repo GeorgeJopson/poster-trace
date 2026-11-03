@@ -61,15 +61,18 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
 ## Project layout
 
 The app follows a four-layer Domain Driven Design architecture (see
-[architecture-redesign/](architecture-redesign/ARCHITECTURE_REDESIGN_PLAN.md)):
+[ADR-0001](docs/adr/0001-four-layer-ddd-architecture.md); the other decisions
+are in [docs/adr/](docs/adr/), the rules in [CODING_STANDARDS.md](CODING_STANDARDS.md)
+and the domain language in [GLOSSARY.md](GLOSSARY.md)):
 
-| Folder            | Alias               | Layer                                                                              |
-| ----------------- | ------------------- | ---------------------------------------------------------------------------------- |
-| `src/`            | `@/*`               | Presentation: Next.js routes and components                                        |
-| `application/`    | `@application/*`    | Use cases (services), DTOs, form validation, and ports for the session and account |
-| `domain/`         | `@domain/*`         | Entities, value objects, business rules and repository interfaces                  |
-| `infrastructure/` | `@infrastructure/*` | Drizzle, Netlify Blobs, Better Auth and Resend                                     |
-| `di/`             | `@di/*`             | The composition root, wiring infrastructure to the interfaces                      |
+| Folder               | Alias                  | Layer                                                                              |
+| -------------------- | ---------------------- | ---------------------------------------------------------------------------------- |
+| `src/`               | `@/*`                  | Presentation: Next.js routes and components                                        |
+| `application/`       | `@application/*`       | Use cases (services), DTOs, form validation, and ports for the session and account |
+| `clientApplication/` | `@clientApplication/*` | Browser-side use cases: auth requests and session hooks                            |
+| `domain/`            | `@domain/*`            | Entities, value objects, business rules and repository interfaces                  |
+| `infrastructure/`    | `@infrastructure/*`    | Drizzle, Netlify Blobs, Better Auth and Resend                                     |
+| `di/`                | `@di/*`                | The composition root, wiring infrastructure to the interfaces                      |
 
 ```
 presentation ──► application ──► domain ◄── infrastructure

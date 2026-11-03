@@ -1,0 +1,3 @@
+# Other users' data looks missing, not forbidden
+
+An owner-facing read for data that belongs to someone else behaves exactly like a read for data that doesn't exist: repositories return `null` or throw `NotFoundError`, and the page or image route returns a 404. Using one response for both means ids can't be used to probe other users' data. Ownership is enforced in the repository, not the aggregate: owner-facing reads take an explicit `ownerId`, and writes use the `ownerId` of the campaign they're given, which was loaded for that owner. Ids that aren't UUIDs also read as missing (`XxxId.parse` returns `null`), so a bad URL is a 404 rather than an error.
