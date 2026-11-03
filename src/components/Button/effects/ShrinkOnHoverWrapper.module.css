@@ -2,7 +2,6 @@
   will-change: transform;
   display: flex;
   align-items: stretch;
-
 }
 
 .wrapper:hover button:not(:disabled, [aria-disabled="true"]),
