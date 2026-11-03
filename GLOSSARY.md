@@ -7,8 +7,8 @@ Poster Trace lets a user run poster campaigns: they design posters carrying a QR
 ### Campaigns
 
 **Campaign**:
-A user's promotion with one target and any number of poster designs. It's the core concept, and the same word is used in every layer.
-_Avoid_: Poster campaign, project
+An advertising campaign run by a user: one target, promoted through any number of poster designs. It's the core concept, and the same word is used in every layer.
+_Avoid_: Poster campaign, project, promotion
 
 **Owner**:
 The user a campaign belongs to. Only the owner can see or change a campaign.
@@ -33,8 +33,12 @@ _Avoid_: QR position, QR settings
 These aren't built yet.
 
 **Poster**:
-A physical copy of a poster design, put up at a particular location.
+A physical printed copy of a poster design, put up at a particular location.
 _Avoid_: Using "poster" to mean a poster design
+
+**Registration**:
+The moment the user logs where a poster has been put up. A poster is **registered** once its location has been logged, and not before.
+_Avoid_: Activation, placement
 
 **Scan**:
 One reading of a poster's QR code, recorded at the time it happened.
