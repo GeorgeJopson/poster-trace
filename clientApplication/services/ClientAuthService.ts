@@ -16,7 +16,7 @@ export type AuthResult = { error: AuthError | null };
  * Sign-in, sign-up, sign-out and password reset, called from the browser.
  * Each request goes to the auth route handler, which sets the session cookie.
  */
-export class AuthService {
+export class ClientAuthService {
   static async signInWithEmail(input: {
     email: string;
     password: string;

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { AuthService } from "@clientApplication/services/AuthService";
+import { ClientAuthService } from "@clientApplication/services/ClientAuthService";
 import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
@@ -17,7 +17,7 @@ interface ResetPasswordFormProps {
 
 export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
-  const minPasswordLength = AuthService.getMinPasswordLength();
+  const minPasswordLength = ClientAuthService.getMinPasswordLength();
   // The token can expire or be used up (e.g. in another tab) after the page
   // loads, which only shows up when submitting.
   const [isTokenInvalid, setIsTokenInvalid] = useState(false);
@@ -29,7 +29,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         return { error: { message: "The passwords don't match." } };
       }
 
-      const { error, isTokenInvalid } = await AuthService.resetPassword({
+      const { error, isTokenInvalid } = await ClientAuthService.resetPassword({
         newPassword,
         token,
       });

@@ -57,7 +57,7 @@ Server Actions stay plain `export async function`s in their `"use server"` files
 | `PosterDesignFields`, `CreatePosterDesignDialog` | QR inputs are named `x`, `y`, `size` and `rotation`, and read `min`/`max`/`step` from `QrPlacement.RANGES[name]`. |
 | `drawPoster.ts` | Its own `type QrPlacement` (today a `Pick` of the Drizzle `PosterDesign` row, which moves into infrastructure) is replaced by `type DrawableQrPlacement = PosterDesignDto["qrPlacement"]` (`x`, `y`, `size`, `rotation`). The new name avoids a clash with the domain's `QrPlacement` class, which is importable from `src/`. `DEFAULT_TARGET` (what a new campaign's form is pre-filled with, and the QR fallback for an empty target) moves here from `src/data/campaignValidation.ts`, since it's a presentation concern; `CreateCampaignDialog` imports it from here. |
 | `usePosterCanvas.ts` | Uses `DrawableQrPlacement`. |
-| `SocialSignOn` | Calls `AuthService.signInWithGoogle` from `@clientApplication` instead of `better-auth/react`. |
+| `SocialSignOn` | Calls `ClientAuthService.signInWithGoogle` from `@clientApplication` instead of `better-auth/react`. |
 
 `src/data/`, `src/db/`, `src/auth/`, `src/email/` and `src/imageStorage/` are removed; their contents move to the other layers.
 

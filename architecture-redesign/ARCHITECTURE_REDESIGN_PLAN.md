@@ -45,7 +45,7 @@ An ESLint `no-restricted-imports` rule per folder enforces these rules, with the
 | Server → client data | Use cases return plain DTOs, never entities. |
 | Authentication | A generic subdomain owned by Better Auth. Domain: users and ownership only. Application: `SessionProvider` and `AccountGateway` ports. Sign-in/up/out and password reset keep Better Auth's browser client and route, called through `clientApplication`. |
 | Rate limiting | Per-IP limit stays in the Better Auth config. The per-account reset email cooldown is one function, `tryClaimResetEmailCooldown`, called from `sendResetPassword` in the Better Auth config. |
-| Password/reset constants | `infrastructure/auth/passwordRules.ts`, read by auth forms through `AuthService.getMinPasswordLength()` and `getResetEmailIntervalSeconds()`. |
+| Password/reset constants | `infrastructure/auth/passwordRules.ts`, read by auth forms through `ClientAuthService.getMinPasswordLength()` and `getResetEmailIntervalSeconds()`. |
 | Stored rows | Loaded through the domain's validating factories. If a rule is tightened later, stored data must be checked or migrated at the same time (an accepted risk). |
 | DI | Hand-written, lazy composition root with constructor injection; no DI library. Better Auth stays a module-level `auth`, as today (a documented exception). |
 | Deploy rollback | The schema migration is destructive, so production can't be rolled back to a deploy from before it; fixes roll forward. |

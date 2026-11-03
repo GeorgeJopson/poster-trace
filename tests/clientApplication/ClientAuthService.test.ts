@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AuthService } from "@clientApplication/services/AuthService";
+import { ClientAuthService } from "@clientApplication/services/ClientAuthService";
 import {
   MIN_PASSWORD_LENGTH,
   RESET_EMAIL_INTERVAL_SECONDS,
@@ -20,11 +20,11 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-describe("AuthService", () => {
+describe("ClientAuthService", () => {
   it("signs in with email", async () => {
     authClient.signIn.email.mockResolvedValue({ data: {}, error: null });
 
-    const result = await AuthService.signInWithEmail({
+    const result = await ClientAuthService.signInWithEmail({
       email: "a@example.com",
       password: "password",
     });
@@ -42,7 +42,7 @@ describe("AuthService", () => {
       error: { message: "User already exists", status: 422, code: "X" },
     });
 
-    const result = await AuthService.signUpWithEmail({
+    const result = await ClientAuthService.signUpWithEmail({
       name: "A",
       email: "a@example.com",
       password: "password",
@@ -57,7 +57,7 @@ describe("AuthService", () => {
     });
     const onError = vi.fn();
 
-    await AuthService.signInWithGoogle({
+    await ClientAuthService.signInWithGoogle({
       callbackURL: "https://example.com/dashboard",
       errorCallbackURL: "https://example.com/error",
       newUserCallbackURL: "https://example.com/dashboard",
@@ -81,7 +81,7 @@ describe("AuthService", () => {
       error: null,
     });
 
-    const result = await AuthService.requestPasswordReset({
+    const result = await ClientAuthService.requestPasswordReset({
       email: "a@example.com",
       redirectTo: "/password-reset/authorized",
     });
@@ -97,7 +97,7 @@ describe("AuthService", () => {
     it("succeeds", async () => {
       authClient.resetPassword.mockResolvedValue({ data: {}, error: null });
 
-      const result = await AuthService.resetPassword({
+      const result = await ClientAuthService.resetPassword({
         newPassword: "new-password",
         token: "token",
       });
@@ -111,7 +111,7 @@ describe("AuthService", () => {
         error: { message: "Invalid token", code: "INVALID_TOKEN" },
       });
 
-      const result = await AuthService.resetPassword({
+      const result = await ClientAuthService.resetPassword({
         newPassword: "new-password",
         token: "token",
       });
@@ -125,7 +125,7 @@ describe("AuthService", () => {
         error: { message: "Password too short", code: "PASSWORD_TOO_SHORT" },
       });
 
-      const result = await AuthService.resetPassword({
+      const result = await ClientAuthService.resetPassword({
         newPassword: "short",
         token: "token",
       });
@@ -138,8 +138,8 @@ describe("AuthService", () => {
   });
 
   it("gives the password rules", () => {
-    expect(AuthService.getMinPasswordLength()).toBe(MIN_PASSWORD_LENGTH);
-    expect(AuthService.getResetEmailIntervalSeconds()).toBe(
+    expect(ClientAuthService.getMinPasswordLength()).toBe(MIN_PASSWORD_LENGTH);
+    expect(ClientAuthService.getResetEmailIntervalSeconds()).toBe(
       RESET_EMAIL_INTERVAL_SECONDS,
     );
   });

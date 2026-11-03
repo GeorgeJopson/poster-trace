@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 
-import { AuthService } from "@clientApplication/services/AuthService";
+import { ClientAuthService } from "@clientApplication/services/ClientAuthService";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import PasswordResetLink from "@/components/PasswordResetLink";
@@ -22,7 +22,7 @@ export default function SignIn() {
         pendingText="Logging In …"
         fallbackErrorMessage="Something went wrong signing in. Please try again."
         submit={(formData) =>
-          AuthService.signInWithEmail({
+          ClientAuthService.signInWithEmail({
             email: String(formData.get("email")),
             password: String(formData.get("password")),
           })

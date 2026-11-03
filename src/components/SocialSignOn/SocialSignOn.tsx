@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AuthService } from "@clientApplication/services/AuthService";
+import { ClientAuthService } from "@clientApplication/services/ClientAuthService";
 import { icons } from "@/imageDetails";
 import { routeNames } from "@/routeNames";
 import styles from "./SocialSignOn.module.css";
@@ -26,7 +26,7 @@ const socialSignOnMethods: SocialSignOnMethod[] = [
       const dashboardURL = new URL(routeNames.dashboard, window.location.origin)
         .href;
 
-      return AuthService.signInWithGoogle({
+      return ClientAuthService.signInWithGoogle({
         callbackURL: dashboardURL,
         errorCallbackURL: new URL(routeNames.error, window.location.origin)
           .href,

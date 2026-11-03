@@ -3,7 +3,7 @@
 import React, { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { AuthService } from "@clientApplication/services/AuthService";
+import { ClientAuthService } from "@clientApplication/services/ClientAuthService";
 import { routeNames } from "@/routeNames";
 
 import styles from "./SignOutButton.module.css";
@@ -14,7 +14,7 @@ export default function SignOutButton() {
 
   function handleClick() {
     startTransition(async () => {
-      await AuthService.signOut();
+      await ClientAuthService.signOut();
       router.push(routeNames.root);
       router.refresh();
     });
