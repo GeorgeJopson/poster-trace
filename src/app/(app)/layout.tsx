@@ -1,8 +1,9 @@
 import React from "react";
-import { requireUserId } from "@/auth/session";
+import { getAccountService } from "@di/container";
 import AppDesktopNav from "@/components/AppNavigation/AppDesktopNav";
 import AppMobileNav from "@/components/AppNavigation/AppMobileNav";
 import Footer from "@/components/Footer";
+import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 import styles from "./AppLayout.module.css";
 
@@ -13,7 +14,7 @@ type AppLayoutProps = Readonly<{
 }>;
 
 export default async function AppLayout({ children, pageNav }: AppLayoutProps) {
-  await requireUserId();
+  await withSignInRedirect(() => getAccountService().requireCurrentUserId());
   return (
     <div className={styles.grid}>
       <aside className={styles.navColumn}>

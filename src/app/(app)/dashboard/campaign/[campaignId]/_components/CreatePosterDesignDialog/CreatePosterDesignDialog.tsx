@@ -2,10 +2,10 @@
 
 import React, { useRef, useState, useTransition } from "react";
 
+import { validatePosterImage } from "@application/validation/validatePosterImage";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
-import { getImageFileError } from "@/data/posterDesignValidation";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
 import { useCampaignId, useCampaignTarget } from "../CampaignContext";
@@ -14,10 +14,10 @@ import styles from "./CreatePosterDesignDialog.module.css";
 import PosterDesignFields, { type QrValues } from "./PosterDesignFields";
 
 const DEFAULT_QR_VALUES: QrValues = {
-  qrXPosition: "0",
-  qrYPosition: "0",
-  qrSize: "0",
-  qrRotation: "0",
+  x: "0",
+  y: "0",
+  size: "0",
+  rotation: "0",
 };
 
 export default function CreatePosterDesignDialog() {
@@ -35,10 +35,10 @@ export default function CreatePosterDesignDialog() {
     canvasRef,
     image,
     {
-      qrXPosition: parseFloat(qrValues.qrXPosition) || 0,
-      qrYPosition: parseFloat(qrValues.qrYPosition) || 0,
-      qrSize: parseFloat(qrValues.qrSize) || 0,
-      qrRotation: parseFloat(qrValues.qrRotation) || 0,
+      x: parseFloat(qrValues.x) || 0,
+      y: parseFloat(qrValues.y) || 0,
+      size: parseFloat(qrValues.size) || 0,
+      rotation: parseFloat(qrValues.rotation) || 0,
     },
     target,
   );
@@ -72,7 +72,7 @@ export default function CreatePosterDesignDialog() {
       input.reportValidity();
       clearImage();
     }
-    const fileError = getImageFileError(file);
+    const fileError = validatePosterImage(file);
     if (fileError) {
       rejectFile(fileError);
       return;

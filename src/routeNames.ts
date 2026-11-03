@@ -12,6 +12,7 @@ export const routeNames = {
   error: "/error",
   passwordReset: "/password-reset",
   passwordResetAuthorized: "/password-reset/authorized",
-  campaign: (id: number) => `/dashboard/campaign/${id}`,
-  campaignAnalytics: (id: number) => `/dashboard/campaign/${id}/analytics`,
+  campaign: (id: string) => `/dashboard/campaign/${id}`,
+  campaignAnalytics: (id: string) => `/dashboard/campaign/${id}/analytics`,
+  posterDesignImage: (id: string) => `/api/poster-designs/${id}/image`,
 } as const;

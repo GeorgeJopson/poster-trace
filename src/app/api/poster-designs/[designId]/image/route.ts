@@ -1,5 +1,5 @@
-import { getMyPosterDesignImageKey } from "@/data/posterDesigns";
-import { getImage } from "@/imageStorage";
+import { NotAuthenticatedError } from "@application/errors/NotAuthenticatedError";
+import { getPosterDesignService } from "@di/container";
 
 // Serves a poster design's image to the user who owns it. Blobs have no
 // access control of their own, so this route is what keeps images private.
@@ -8,11 +8,7 @@ export async function GET(
   ctx: RouteContext<"/api/poster-designs/[designId]/image">,
 ) {
   const { designId } = await ctx.params;
-  const id = Number(designId);
-  const key = Number.isInteger(id)
-    ? await getMyPosterDesignImageKey(id)
-    : undefined;
-  const image = key && (await getImage(key));
+  const image = await getImage(designId);
   if (!image) {
     return new Response("Not found", { status: 404 });
   }
@@ -23,6 +19,22 @@ export async function GET(
       // A design's image never changes, so the browser can keep it. Private
       // so shared caches never hold one user's image.
       "Cache-Control": "private, max-age=31536000, immutable",
+      // The content type comes from the upload, so stop the browser guessing
+      // a different one, and never run anything in the file if it's opened
+      // directly.
+      "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "default-src 'none'; sandbox",
     },
   });
+}
+
+// Signed-out requests get a 404 like any other image they can't see, rather
+// than a redirect to log in.
+async function getImage(designId: string) {
+  try {
+    return await getPosterDesignService().getMyPosterDesignImage(designId);
+  } catch (error) {
+    if (error instanceof NotAuthenticatedError) return null;
+    throw error;
+  }
 }

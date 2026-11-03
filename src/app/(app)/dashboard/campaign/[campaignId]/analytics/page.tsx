@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import UnderConstruction from "@/components/UnderConstruction";
-import { getMyCampaign } from "@/data/campaigns";
+
+import { getCampaign } from "../getCampaign";
 
 export const metadata: Metadata = {
   title: "Analytics",
@@ -14,12 +15,7 @@ export default async function AnalyticsPage({
   params: Promise<{ campaignId: string }>;
 }) {
   const { campaignId } = await params;
-  const id = Number(campaignId);
-  if (!Number.isInteger(id)) {
-    notFound();
-  }
-
-  const campaign = await getMyCampaign(id);
+  const campaign = await getCampaign(campaignId);
   if (!campaign) {
     notFound();
   }

@@ -3,7 +3,8 @@
 import React, { createContext, useContext } from "react";
 
 type Campaign = {
-  id: number;
+  // The campaign's UUID, which the forms pass to the actions.
+  id: string;
   target: string;
 };
 

@@ -18,7 +18,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@domain/*": ["./domain/*"],
+      "@application/*": ["./application/*"],
+      "@clientApplication/*": ["./clientApplication/*"],
+      "@infrastructure/*": ["./infrastructure/*"],
+      "@di/*": ["./di/*"]
     },
     "allowJs": true
   },

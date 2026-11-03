@@ -1,27 +1,30 @@
 "use server";
 
-import { APIError } from "better-auth/api";
 import { redirect } from "next/navigation";
 
-import { deleteCurrentUser } from "@/data/users";
+import { AccountDeletionRefusedError } from "@application/errors/AccountDeletionRefusedError";
+import { getAccountService } from "@di/container";
 import { routeNames } from "@/routeNames";
+import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 export async function deleteAccount(
   _previousError: string | null,
   formData: FormData,
 ) {
-  if (formData.get("confirmation") !== "DELETE") {
-    return 'Type "DELETE" to confirm.';
-  }
-
-  try {
-    await deleteCurrentUser();
-  } catch (error) {
-    if (error instanceof APIError) {
-      return error.message;
+  return withSignInRedirect(async () => {
+    if (formData.get("confirmation") !== "DELETE") {
+      return 'Type "DELETE" to confirm.';
     }
-    throw error;
-  }
 
-  redirect(routeNames.root);
+    try {
+      await getAccountService().deleteAccount();
+    } catch (error) {
+      if (error instanceof AccountDeletionRefusedError) {
+        return error.message;
+      }
+      throw error;
+    }
+
+    redirect(routeNames.root);
+  });
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type { ClientPosterDesign } from "@/data/posterDesigns";
+import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
+import { routeNames } from "@/routeNames";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 
 import styles from "./DesignPreview.module.css";
@@ -10,7 +11,7 @@ import styles from "./DesignPreview.module.css";
 interface DesignPreviewProps {
   width: number;
   height: number;
-  posterDesign: ClientPosterDesign;
+  posterDesign: PosterDesignDto;
   /** The URL the QR code points to. */
   url: string;
   /** Describes the preview for screen readers, like an image's alt text. */
@@ -35,8 +36,11 @@ export default function DesignPreview({
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [failed, setFailed] = useState(false);
 
-  const { designUrl } = posterDesign;
-  usePosterCanvas(canvasRef, image, posterDesign, url, { width, height });
+  const designUrl = routeNames.posterDesignImage(posterDesign.id);
+  usePosterCanvas(canvasRef, image, posterDesign.qrPlacement, url, {
+    width,
+    height,
+  });
 
   useEffect(() => {
     let cancelled = false;

@@ -3,7 +3,7 @@ const nextConfig = {
   /* config options here */
   reactCompiler: true,
   // Netlify only exposes these at build time, so inline them for the server
-  // to tell deploy previews apart from production (see src/lib/auth.ts).
+  // to tell deploy previews apart from production (see infrastructure/auth/betterAuth.ts).
   env: {
     NETLIFY_CONTEXT: process.env.CONTEXT ?? "",
     NETLIFY_DEPLOY_PRIME_URL: process.env.DEPLOY_PRIME_URL ?? "",
