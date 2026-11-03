@@ -5,7 +5,7 @@ The composition root: the only place in the app that wires infrastructure implem
 **Rules**
 - **Constructor injection everywhere.** Every service, repository and gateway is a class whose dependencies are passed to its constructor, typed as interfaces (domain repositories, application ports, or infrastructure's internal `BlobStore`). No class calls `new` on a concrete dependency or imports a module-level singleton.
 - **One exception: Better Auth.** `infrastructure/auth/betterAuth.ts` exports a module-level `auth`, as today (see [`betterAuth.ts`](../infrastructure/README.md#betterauthts)). di imports it to build the Better Auth adapters, and the auth route imports it directly.
-- Within the app, `di/` is the only folder that imports concrete infrastructure classes (apart from the [Better Auth exceptions](../presentation/README.md#better-auth-exceptions)). `scripts/` and `tests/` are outside the app and may construct infrastructure directly (see [Dependency rules](../ARCHITECTURE_REDESIGN_PLAN.md#dependency-rules)).
+- Within the app, `di/` is the only folder that imports concrete infrastructure classes (apart from the [Better Auth exception](../presentation/README.md#better-auth-exception) and the browser-safe auth modules [clientApplication](../clientApplication/README.md) imports). `scripts/` and `tests/` are outside the app and may construct infrastructure directly (see [Dependency rules](../ARCHITECTURE_REDESIGN_PLAN.md#dependency-rules)).
 - No DI library: tsyringe / InversifyJS need decorator metadata, which is awkward with Next's SWC/Turbopack builds, and is more machinery than this app needs.
 
 ## `di/container.ts`

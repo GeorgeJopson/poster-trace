@@ -5,7 +5,11 @@ import nextTypeScript from "eslint-config-next/typescript";
 // Layer dependency rules (see architecture-redesign/ARCHITECTURE_REDESIGN_PLAN.md):
 //
 //   presentation (src/) ──► application ──► domain ◄── infrastructure
+//            │                                            ▲
+//            └──────────► clientApplication ──────────────┘
 //
+// clientApplication is the browser's application layer. It only imports the
+// browser-safe infrastructure in CLIENT_INFRASTRUCTURE.
 // di/, scripts/ and tests/ have no import restrictions.
 
 const frameworks = {
@@ -37,17 +41,26 @@ const infrastructure = {
   message: "Only di wires in infrastructure.",
 };
 
+/** Infrastructure that `allowed` doesn't list, with `message`. */
+function infrastructureExcept(allowed, message) {
+  return allowed.length === 0
+    ? { group: ["@infrastructure/**"], message }
+    : { regex: `^@infrastructure/(?!(${allowed.join("|")})$)`, message };
+}
+
 /**
  * The presentation rules, allowing the infrastructure modules in
  * `allowedInfrastructure` and the Better Auth modules in `allowedBetterAuth`.
  */
-function presentationPatterns(allowedInfrastructure, allowedBetterAuth = []) {
+function presentationPatterns(
+  allowedInfrastructure = [],
+  allowedBetterAuth = [],
+) {
   return [
-    {
-      regex: `^@infrastructure/(?!(${allowedInfrastructure.join("|")})$)`,
-      message:
-        "Presentation only imports infrastructure for the Better Auth exceptions.",
-    },
+    infrastructureExcept(
+      allowedInfrastructure,
+      "Presentation goes through @clientApplication (in the browser) or @di/container (on the server).",
+    ),
     {
       group: [
         "@application/services/**",
@@ -73,8 +86,8 @@ function presentationPatterns(allowedInfrastructure, allowedBetterAuth = []) {
   ];
 }
 
-// Better Auth exceptions (see architecture-redesign/presentation/README.md).
-const BETTER_AUTH_CLIENT = ["auth/authClient", "auth/passwordRules"];
+// The infrastructure that's safe to bundle for the browser.
+const CLIENT_INFRASTRUCTURE = ["auth/authClient", "auth/passwordRules"];
 
 function layerRule(patterns) {
   return {
@@ -114,18 +127,31 @@ const eslintConfig = defineConfig([
     rules: layerRule([presentation, di]),
   },
   {
-    files: ["src/**"],
-    rules: layerRule(presentationPatterns(BETTER_AUTH_CLIENT)),
+    // Bundled for the browser by the Client Components that use it.
+    files: ["clientApplication/**"],
+    rules: layerRule([
+      presentation,
+      di,
+      infrastructureExcept(
+        CLIENT_INFRASTRUCTURE,
+        "clientApplication only imports browser-safe infrastructure.",
+      ),
+      {
+        group: ["@application/services/**", "@application/ports/**"],
+        message: "Application services run on the server.",
+      },
+      { ...frameworks, group: [...frameworks.group, "server-only"] },
+    ]),
   },
   {
-    // Better Auth's route handler serves the module-level `auth`.
+    files: ["src/**"],
+    rules: layerRule(presentationPatterns()),
+  },
+  {
+    // Better Auth's route handler serves the module-level `auth` (see
+    // architecture-redesign/presentation/README.md).
     files: ["src/app/api/auth/**"],
-    rules: layerRule(
-      presentationPatterns(
-        [...BETTER_AUTH_CLIENT, "auth/betterAuth"],
-        ["next-js"],
-      ),
-    ),
+    rules: layerRule(presentationPatterns(["auth/betterAuth"], ["next-js"])),
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([

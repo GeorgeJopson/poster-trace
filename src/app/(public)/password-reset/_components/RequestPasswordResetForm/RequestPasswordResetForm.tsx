@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { authClient } from "@infrastructure/auth/authClient";
-import { RESET_EMAIL_INTERVAL_SECONDS } from "@infrastructure/auth/passwordRules";
+import { AccountService } from "@clientApplication/services/AccountService";
+import { AuthService } from "@clientApplication/services/AuthService";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
 import useAuthFormSubmit from "@/utils/useAuthFormSubmit";
@@ -13,8 +13,7 @@ import styles from "./RequestPasswordResetForm.module.css";
 export default function RequestPasswordResetForm() {
   // Signed-in users (e.g. from the account page) get their email filled in.
   // Read on the client so the page stays static.
-  const { data: session } = authClient.useSession();
-  const defaultEmail = session?.user.email ?? "";
+  const defaultEmail = AccountService.useUserEmail();
 
   const [hasSent, setHasSent] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
@@ -29,7 +28,7 @@ export default function RequestPasswordResetForm() {
 
   const { isPending, error, handleSubmit } = useAuthFormSubmit(
     async (formData) => {
-      const { error } = await authClient.requestPasswordReset({
+      const { error } = await AuthService.requestPasswordReset({
         email: String(formData.get("email")),
         // Better Auth resolves this against its base URL, the same one the
         // email link uses, so it works from any origin the site is served on.
@@ -38,7 +37,7 @@ export default function RequestPasswordResetForm() {
       if (error) return { error };
 
       setHasSent(true);
-      setSecondsLeft(RESET_EMAIL_INTERVAL_SECONDS);
+      setSecondsLeft(AuthService.getResetEmailIntervalSeconds());
       return { error: null };
     },
     {

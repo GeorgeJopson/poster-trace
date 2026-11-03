@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 
-import { authClient } from "@infrastructure/auth/authClient";
-import { MIN_PASSWORD_LENGTH } from "@infrastructure/auth/passwordRules";
+import { AuthService } from "@clientApplication/services/AuthService";
 import AuthCardForm from "@/components/AuthCardForm";
 import { TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
@@ -19,7 +18,7 @@ export default function SignUp() {
         fallbackErrorMessage="Something went wrong signing up. Please try again."
         // Signing up also signs the user in.
         submit={(formData) =>
-          authClient.signUp.email({
+          AuthService.signUpWithEmail({
             name: String(formData.get("name")),
             email: String(formData.get("email")),
             password: String(formData.get("password")),
@@ -44,7 +43,7 @@ export default function SignUp() {
           name="password"
           type="password"
           autoComplete="new-password"
-          minLength={MIN_PASSWORD_LENGTH}
+          minLength={AuthService.getMinPasswordLength()}
         />
       </AuthCardForm>
     </>

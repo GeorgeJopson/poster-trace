@@ -7,13 +7,14 @@ The Next.js UI. Lives in `src/` (alias `@/*`): `src/app` for routes and `src/com
 - **Every call to a service from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`** (see [Error handling](#error-handling)). The image route is the one exception: it maps a missing session to 404.
 - Forms validate with [`@application/validation`](../application/README.md#validation) (`validateCampaignTarget`, `validatePosterImage`), not by calling domain factories themselves. They may import domain constants for input attributes and drawing (`CampaignTarget.MAX_LENGTH`, `QrPlacement.RANGES`). This is a convention, not enforced by lint: `@domain/**` is allowed so that error classes can be imported too.
 - May import **application** DTO types with `import type`, and application and domain errors for [error handling](#error-handling).
-- Never imports infrastructure, except the [Better Auth exceptions](#better-auth-exceptions).
+- Never imports infrastructure, except the [Better Auth exception](#better-auth-exception). Client Components reach auth through [`@clientApplication`](../clientApplication/README.md).
 - Client Components never call application services. They get plain DTOs through props, or call Server Actions for anything that needs the session or database.
 - Enforced by an ESLint `no-restricted-imports` rule on `src/`. Allowed:
   - `@application/dto/*` (type-only), `@application/validation/*` and `@application/errors/*` (`NotAuthenticatedError` for `withSignInRedirect` and the image route, `AccountDeletionRefusedError`);
   - `@domain/**` (constants and errors such as `NotFoundError`);
   - `@di/*`, from which pages, actions and routes get services;
-  - the [Better Auth exceptions](#better-auth-exceptions).
+  - `@clientApplication/*`, for Client Components;
+  - the [Better Auth exception](#better-auth-exception).
 
   `@application/services/*`, `@application/ports/*` and `@application/mappers/*` are blocked everywhere in `src/`, as pages and actions get services from di. A Client Component that imports a service or di anyway fails the build, because both import `server-only`.
 
@@ -24,7 +25,7 @@ The Next.js UI. Lives in `src/` (alias `@/*`): `src/app` for routes and `src/com
 | Server Actions (`actions.ts`, `"use server"`) | Server, on form submit | Application **commands**, through `withSignInRedirect` |
 | `app/api/poster-designs/[designId]/image/route.ts` | Server, on HTTP request | `PosterDesignService.getMyPosterDesignImage` |
 | `app/api/auth/[...all]/route.ts` | Server, on HTTP request | Better Auth handler (the module-level `auth`) |
-| Client Components using `authClient` | Browser → `/api/auth/*` | Better Auth |
+| Client Components using `@clientApplication` | Browser → `/api/auth/*` | Better Auth |
 
 ## Changes per file
 **Entry points.** Each one listed here wraps its service calls in `withSignInRedirect`, so a signed-out user is redirected to log in wherever the session runs out:
@@ -56,7 +57,7 @@ Server Actions stay plain `export async function`s in their `"use server"` files
 | `PosterDesignFields`, `CreatePosterDesignDialog` | QR inputs are named `x`, `y`, `size` and `rotation`, and read `min`/`max`/`step` from `QrPlacement.RANGES[name]`. |
 | `drawPoster.ts` | Its own `type QrPlacement` (today a `Pick` of the Drizzle `PosterDesign` row, which moves into infrastructure) is replaced by `type DrawableQrPlacement = PosterDesignDto["qrPlacement"]` (`x`, `y`, `size`, `rotation`). The new name avoids a clash with the domain's `QrPlacement` class, which is importable from `src/`. `DEFAULT_TARGET` (what a new campaign's form is pre-filled with, and the QR fallback for an empty target) moves here from `src/data/campaignValidation.ts`, since it's a presentation concern; `CreateCampaignDialog` imports it from here. |
 | `usePosterCanvas.ts` | Uses `DrawableQrPlacement`. |
-| `SocialSignOn` | Imports the `BetterFetchOption` type from `@infrastructure/auth/authClient` instead of `better-auth/react`. |
+| `SocialSignOn` | Calls `AuthService.signInWithGoogle` from `@clientApplication` instead of `better-auth/react`. |
 
 `src/data/`, `src/db/`, `src/auth/`, `src/email/` and `src/imageStorage/` are removed; their contents move to the other layers.
 
@@ -79,13 +80,10 @@ Today `getMyCampaign` is wrapped in React `cache()` so the `@pageNav` layout and
 
 It returns `null` rather than calling `notFound()`, so each caller keeps today's behaviour: the two pages call `notFound()`, and the `@pageNav` layout renders nothing.
 
-## Better Auth exceptions
-Sign-in, sign-up, sign-out and password reset keep using Better Auth's browser client and route handler: behaviour doesn't change, the Google OAuth callback and OAuth proxy need the route anyway, and there's no business logic to put in the application layer. Wrapping them in Server Actions would mean re-implementing cookie handling and losing `useSession`.
+## Better Auth exception
+Sign-in, sign-up, sign-out and password reset keep using Better Auth's browser client and route handler: behaviour doesn't change, the Google OAuth callback and OAuth proxy need the route anyway, and wrapping them in Server Actions would mean re-implementing cookie handling and losing `useSession`. Client Components (log-in, sign-up, password reset forms, `SocialSignOn`, `SignOutButton`, `useRedirectIfSignedIn`) call the browser client through [`@clientApplication`](../clientApplication/README.md), so nothing in `src/` imports `@infrastructure/auth/authClient` or `better-auth/react`.
 
-These are the only allowed infrastructure imports, allow-listed in the ESLint rule:
-- `app/api/auth/[...all]/route.ts` imports `auth` from `@infrastructure/auth/betterAuth` and `toNextJsHandler` from `better-auth/next-js`: `export const { GET, POST } = toNextJsHandler(auth)`, as today. Importing `auth` is build-safe (see [`betterAuth.ts`](../infrastructure/README.md#betterauthts)).
-- Client Components (log-in, sign-up, password reset forms, `SocialSignOn`, `SignOutButton`, `useRedirectIfSignedIn`) import `@infrastructure/auth/authClient` (including the re-exported `BetterFetchOption` type, so nothing in `src/` imports `better-auth/react`).
-- Auth forms import `@infrastructure/auth/passwordRules` (`MIN_PASSWORD_LENGTH`, `RESET_EMAIL_INTERVAL_SECONDS`).
+The only allowed infrastructure import, allow-listed in the ESLint rule: `app/api/auth/[...all]/route.ts` imports `auth` from `@infrastructure/auth/betterAuth` and `toNextJsHandler` from `better-auth/next-js`: `export const { GET, POST } = toNextJsHandler(auth)`, as today. Importing `auth` is build-safe (see [`betterAuth.ts`](../infrastructure/README.md#betterauthts)).
 
 ## Tests
 Presentation is covered by end-to-end tests, not unit tests against fake services. A session that expires mid-use should redirect to log in, both on navigation and on form submit.

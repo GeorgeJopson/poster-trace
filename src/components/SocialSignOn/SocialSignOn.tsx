@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import {
-  authClient,
-  type BetterFetchOption,
-} from "@infrastructure/auth/authClient";
+import { AuthService } from "@clientApplication/services/AuthService";
 import { icons } from "@/imageDetails";
 import { routeNames } from "@/routeNames";
 import styles from "./SocialSignOn.module.css";
@@ -29,15 +26,12 @@ const socialSignOnMethods: SocialSignOnMethod[] = [
       const dashboardURL = new URL(routeNames.dashboard, window.location.origin)
         .href;
 
-      return authClient.signIn.social({
-        provider: "google",
+      return AuthService.signInWithGoogle({
         callbackURL: dashboardURL,
         errorCallbackURL: new URL(routeNames.error, window.location.origin)
           .href,
         newUserCallbackURL: dashboardURL,
-        fetchOptions: {
-          onError: (context) => onError(context.error.message),
-        } as BetterFetchOption,
+        onError,
       });
     },
   },

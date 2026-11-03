@@ -8,6 +8,7 @@ This is a greenfield system, so breaking database schema changes are allowed, bu
 |---|---|---|---|
 | Presentation | `src/` (`@/*`) | Next.js routes and components | [presentation](presentation/README.md) |
 | Application | `application/` (`@application/*`) | Use cases; ports for the session and account | [application](application/README.md) |
+| Client application | `clientApplication/` (`@clientApplication/*`) | Browser-side use cases: auth requests and session hooks | [client application](clientApplication/README.md) |
 | Domain | `domain/` (`@domain/*`) | Entities, value objects, business rules, repository interfaces | [domain](domain/README.md) |
 | Infrastructure | `infrastructure/` (`@infrastructure/*`) | Drizzle, Netlify Blobs, Better Auth, Resend | [infrastructure](infrastructure/README.md) |
 | Dependency injection | `di/` (`@di/*`) | Composition root wiring implementations to interfaces | [dependency injection](dependency-injection/README.md) |
@@ -17,18 +18,20 @@ Each new folder needs a path alias in `tsconfig.json`, alongside the existing `@
 ## Dependency rules
 ```
 presentation ──► application ──► domain ◄── infrastructure
-                      ▲                         │
-                      └──── (implements ports) ─┘
+     │                ▲                         │  ▲
+     │                └──── (implements ports) ─┘  │
+     └──► clientApplication ──(browser-safe only)──┘
 di ──► everything (the only place that wires implementations to interfaces)
 ```
 - **domain** imports nothing from the other layers, and no frameworks.
 - **application** imports domain, and declares ports for what it needs from outside. It never imports infrastructure.
+- **clientApplication** is the application layer for Client Components. It imports only the browser-safe infrastructure (`auth/authClient`, `auth/passwordRules`) and no frameworks.
 - **infrastructure** implements domain repositories and application ports.
-- **presentation** calls application use cases obtained from di. It may import application DTO types, validation functions and errors, and domain constants and errors. Forms validate through [`@application/validation`](application/README.md#validation), not by calling domain factories themselves. It never imports infrastructure, except the documented [Better Auth exceptions](presentation/README.md#better-auth-exceptions).
+- **presentation** calls application use cases obtained from di. It may import application DTO types, validation functions and errors, and domain constants and errors. Forms validate through [`@application/validation`](application/README.md#validation), not by calling domain factories themselves. Client Components use [`@clientApplication`](clientApplication/README.md) for auth. It never imports infrastructure, except the documented [Better Auth exception](presentation/README.md#better-auth-exception).
 - **di** is the only folder in the app that imports concrete infrastructure classes.
 - **`scripts/` and `tests/`** sit outside the app and may import infrastructure directly: the seed reuses the schema and `NetlifyBlobStore`, and infrastructure tests construct the Drizzle repositories.
 
-An ESLint `no-restricted-imports` rule per folder enforces these rules, with the exceptions allow-listed (see [presentation](presentation/README.md) for its allow-list). The rules apply to `src/`, `domain/`, `application/` and `infrastructure/` only; `di/`, `scripts/` and `tests/` have no import restrictions.
+An ESLint `no-restricted-imports` rule per folder enforces these rules, with the exceptions allow-listed (see [presentation](presentation/README.md) for its allow-list). The rules apply to `src/`, `domain/`, `application/`, `clientApplication/` and `infrastructure/` only; `di/`, `scripts/` and `tests/` have no import restrictions.
 
 ## Key decisions
 | Topic | Decision |
@@ -40,9 +43,9 @@ An ESLint `no-restricted-imports` rule per folder enforces these rules, with the
 | Ownership | Owner-facing use cases check the session first (`requireUserId`), and owner-facing repository reads take an explicit `ownerId`. Other users' data looks missing (`NotFoundError` / `null`). |
 | Signed-out users | Use cases throw `NotAuthenticatedError`; presentation turns it into a sign-in redirect with one helper, `withSignInRedirect`, used by every page, layout and Server Action. |
 | Server → client data | Use cases return plain DTOs, never entities. |
-| Authentication | A generic subdomain owned by Better Auth. Domain: users and ownership only. Application: `SessionProvider` and `AccountGateway` ports. Sign-in/up/out and password reset keep Better Auth's browser client and route. |
+| Authentication | A generic subdomain owned by Better Auth. Domain: users and ownership only. Application: `SessionProvider` and `AccountGateway` ports. Sign-in/up/out and password reset keep Better Auth's browser client and route, called through `clientApplication`. |
 | Rate limiting | Per-IP limit stays in the Better Auth config. The per-account reset email cooldown is one function, `tryClaimResetEmailCooldown`, called from `sendResetPassword` in the Better Auth config. |
-| Password/reset constants | `infrastructure/auth/passwordRules.ts`, imported by auth forms as an exception. |
+| Password/reset constants | `infrastructure/auth/passwordRules.ts`, read by auth forms through `AuthService.getMinPasswordLength()` and `getResetEmailIntervalSeconds()`. |
 | Stored rows | Loaded through the domain's validating factories. If a rule is tightened later, stored data must be checked or migrated at the same time (an accepted risk). |
 | DI | Hand-written, lazy composition root with constructor injection; no DI library. Better Auth stays a module-level `auth`, as today (a documented exception). |
 | Deploy rollback | The schema migration is destructive, so production can't be rolled back to a deploy from before it; fixes roll forward. |

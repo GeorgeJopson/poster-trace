@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { authClient } from "@infrastructure/auth/authClient";
+import { AccountService } from "@clientApplication/services/AccountService";
 
 // Sends visitors who already have a session (including one just created on
 // the current page) straight to `route`.
 export default function useRedirectIfSignedIn(route: string) {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const isSignedIn = AccountService.useIsSignedIn();
 
   useEffect(() => {
-    if (session) {
+    if (isSignedIn) {
       router.push(route);
     }
-  }, [session, router, route]);
+  }, [isSignedIn, router, route]);
 }

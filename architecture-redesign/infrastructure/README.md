@@ -4,7 +4,7 @@ Implements the domain repositories and the application ports against Postgres (D
 
 **Rules**
 - Implements interfaces from domain (repositories) and application (ports). Never imports presentation or di.
-- In the app, only [di](../dependency-injection/README.md) constructs these classes. Presentation imports infrastructure only for the [Better Auth exceptions](../presentation/README.md#better-auth-exceptions). Outside the app, `scripts/` (the seed) and `tests/` may import and construct infrastructure directly.
+- In the app, only [di](../dependency-injection/README.md) constructs these classes. Presentation imports infrastructure only for the [Better Auth exception](../presentation/README.md#better-auth-exception); Client Components reach the browser-safe auth modules (`auth/authClient`, `auth/passwordRules`) through [clientApplication](../clientApplication/README.md). Outside the app, `scripts/` (the seed) and `tests/` may import and construct infrastructure directly.
 - Nothing connects to a service at import time (`next build` imports these modules without credentials).
 
 ## Overview

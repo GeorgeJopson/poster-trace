@@ -21,6 +21,7 @@
       "@/*": ["./src/*"],
       "@domain/*": ["./domain/*"],
       "@application/*": ["./application/*"],
+      "@clientApplication/*": ["./clientApplication/*"],
       "@infrastructure/*": ["./infrastructure/*"],
       "@di/*": ["./di/*"]
     },

@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { authClient } from "@infrastructure/auth/authClient";
-import { MIN_PASSWORD_LENGTH } from "@infrastructure/auth/passwordRules";
+import { AuthService } from "@clientApplication/services/AuthService";
 import AuthCard from "@/components/AuthCard";
 import Form, { SubmitButton, TextInput } from "@/components/Form";
 import { routeNames } from "@/routeNames";
@@ -18,6 +17,7 @@ interface ResetPasswordFormProps {
 
 export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const router = useRouter();
+  const minPasswordLength = AuthService.getMinPasswordLength();
   // The token can expire or be used up (e.g. in another tab) after the page
   // loads, which only shows up when submitting.
   const [isTokenInvalid, setIsTokenInvalid] = useState(false);
@@ -29,8 +29,11 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         return { error: { message: "The passwords don't match." } };
       }
 
-      const { error } = await authClient.resetPassword({ newPassword, token });
-      if (error?.code === "INVALID_TOKEN") {
+      const { error, isTokenInvalid } = await AuthService.resetPassword({
+        newPassword,
+        token,
+      });
+      if (isTokenInvalid) {
         setIsTokenInvalid(true);
         return { error: null };
       }
@@ -62,14 +65,14 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
               name="newPassword"
               type="password"
               autoComplete="new-password"
-              minLength={MIN_PASSWORD_LENGTH}
+              minLength={minPasswordLength}
             />
             <TextInput
               label="Confirm new password"
               name="confirmPassword"
               type="password"
               autoComplete="new-password"
-              minLength={MIN_PASSWORD_LENGTH}
+              minLength={minPasswordLength}
             />
           </>
         }

@@ -401,7 +401,7 @@ AccountService ..> requireUserId
 If step 3 fails, or the process dies between steps 2 and 3, the orphaned images are accepted for now, as today. A clean-up job can be added if needed.
 
 ## Not in this layer
-Sign up, sign in (email / Google), sign out, request password reset and reset password are owned by Better Auth and called from the browser through its client (see [presentation](../presentation/README.md#better-auth-exceptions)). There's no business logic in them to put here.
+Sign up, sign in (email / Google), sign out, request password reset and reset password are owned by Better Auth and called from the browser through its client, wrapped by [clientApplication](../clientApplication/README.md). There's no business logic in them to put here.
 
 ## Tests
 Real services with in-memory fakes: `InMemoryCampaignRepository`, `InMemoryUserRepository`, `FakeSessionProvider`, `FakeAccountGateway`. The repository fake must behave like the Drizzle one: `updateDetails` copies only the name and target (never the designs), and `addDesign` throws if the design isn't in `campaign.getDesigns()`. Otherwise a use case that edits a design and calls `updateDetails` would pass against the fake and silently do nothing in production. Cover ownership (`NotFoundError` for other users' data), `null` / `NotFoundError` for ids that aren't UUIDs, `NotAuthenticatedError` when signed out (including with invalid input or a non-UUID id, since the session check comes first), validation before storage, and the account deletion ordering. The `validation/` functions get plain unit tests with no fakes.
