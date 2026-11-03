@@ -83,28 +83,28 @@ which (`npm run lint`).
 
 ```bash
 npm test                 # domain, application and infrastructure unit tests
-npm run test:db          # repository tests against a local Postgres (below)
+npm run test:db          # repository tests against a throwaway Postgres (below)
 npm run test:e2e         # end-to-end tests with Playwright
+npm run test:all         # all of the above, stopping at the first failure
 ```
 
-`npm run test:db` drops and recreates the schema of the database in
-`TEST_DATABASE_URL`, which must be on localhost, by applying every migration
-from the baseline up. For example, with Docker:
+`npm run test:db` starts a Postgres container in Docker on port 54329, applies
+every migration from the baseline up, runs the tests and removes the
+container, even if they fail. To use another database instead, set
+`TEST_DATABASE_URL` (it must be on localhost, and its schema is dropped and
+recreated):
 
 ```bash
-docker run -d --rm --name poster-trace-test-db -e POSTGRES_PASSWORD=postgres \
-  -p 54329:5432 postgres:17-alpine
-TEST_DATABASE_URL=postgres://postgres:postgres@localhost:54329/postgres npm run test:db
+TEST_DATABASE_URL=postgres://postgres:postgres@localhost:5432/test npm run test:db
 ```
 
-The end-to-end tests run against a freshly reset and seeded local database.
-The seed needs the database `netlify dev` serves, so start it first; the tests
-reuse it (or start their own if nothing is running on port 3000):
+`npm run test:e2e` resets the local development database (`npm run db:reset`),
+which deletes its data, then runs the tests. They reuse the `netlify dev`
+server on port 3000 if one is running, or start their own:
 
 ```bash
 npx playwright install chromium   # once
-netlify dev                       # in one terminal
-npm run db:reset && npm run seed && npm run test:e2e   # in another
+npm run test:e2e
 ```
 
 They sign up their own users, and don't cover Google sign-in or the content
