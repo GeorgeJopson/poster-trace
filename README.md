@@ -24,6 +24,7 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
 
    ```
    BETTER_AUTH_URL=http://localhost:3000
+   POSTER_TRACE_URL=http://localhost:3000
    BETTER_AUTH_SECRET=<any long random string, e.g. from `openssl rand -base64 32`>
    GOOGLE_CLIENT_ID=<Google OAuth client ID>
    GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
@@ -185,6 +186,9 @@ Set these environment variables in the Netlify UI (Site configuration →
 Environment variables), scoped to the Builds and Functions:
 
 - `BETTER_AUTH_URL` — public site URL, e.g. `https://www.postertrace.app`
+- `POSTER_TRACE_URL` — the production site URL, e.g.
+  `https://www.postertrace.app`, in every deploy context. Generated posters'
+  QR codes point to it, and a printed poster outlives any deploy preview.
 - `BETTER_AUTH_SECRET` — random secret for signing sessions
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
 - `RESEND_KEY` — Resend API key, in every deploy context

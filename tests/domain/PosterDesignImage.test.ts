@@ -14,9 +14,32 @@ describe("PosterDesignImageRules", () => {
       PosterDesignImageRules.assertValid({ type: "image/png", size: 1 }),
     ).not.toThrow();
     expect(() =>
-      PosterDesignImageRules.assertValid({ type: "image/webp", size: MAX }),
+      PosterDesignImageRules.assertValid({ type: "image/jpeg", size: MAX }),
     ).not.toThrow();
   });
+
+  it("accepts a one-page PDF", () => {
+    expect(() =>
+      PosterDesignImageRules.assertValid({
+        type: "application/pdf",
+        size: 10,
+        pageCount: 1,
+      }),
+    ).not.toThrow();
+  });
+
+  it.each([0, 2, undefined])(
+    "rejects a PDF with a page count of %s",
+    (pageCount) => {
+      expect(() =>
+        PosterDesignImageRules.assertValid({
+          type: "application/pdf",
+          size: 10,
+          pageCount,
+        }),
+      ).toThrow(new ValidationError("The PDF must have exactly one page."));
+    },
+  );
 
   it.each([
     [{ type: "image/png", size: 0 }, "A poster image is required"],
@@ -24,15 +47,10 @@ describe("PosterDesignImageRules", () => {
       { type: "application/octet-stream", size: 0 },
       "A poster image is required",
     ],
-    [
-      { type: "application/pdf", size: 10 },
-      "Please choose a PNG, JPEG, WebP or GIF image.",
-    ],
-    [{ type: "", size: 10 }, "Please choose a PNG, JPEG, WebP or GIF image."],
-    [
-      { type: "image/svg+xml", size: 10 },
-      "Please choose a PNG, JPEG, WebP or GIF image.",
-    ],
+    [{ type: "image/webp", size: 10 }, "Please choose a PNG, JPEG or PDF."],
+    [{ type: "image/gif", size: 10 }, "Please choose a PNG, JPEG or PDF."],
+    [{ type: "", size: 10 }, "Please choose a PNG, JPEG or PDF."],
+    [{ type: "image/svg+xml", size: 10 }, "Please choose a PNG, JPEG or PDF."],
     [{ type: "image/jpeg", size: MAX + 1 }, "The image must be 5 MB or less."],
   ])("rejects %j", (file, message) => {
     expect(() => PosterDesignImageRules.assertValid(file)).toThrow(
@@ -47,6 +65,16 @@ describe("PosterDesignImageUpload", () => {
     const upload = PosterDesignImageUpload.create(data, "image/png");
     expect(upload.contentType).toBe("image/png");
     expect(upload.data).toBe(data);
+  });
+
+  it("validates a PDF's page count", () => {
+    const pdf = new Blob(["%PDF"]);
+    expect(
+      PosterDesignImageUpload.create(pdf, "application/pdf", 1).contentType,
+    ).toBe("application/pdf");
+    expect(() =>
+      PosterDesignImageUpload.create(pdf, "application/pdf", 2),
+    ).toThrow("The PDF must have exactly one page.");
   });
 
   it("validates the content type and size", () => {

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
 import { routeNames } from "@/routeNames";
+import loadDesignImage, { type DesignImage } from "@/utils/loadDesignImage";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 
 import styles from "./DesignPreview.module.css";
@@ -33,7 +34,7 @@ export default function DesignPreview({
   className,
 }: DesignPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<DesignImage | null>(null);
   const [failed, setFailed] = useState(false);
 
   const designUrl = routeNames.posterDesignImage(posterDesign.id);
@@ -44,18 +45,33 @@ export default function DesignPreview({
 
   useEffect(() => {
     let cancelled = false;
-    const img = new Image();
-    img.onload = () => {
-      if (!cancelled) setImage(img);
-    };
-    img.onerror = () => {
-      if (!cancelled) setFailed(true);
-    };
-    img.src = designUrl;
+    // Fetched rather than loaded into an <img>, as the image may be a PDF.
+    // A PDF is rendered big enough to stay sharp when cropped to cover the
+    // display size, unless it's more than twice as wide as it is tall.
+    fetch(designUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.blob();
+      })
+      .then((blob) =>
+        loadDesignImage(blob, {
+          maxWidth: Math.ceil(
+            Math.max(width, height * 2) * window.devicePixelRatio,
+          ),
+        }),
+      )
+      .then(
+        (loaded) => {
+          if (!cancelled) setImage(loaded);
+        },
+        () => {
+          if (!cancelled) setFailed(true);
+        },
+      );
     return () => {
       cancelled = true;
     };
-  }, [designUrl]);
+  }, [designUrl, width, height]);
 
   if (failed) {
     return (

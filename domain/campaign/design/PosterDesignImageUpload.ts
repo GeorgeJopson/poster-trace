@@ -8,8 +8,17 @@ export class PosterDesignImageUpload {
     readonly contentType: string,
   ) {}
 
-  static create(data: Blob, contentType: string): PosterDesignImageUpload {
-    PosterDesignImageRules.assertValid({ type: contentType, size: data.size });
+  /** `pageCount` is required for a PDF, which must have exactly one page. */
+  static create(
+    data: Blob,
+    contentType: string,
+    pageCount?: number,
+  ): PosterDesignImageUpload {
+    PosterDesignImageRules.assertValid({
+      type: contentType,
+      size: data.size,
+      pageCount,
+    });
     return new PosterDesignImageUpload(data, contentType);
   }
 }

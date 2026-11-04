@@ -143,29 +143,30 @@ export const posterDesign = pgTable(
   (table) => [index().on(table.campaignId)],
 );
 
-// Posters and scans aren't modelled in the domain yet, so they keep
-// database-assigned ids.
+// Posters are keyed by domain-generated UUIDs too. A poster's id is in its
+// QR code, so it mustn't be guessable. Where a poster has been put up will
+// live in its own table, as a poster has no location until it's registered.
 
 export const poster = pgTable(
   "poster",
   {
-    id: serial().primaryKey(),
-    activated: boolean().notNull(),
-    latitude: doublePrecision().notNull(),
-    longitude: doublePrecision().notNull(),
+    id: uuid().primaryKey(),
     posterDesignId: uuid()
       .notNull()
       .references(() => posterDesign.id, { onDelete: "cascade" }),
+    createdAt: timestamp().notNull().defaultNow(),
   },
   (table) => [index().on(table.posterDesignId)],
 );
+
+// Scans aren't modelled in the domain yet, so they keep database-assigned ids.
 
 export const scan = pgTable(
   "scan",
   {
     id: serial().primaryKey(),
     time: timestamp().notNull().defaultNow(),
-    posterId: integer()
+    posterId: uuid()
       .notNull()
       .references(() => poster.id, { onDelete: "cascade" }),
   },

@@ -2,6 +2,8 @@ import QRCode from "qrcode";
 
 import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
 
+import type { DesignImage } from "./loadDesignImage";
+
 /**
  * The target new campaigns start with, and the one QR codes fall back to for
  * an empty target, as a QR code can't encode an empty string.
@@ -12,7 +14,7 @@ export const DEFAULT_TARGET = "https://www.campaigns.com";
 export type DrawableQrPlacement = PosterDesignDto["qrPlacement"];
 
 export type DrawablePosterDesign = DrawableQrPlacement & {
-  image: HTMLImageElement;
+  image: DesignImage;
 };
 
 export type QrModules = ReturnType<typeof QRCode.create>["modules"];
@@ -36,17 +38,17 @@ export type DisplaySize = { width: number; height: number };
  * pixel when shown at `displaySize`. The image keeps its aspect ratio and
  * covers the whole box (matching `object-fit: cover`), and is never scaled up.
  */
-function getDisplayScale(image: HTMLImageElement, displaySize: DisplaySize) {
+function getDisplayScale(image: DesignImage, displaySize: DisplaySize) {
   const coverScale = Math.max(
-    displaySize.width / image.naturalWidth,
-    displaySize.height / image.naturalHeight,
+    displaySize.width / image.width,
+    displaySize.height / image.height,
   );
   return Math.min(1, coverScale * window.devicePixelRatio);
 }
 
 /**
  * Draws the design image onto ctx's canvas with the QR code on top. The canvas
- * is resized to the image's natural size or, given a `displaySize`, to just
+ * is resized to the image's own size or, given a `displaySize`, to just
  * big enough to look sharp at that size. A full-size canvas would hold the
  * whole image in memory (e.g. ~90 MB for 4000 x 5600), which is wasteful for
  * a preview a few hundred pixels across.
@@ -57,10 +59,16 @@ export default function drawPoster(
   modules: QrModules,
   displaySize?: DisplaySize,
 ) {
-  const { image, x: xPercent, y: yPercent, size, rotation } = posterDesign;
+  const {
+    image,
+    x: xPercent,
+    y: yPercent,
+    size: sizePercent,
+    rotation,
+  } = posterDesign;
   const canvas = ctx.canvas;
-  const imageWidth = image.naturalWidth;
-  const imageHeight = image.naturalHeight;
+  const imageWidth = image.width;
+  const imageHeight = image.height;
   const scale = displaySize ? getDisplayScale(image, displaySize) : 1;
 
   // Resizing the canvas also resets the context. Everything below is drawn
@@ -70,14 +78,16 @@ export default function drawPoster(
   ctx.scale(canvas.width / imageWidth, canvas.height / imageHeight);
   // The default smoothing looks grainy when shrinking an image a lot.
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(image, 0, 0);
+  ctx.drawImage(image.source, 0, 0, imageWidth, imageHeight);
 
   // QR code: x/y are the top-left corner as a percentage of the image
   // (like CSS left/top), rotated (in degrees) about its centre. Only the
   // dark modules are drawn, so the image shows through the rest. `size` is
-  // the code itself, without a quiet zone.
+  // the code's width as a percentage of the image's width, without a quiet
+  // zone. drawPosterPdf draws the same placement into poster PDFs.
   const x = (xPercent / 100) * imageWidth;
   const y = (yPercent / 100) * imageHeight;
+  const size = (sizePercent / 100) * imageWidth;
   const moduleSize = size / modules.size;
 
   // A single path avoids hairline gaps between adjacent modules.

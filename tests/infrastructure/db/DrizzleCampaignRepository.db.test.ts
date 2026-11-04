@@ -20,7 +20,7 @@ const target = CampaignTarget.create("https://example.com/");
 const placement = QrPlacement.create({
   x: 10,
   y: 20.5,
-  size: 300,
+  size: 30,
   rotation: 45,
 });
 
@@ -135,7 +135,7 @@ describe("addDesign", () => {
   it("stores the design under its id, with its image", async () => {
     const campaign = await addCampaign();
     const design = campaign.addDesign(placement);
-    await repository.addDesign(campaign, design, upload("image/webp"));
+    await repository.addDesign(campaign, design, upload("image/jpeg"));
 
     const loaded = await repository.findByIdForOwner(campaign.id, alice);
     const [stored] = loaded!.getDesigns();
@@ -144,10 +144,10 @@ describe("addDesign", () => {
 
     expect(blobStore.blobs.size).toBe(1);
     const [blob] = blobStore.blobs.values();
-    expect(blob.contentType).toBe("image/webp");
+    expect(blob.contentType).toBe("image/jpeg");
 
     const image = await repository.findDesignImageForOwner(design.id, alice);
-    expect(image?.contentType).toBe("image/webp");
+    expect(image?.contentType).toBe("image/jpeg");
     expect(await new Response(image?.data).text()).toBe("image bytes");
   });
 

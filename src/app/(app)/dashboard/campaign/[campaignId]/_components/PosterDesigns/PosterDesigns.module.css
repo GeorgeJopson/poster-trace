@@ -16,12 +16,3 @@
   justify-items: left;
   gap: 24px;
 }
-
-.posterDesignImage {
-  display: block;
-  width: 176px;
-  height: 249px;
-  object-fit: cover;
-  will-change: transform;
-  border-radius: 16px;
-}

@@ -50,10 +50,7 @@ describe("validatePosterImage", () => {
   });
 
   it.each([
-    [
-      { type: "text/plain", size: 10 },
-      "Please choose a PNG, JPEG, WebP or GIF image.",
-    ],
+    [{ type: "text/plain", size: 10 }, "Please choose a PNG, JPEG or PDF."],
     [
       { type: "image/png", size: 6 * 1024 * 1024 },
       "The image must be 5 MB or less.",

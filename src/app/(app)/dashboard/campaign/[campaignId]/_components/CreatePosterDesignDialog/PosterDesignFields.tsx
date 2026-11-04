@@ -62,7 +62,10 @@ function QrSliderField({
 
 type PosterDesignFieldsProps = {
   qrValues: QrValues;
-  /** Largest allowed QR size in pixels: min(image width, image height). */
+  /**
+   * Largest allowed QR size, as a percentage of the image's width, so the
+   * code fits the image's height too.
+   */
   maxQrSize: number;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onQrChange: (name: keyof QrValues, value: string) => void;
@@ -108,7 +111,7 @@ export default function PosterDesignFields({
         label="QR size"
         value={qrValues.size}
         max={maxQrSize}
-        unit="px"
+        unit="%"
         disabled={maxQrSize === 0}
         onChange={onQrChange}
       />

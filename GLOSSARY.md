@@ -21,7 +21,7 @@ _Avoid_: Destination, redirect URL, link
 ### Designs
 
 **Poster Design**:
-One layout for a campaign's posters: an uploaded image with a QR code placed on it. It belongs to exactly one campaign.
+One layout for a campaign's posters: an uploaded image (a PNG, a JPEG or a one-page PDF) with a QR code placed on it. It belongs to exactly one campaign.
 _Avoid_: Design image, template
 
 **QR Placement**:
@@ -30,11 +30,15 @@ _Avoid_: QR position, QR settings
 
 ### Posters and scans
 
-These aren't built yet.
+Registrations and scans aren't built yet.
 
 **Poster**:
-A physical printed copy of a poster design, put up at a particular location.
+One copy of a poster design with its own QR code, so that scans can be traced back to it. A poster exists from the moment it's generated, as a page of a PDF the user prints and puts up. It is **registered** once the user logs where it has been put up.
 _Avoid_: Using "poster" to mean a poster design
+
+**Generate**:
+To make new posters from a poster design, ready to print.
+_Avoid_: Create, print, issue (when you mean making posters)
 
 **Registration**:
 The moment the user logs where a poster has been put up. A poster is **registered** once its location has been logged, and not before.

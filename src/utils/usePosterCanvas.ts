@@ -5,6 +5,7 @@ import drawPoster, {
   type DisplaySize,
   type DrawableQrPlacement,
 } from "@/utils/drawPoster";
+import type { DesignImage } from "@/utils/loadDesignImage";
 
 /**
  * Draws the image and QR code onto the canvas (or clears the canvas if there
@@ -14,7 +15,7 @@ import drawPoster, {
  */
 export default function usePosterCanvas(
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  image: HTMLImageElement | null,
+  image: DesignImage | null,
   qrPlacement: DrawableQrPlacement,
   target: string,
   displaySize?: DisplaySize,

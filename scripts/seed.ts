@@ -10,6 +10,7 @@ import { hashPassword } from "better-auth/crypto";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { PosterId } from "@domain/poster/PosterId";
 import {
   QrPlacement,
   type QrPlacementFields,
@@ -48,12 +49,13 @@ const db = drizzle({ connection: getLocalConnectionString() });
 const blobStorage = connectToLocalBlobStorage();
 let blobStore: NetlifyBlobStore;
 
-const posterImagesDir = path.join(process.cwd(), "public/poster-images");
+// JPEG copies of public/poster-images, as designs can't be WebP.
+const posterImagesDir = path.join(process.cwd(), "scripts/seed-images");
 async function uploadDesignImage(filename: string) {
   const data = fs.readFileSync(path.join(posterImagesDir, filename));
   // The store doesn't assign keys, so generate one, as the app does.
   const key = crypto.randomUUID();
-  await blobStore.set(key, new Blob([data]), "image/webp");
+  await blobStore.set(key, new Blob([data]), "image/jpeg");
   return key;
 }
 
@@ -71,8 +73,8 @@ async function insertCampaign(userId: string, name: string, target: string) {
   return id;
 }
 
-// The images are 1587 x 2245 (1414 x 2000 for stock-poster-3), and `size` is
-// in image pixels, so every QR code fits on its image.
+// The images are portrait, and `size` is a percentage of the image's width,
+// so every QR code fits on its image.
 async function insertDesign(
   campaignId: CampaignId,
   filename: string,
@@ -183,110 +185,51 @@ async function main() {
 
   const summerFestDesignA = await insertDesign(
     summerFest,
-    "stock-poster-1.webp",
-    { x: 82, y: 85, size: 190, rotation: 0 },
+    "stock-poster-1.jpg",
+    { x: 82, y: 85, size: 12, rotation: 0 },
   );
   const summerFestDesignB = await insertDesign(
     summerFest,
-    "stock-poster-2.webp",
-    { x: 50, y: 85, size: 238, rotation: 5 },
+    "stock-poster-2.jpg",
+    { x: 50, y: 85, size: 15, rotation: 5 },
   );
-  const cafeDesign = await insertDesign(cafeOpening, "stock-poster-3.webp", {
+  const cafeDesign = await insertDesign(cafeOpening, "stock-poster-3.jpg", {
     x: 75,
     y: 80,
-    size: 141,
+    size: 10,
     rotation: 357,
   });
-  const marathonDesignA = await insertDesign(marathon, "stock-poster-4.webp", {
+  const marathonDesignA = await insertDesign(marathon, "stock-poster-4.jpg", {
     x: 20,
     y: 15,
-    size: 286,
+    size: 18,
     rotation: 0,
   });
-  const marathonDesignB = await insertDesign(marathon, "stock-poster-5.webp", {
+  const marathonDesignB = await insertDesign(marathon, "stock-poster-5.jpg", {
     x: 85,
     y: 10,
-    size: 159,
+    size: 10,
     rotation: 90,
   });
 
-  // Physical posters, placed around San Francisco. Most are activated
-  // (already put up); a couple are still pending deployment.
-  const [posterA1] = await db
-    .insert(poster)
-    .values({
-      activated: true,
-      latitude: 37.7749,
-      longitude: -122.4194,
-      posterDesignId: summerFestDesignA,
-    })
-    .returning();
+  // Generated posters. Registrations (where each was put up) aren't built
+  // yet, so the scans below are for posters with no recorded location.
+  const insertPoster = async (posterDesignId: PosterDesignId) => {
+    const [row] = await db
+      .insert(poster)
+      .values({ id: PosterId.generate(), posterDesignId })
+      .returning();
+    return row;
+  };
+  const posterA1 = await insertPoster(summerFestDesignA);
+  const posterA2 = await insertPoster(summerFestDesignA);
+  await insertPoster(summerFestDesignA);
+  const posterB1 = await insertPoster(summerFestDesignB);
+  const posterC1 = await insertPoster(cafeDesign);
+  const posterC2 = await insertPoster(cafeDesign);
+  await insertPoster(marathonDesignA);
+  const posterD1 = await insertPoster(marathonDesignB);
 
-  const [posterA2] = await db
-    .insert(poster)
-    .values({
-      activated: true,
-      latitude: 37.7849,
-      longitude: -122.4094,
-      posterDesignId: summerFestDesignA,
-    })
-    .returning();
-
-  await db.insert(poster).values({
-    activated: false,
-    latitude: 37.8049,
-    longitude: -122.4294,
-    posterDesignId: summerFestDesignA,
-  });
-
-  const [posterB1] = await db
-    .insert(poster)
-    .values({
-      activated: true,
-      latitude: 37.7649,
-      longitude: -122.4394,
-      posterDesignId: summerFestDesignB,
-    })
-    .returning();
-
-  const [posterC1] = await db
-    .insert(poster)
-    .values({
-      activated: true,
-      latitude: 37.7949,
-      longitude: -122.3994,
-      posterDesignId: cafeDesign,
-    })
-    .returning();
-
-  const [posterC2] = await db
-    .insert(poster)
-    .values({
-      activated: true,
-      latitude: 37.7549,
-      longitude: -122.4494,
-      posterDesignId: cafeDesign,
-    })
-    .returning();
-
-  await db.insert(poster).values({
-    activated: false,
-    latitude: 37.8149,
-    longitude: -122.4594,
-    posterDesignId: marathonDesignA,
-  });
-
-  const [posterD1] = await db
-    .insert(poster)
-    .values({
-      activated: true,
-      latitude: 37.7349,
-      longitude: -122.3894,
-      posterDesignId: marathonDesignB,
-    })
-    .returning();
-
-  // Scans only make sense for posters that have actually been put up.
   await db.insert(scan).values([
     { posterId: posterA1.id, time: daysAgo(12, 9) },
     { posterId: posterA1.id, time: daysAgo(9, 18) },

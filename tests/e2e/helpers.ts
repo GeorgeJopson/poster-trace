@@ -3,8 +3,11 @@ import { expect, type BrowserContext, type Page } from "@playwright/test";
 
 export const POSTER_IMAGE = path.join(
   process.cwd(),
-  "public/poster-images/stock-poster-1.webp",
+  "scripts/seed-images/stock-poster-1.jpg",
 );
+
+/** A file to pick in a file input, e.g. a PDF made with tests/support/pdfs. */
+export type PickedFile = { name: string; mimeType: string; buffer: Buffer };
 
 export type Credentials = { name: string; email: string; password: string };
 
@@ -61,16 +64,19 @@ export async function createCampaign(
  * Adds a poster design to the campaign whose page is open, and returns the
  * URL its image is served from.
  */
-export async function addPosterDesign(page: Page) {
+export async function addPosterDesign(
+  page: Page,
+  file: string | PickedFile = POSTER_IMAGE,
+) {
   await page.getByRole("button", { name: "New Poster Design" }).click();
   const dialog = page.getByRole("dialog", { name: "Create new poster design" });
-  await dialog.getByLabel("Poster image").setInputFiles(POSTER_IMAGE);
+  await dialog.getByLabel("Poster image").setInputFiles(file);
   // The size slider is enabled once the image has loaded.
   const size = dialog.getByLabel("QR size");
   await expect(size).toBeEnabled();
   await dialog.getByLabel("QR X position").fill("40");
   await dialog.getByLabel("QR Y position").fill("60");
-  await size.fill("100");
+  await size.fill("20");
   await dialog.getByLabel("QR rotation").fill("15");
 
   const imageResponse = page.waitForResponse((response) =>
