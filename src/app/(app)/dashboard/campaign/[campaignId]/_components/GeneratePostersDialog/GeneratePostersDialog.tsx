@@ -2,6 +2,7 @@
 
 import { unstable_rethrow } from "next/navigation";
 import { useState, useTransition } from "react";
+import { animated } from "@react-spring/web";
 
 import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
 import Button from "@/components/Button";
@@ -9,6 +10,7 @@ import CentralDialog from "@/components/CentralDialog";
 import DesignPreview from "@/components/DesignPreview";
 import downloadFile from "@/utils/downloadFile";
 import drawPosterPdf from "@/utils/drawPosterPdf";
+import useHoverRotation from "@/utils/useHoverRotation";
 
 import { generatePosters } from "../../actions";
 import {
@@ -42,6 +44,7 @@ export default function GeneratePostersDialog({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [labelStyle, hoverHandlers] = useHoverRotation({ rotation: 5 });
 
   function handleOpenChange(nextOpen: boolean) {
     setError(null);
@@ -85,7 +88,7 @@ export default function GeneratePostersDialog({
       onOpenChange={handleOpenChange}
       title="Generate posters"
       trigger={
-        <button type="button" className={styles.card}>
+        <button type="button" className={styles.card} {...hoverHandlers}>
           <DesignPreview
             width={176}
             height={249}
@@ -94,7 +97,11 @@ export default function GeneratePostersDialog({
             aria-label={designLabel}
             className={styles.preview}
           />
-          <span className={styles.cardLabel}>Generate Posters</span>
+          <span className={styles.cardLabel}>
+            <animated.span style={labelStyle} className={styles.cardLabelText}>
+              Generate Posters
+            </animated.span>
+          </span>
         </button>
       }
     >

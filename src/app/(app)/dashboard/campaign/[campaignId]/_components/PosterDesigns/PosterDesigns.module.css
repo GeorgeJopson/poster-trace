@@ -10,9 +10,18 @@
   font-weight: normal;
 }
 
+/* Each card takes two rows, its preview's and its label's, so cards side by
+   side line up. The rows are spaced by margin, not row-gap, so the gap
+   doesn't come between a card's preview and label. */
 .posterDesignsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, 176px);
+  grid-auto-rows: 249px auto;
   justify-items: left;
-  gap: 24px;
+  column-gap: 24px;
+}
+
+.posterDesignsGrid > * {
+  grid-row: span 2;
+  margin-bottom: 24px;
 }
