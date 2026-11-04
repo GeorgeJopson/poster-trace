@@ -44,7 +44,7 @@ export class PosterService {
     await this.posters.addAll(posters);
     return posters.map((poster) => ({
       id: poster.id,
-      redirectUrl: new URL(`/redirect/${poster.id}`, this.baseUrl).href,
+      scanUrl: new URL(`/redirect/${poster.id}`, this.baseUrl).href,
     }));
   }
 }

@@ -1,5 +1,9 @@
 import {
+  concatTransformationMatrix,
   degrees,
+  drawObject,
+  popGraphicsState,
+  pushGraphicsState,
   PDFDocument,
   PDFEmbeddedPage,
   rgb,
@@ -9,9 +13,13 @@ import {
 
 import type { PosterDto } from "@application/dto/PosterDto";
 import type { QrPlacementDto } from "@application/dto/PosterDesignDto";
-import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
+import {
+  PosterDesignImageRules,
+  type PosterDesignImageType,
+} from "@domain/campaign/design/PosterDesignImageRules";
 
 import { createQrModules, type QrModules } from "./drawPoster";
+import jpegOrientation, { type Orientation } from "./jpegOrientation";
 
 /** An A4 page in PDF points (1/72 inch), portrait. */
 export const A4 = { width: 595.28, height: 841.89 } as const;
@@ -19,7 +27,7 @@ export const A4 = { width: 595.28, height: 841.89 } as const;
 export type PosterPdfDesign = {
   /** The design's image: a PNG, a JPEG or a one-page PDF. */
   data: Uint8Array | ArrayBuffer;
-  contentType: string;
+  contentType: PosterDesignImageType;
   qrPlacement: QrPlacementDto;
 };
 
@@ -104,23 +112,127 @@ function qrPath(modules: QrModules, size: number): string {
   return commands.join("");
 }
 
+/** A transformation matrix, `[a b c d e f]` as PDFs write them. */
+type Matrix = [number, number, number, number, number, number];
+
+/** `first`, then `second`. */
+function multiply(first: Matrix, second: Matrix): Matrix {
+  const [a, b, c, d, e, f] = first;
+  const [A, B, C, D, E, F] = second;
+  return [
+    a * A + b * C,
+    a * B + b * D,
+    c * A + d * C,
+    c * B + d * D,
+    e * A + f * C + E,
+    e * B + f * D + F,
+  ];
+}
+
+/**
+ * Maps the unit square of the stored content onto the unit square shown
+ * upright, for each EXIF orientation. Both have y going up, as in PDFs.
+ */
+const ORIENTATION_MATRICES: Record<Orientation, Matrix> = {
+  1: [1, 0, 0, 1, 0, 0],
+  2: [-1, 0, 0, 1, 1, 0], // Mirrored left to right
+  3: [-1, 0, 0, -1, 1, 1], // Turned 180°
+  4: [1, 0, 0, -1, 0, 1], // Mirrored top to bottom
+  5: [0, -1, -1, 0, 1, 1], // Mirrored along the top-left diagonal
+  6: [0, -1, 1, 0, 0, 1], // Turned 90° clockwise
+  7: [0, 1, 1, 0, 0, 0], // Mirrored along the top-right diagonal
+  8: [0, 1, -1, 0, 1, 0], // Turned 90° anticlockwise
+};
+
+/** A PDF page's /Rotate, which turns it clockwise, as an orientation. */
+const PAGE_ROTATIONS: Record<number, Orientation> = {
+  0: 1,
+  90: 6,
+  180: 3,
+  270: 8,
+};
+
+type EmbeddedDesign = {
+  xObject: PDFImage | PDFEmbeddedPage;
+  /** How to turn the stored content to show it as the preview does. */
+  orientation: Orientation;
+};
+
+/** The design's size as it's shown: turned, if its orientation says so. */
+function shownSize({ xObject, orientation }: EmbeddedDesign): Size {
+  return orientation >= 5
+    ? { width: xObject.height, height: xObject.width }
+    : { width: xObject.width, height: xObject.height };
+}
+
+/**
+ * Embeds the design as the preview shows it: a JPEG turned upright by its
+ * EXIF orientation, as browsers do, and a PDF page cut to its CropBox and
+ * turned by its /Rotate, as pdf.js does.
+ */
 async function embedDesign(
   pdf: PDFDocument,
   design: PosterPdfDesign,
-): Promise<PDFImage | PDFEmbeddedPage> {
+): Promise<EmbeddedDesign> {
   switch (design.contentType) {
     case PosterDesignImageRules.PNG_TYPE:
-      return pdf.embedPng(design.data);
+      return { xObject: await pdf.embedPng(design.data), orientation: 1 };
     case PosterDesignImageRules.JPEG_TYPE:
-      return pdf.embedJpg(design.data);
+      return {
+        xObject: await pdf.embedJpg(design.data),
+        orientation: jpegOrientation(new Uint8Array(design.data)),
+      };
     case PosterDesignImageRules.PDF_TYPE: {
+      const source = await PDFDocument.load(design.data, {
+        updateMetadata: false,
+      });
+      const page = source.getPage(0);
+      const crop = page.getCropBox();
       // Embedded as a vector page, so it prints at full quality.
-      const [page] = await pdf.embedPdf(design.data, [0]);
-      return page;
+      const xObject = await pdf.embedPage(page, {
+        left: crop.x,
+        bottom: crop.y,
+        right: crop.x + crop.width,
+        top: crop.y + crop.height,
+      });
+      const rotation = ((page.getRotation().angle % 360) + 360) % 360;
+      return { xObject, orientation: PAGE_ROTATIONS[rotation] ?? 1 };
     }
-    default:
-      throw new Error(`Can't make posters from a ${design.contentType} design`);
+    default: {
+      // Fails to compile if a format is added without a case here.
+      const unhandled: never = design.contentType;
+      throw new Error(`Can't make posters from a ${unhandled} design`);
+    }
   }
+}
+
+/** Draws the design into the layout's box, the way up it's shown. */
+function drawDesign(
+  page: PDFPage,
+  design: EmbeddedDesign,
+  layout: PosterLayout,
+) {
+  const { xObject, orientation } = design;
+  const box = layout.design;
+  const isImage = !(xObject instanceof PDFEmbeddedPage);
+  // An image fills the unit square; an embedded page fills its own size.
+  const toUnitSquare: Matrix = isImage
+    ? [1, 0, 0, 1, 0, 0]
+    : [1 / xObject.width, 0, 0, 1 / xObject.height, 0, 0];
+  const matrix = multiply(
+    multiply(toUnitSquare, ORIENTATION_MATRICES[orientation]),
+    [box.width, 0, 0, box.height, box.x, box.y],
+  );
+  const name = page.node.newXObject(
+    isImage ? "Image" : "EmbeddedPdfPage",
+    xObject.ref,
+  );
+  page.pushOperators(
+    pushGraphicsState(),
+    concatTransformationMatrix(...matrix),
+    drawObject(name),
+    popGraphicsState(),
+  );
 }
 
 function drawQrCode(page: PDFPage, layout: PosterLayout, url: string) {
@@ -141,20 +253,16 @@ function drawQrCode(page: PDFPage, layout: PosterLayout, url: string) {
  */
 export default async function drawPosterPdf(
   design: PosterPdfDesign,
-  posters: readonly Pick<PosterDto, "redirectUrl">[],
+  posters: readonly Pick<PosterDto, "scanUrl">[],
 ): Promise<Uint8Array<ArrayBuffer>> {
   const pdf = await PDFDocument.create();
   const embedded = await embedDesign(pdf, design);
-  const layout = layoutPoster(embedded, design.qrPlacement);
+  const layout = layoutPoster(shownSize(embedded), design.qrPlacement);
 
   for (const poster of posters) {
     const page = pdf.addPage([A4.width, A4.height]);
-    if (embedded instanceof PDFEmbeddedPage) {
-      page.drawPage(embedded, layout.design);
-    } else {
-      page.drawImage(embedded, layout.design);
-    }
-    drawQrCode(page, layout, poster.redirectUrl);
+    drawDesign(page, embedded, layout);
+    drawQrCode(page, layout, poster.scanUrl);
   }
   return (await pdf.save()) as Uint8Array<ArrayBuffer>;
 }

@@ -1,12 +1,15 @@
-import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
+import {
+  PosterDesignImageRules,
+  type PosterDesignImageType,
+} from "@domain/campaign/design/PosterDesignImageRules";
 import { ValidationError } from "@domain/shared/ValidationError";
 
 import { readPdfPageCount } from "./readPdfPageCount";
 
 /** What `PosterDesignImageRules` checks about a poster design's image. */
 export type PosterDesignImageDetails = {
-  /** The file's real format, or `""` if it isn't an allowed one. */
-  type: string;
+  /** The file's real format, or `null` if it isn't an allowed one. */
+  type: PosterDesignImageType | null;
   size: number;
   /** Only read for a PDF. */
   pageCount?: number;
@@ -27,7 +30,7 @@ export async function readPosterDesignImage(
   const header = new Uint8Array(
     await file.slice(0, PosterDesignImageRules.HEADER_BYTES).arrayBuffer(),
   );
-  const type = PosterDesignImageRules.detectType(header) ?? "";
+  const type = PosterDesignImageRules.detectType(header);
   const details = { type, size: file.size };
   if (
     type !== PosterDesignImageRules.PDF_TYPE ||

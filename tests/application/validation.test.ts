@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { getValidationMessage } from "@application/validation/getValidationMessage";
 import { validateCampaignTarget } from "@application/validation/validateCampaignTarget";
-import { validatePosterImage } from "@application/validation/validatePosterImage";
+import { validatePosterDesignImage } from "@application/validation/validatePosterDesignImage";
 import { ValidationError } from "@domain/shared/ValidationError";
 
 import { pngBytes } from "../support/images";
@@ -47,18 +47,20 @@ describe("validateCampaignTarget", () => {
   });
 });
 
-describe("validatePosterImage", () => {
+describe("validatePosterDesignImage", () => {
   const file = (content: BlobPart, type = "") => new Blob([content], { type });
 
   it("passes an image, giving its format", async () => {
-    expect(await validatePosterImage(file(pngBytes(), "image/png"))).toEqual({
+    expect(
+      await validatePosterDesignImage(file(pngBytes(), "image/png")),
+    ).toEqual({
       error: null,
       contentType: "image/png",
     });
   });
 
   it("passes a one-page PDF", async () => {
-    expect(await validatePosterImage(file(await makePdf(1)))).toEqual({
+    expect(await validatePosterDesignImage(file(await makePdf(1)))).toEqual({
       error: null,
       contentType: "application/pdf",
     });
@@ -66,9 +68,8 @@ describe("validatePosterImage", () => {
 
   it("gives a file's real format, not the type it was picked as", async () => {
     expect(
-      (await validatePosterImage(file(await makePdf(1), "image/png")))
-        .contentType,
-    ).toBe("application/pdf");
+      await validatePosterDesignImage(file(await makePdf(1), "image/png")),
+    ).toEqual({ error: null, contentType: "application/pdf" });
   });
 
   it.each([
@@ -94,12 +95,12 @@ describe("validatePosterImage", () => {
       "This PDF can't be read.",
     ],
   ])("returns the message for %s", async (_case, makeFile, message) => {
-    expect((await validatePosterImage(makeFile())).error).toBe(message);
+    expect((await validatePosterDesignImage(makeFile())).error).toBe(message);
   });
 
   it("returns the message for a PDF with two pages", async () => {
-    expect((await validatePosterImage(file(await makePdf(2)))).error).toBe(
-      "The PDF must have exactly one page.",
-    );
+    expect(
+      (await validatePosterDesignImage(file(await makePdf(2)))).error,
+    ).toBe("The PDF must have exactly one page.");
   });
 });

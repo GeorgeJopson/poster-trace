@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useTransition } from "react";
 
-import { validatePosterImage } from "@application/validation/validatePosterImage";
+import { validatePosterDesignImage } from "@application/validation/validatePosterDesignImage";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
@@ -78,16 +78,16 @@ export default function CreatePosterDesignDialog() {
       clearImage();
     }
 
-    const { error, contentType } = await validatePosterImage(file);
-    if (error) {
-      rejectFile(error);
+    const check = await validatePosterDesignImage(file);
+    if (check.error !== null) {
+      rejectFile(check.error);
       return;
     }
 
     try {
       // Loaded as its real format, which the file's own type may not be.
       const loaded = await loadDesignImage(
-        file.slice(0, file.size, contentType),
+        file.slice(0, file.size, check.contentType),
       );
       if (!isLatestPick()) return;
       setImage(loaded);

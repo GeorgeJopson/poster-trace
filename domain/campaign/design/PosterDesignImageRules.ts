@@ -6,6 +6,10 @@ const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 const JPEG_SIGNATURE = [0xff, 0xd8, 0xff];
 const PDF_HEADER = "%PDF-";
 
+/** A format a poster design's image can be, as its MIME type. */
+export type PosterDesignImageType =
+  (typeof PosterDesignImageRules.ALLOWED_TYPES)[number];
+
 /** What a poster design's image must be. */
 export class PosterDesignImageRules {
   static readonly MAX_SIZE_BYTES = 5 * 1024 * 1024;
@@ -18,11 +22,17 @@ export class PosterDesignImageRules {
    * The formats posters can be generated from (see ADR-0010). SVG is left out
    * because it can carry scripts.
    */
-  static readonly ALLOWED_TYPES: readonly string[] = [
+  static readonly ALLOWED_TYPES = [
     PosterDesignImageRules.PNG_TYPE,
     PosterDesignImageRules.JPEG_TYPE,
     PosterDesignImageRules.PDF_TYPE,
-  ];
+  ] as const;
+
+  static isAllowedType(type: string | null): type is PosterDesignImageType {
+    return (
+      PosterDesignImageRules.ALLOWED_TYPES as readonly unknown[]
+    ).includes(type);
+  }
 
   /** How many of a file's first bytes `detectType` needs. */
   static readonly HEADER_BYTES = 1024;
@@ -32,7 +42,7 @@ export class PosterDesignImageRules {
    * isn't one. A file's own type comes from the browser, which guesses it from
    * the file name, so this is what decides how a design is stored and served.
    */
-  static detectType(header: Uint8Array): string | null {
+  static detectType(header: Uint8Array): PosterDesignImageType | null {
     const startsWith = (signature: readonly number[]) =>
       signature.every((byte, i) => header[i] === byte);
     if (startsWith(PNG_SIGNATURE)) return PosterDesignImageRules.PNG_TYPE;
@@ -49,16 +59,21 @@ export class PosterDesignImageRules {
    * Takes the file's type and size rather than a `File`, so the form can
    * check a picked file before uploading it. A PDF's `pageCount` is read by
    * the caller, as the domain can't parse PDFs; leaving it out rejects the PDF.
+   * A `null` type is a file that isn't any known format.
    */
   static assertValid(file: {
-    type: string;
+    type: string | null;
     size: number;
     pageCount?: number;
-  }): void {
+  }): asserts file is {
+    type: PosterDesignImageType;
+    size: number;
+    pageCount?: number;
+  } {
     if (file.size === 0) {
       throw new ValidationError("A poster image is required");
     }
-    if (!PosterDesignImageRules.ALLOWED_TYPES.includes(file.type)) {
+    if (!PosterDesignImageRules.isAllowedType(file.type)) {
       throw new ValidationError("Please choose a PNG, JPEG or PDF.");
     }
     if (file.size > PosterDesignImageRules.MAX_SIZE_BYTES) {

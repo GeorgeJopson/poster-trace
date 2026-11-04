@@ -49,13 +49,13 @@ beforeEach(async () => {
 });
 
 describe("generatePosters", () => {
-  it("stores the posters and returns each one's redirect URL", async () => {
+  it("stores the posters and returns each one's scan URL", async () => {
     const generated = await service.generatePosters(campaignId, designId, 3);
 
     expect(generated).toHaveLength(3);
     for (const poster of generated) {
       expect(PosterId.parse(poster.id)).toBe(poster.id);
-      expect(poster.redirectUrl).toBe(`${BASE_URL}/redirect/${poster.id}`);
+      expect(poster.scanUrl).toBe(`${BASE_URL}/redirect/${poster.id}`);
     }
     expect(posters.posters).toEqual(
       generated.map(({ id }) => ({ id, designId })),
@@ -65,7 +65,7 @@ describe("generatePosters", () => {
   it("builds the URL from a base URL with a trailing slash", async () => {
     service = new PosterService(sessions, campaigns, posters, `${BASE_URL}/`);
     const [poster] = await service.generatePosters(campaignId, designId, 1);
-    expect(poster.redirectUrl).toBe(`${BASE_URL}/redirect/${poster.id}`);
+    expect(poster.scanUrl).toBe(`${BASE_URL}/redirect/${poster.id}`);
   });
 
   it.each([0, 2.5])(
