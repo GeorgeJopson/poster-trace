@@ -35,9 +35,7 @@ export class PosterService {
     const id = CampaignId.parse(campaignId);
     const campaign = id && (await this.campaigns.findByIdForOwner(id, userId));
     const parsedDesignId = PosterDesignId.parse(designId);
-    const design = campaign
-      ?.getDesigns()
-      .find((design) => design.id === parsedDesignId);
+    const design = parsedDesignId && campaign?.findDesign(parsedDesignId);
     if (!design) {
       throw new NotFoundError("Poster design not found");
     }

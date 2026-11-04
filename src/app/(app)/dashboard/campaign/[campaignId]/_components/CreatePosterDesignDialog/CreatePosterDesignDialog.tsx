@@ -2,9 +2,7 @@
 
 import React, { useRef, useState, useTransition } from "react";
 
-import { readPdfPageCount } from "@application/validation/readPdfPageCount";
 import { validatePosterImage } from "@application/validation/validatePosterImage";
-import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
@@ -30,8 +28,8 @@ export default function CreatePosterDesignDialog() {
   const [isPending, startTransition] = useTransition();
   const [image, setImage] = useState<DesignImage | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
-  // Counts picked files, so a slow load of an earlier file is ignored.
-  const fileLoadRef = useRef(0);
+  // Counts picked files, so a slow check or load of an earlier file is ignored.
+  const filePickCountRef = useRef(0);
   // As a percentage of the width: the QR code must fit the image's height too.
   const maxQrSize = image
     ? Math.min(100, (100 * image.height) / image.width)
@@ -65,7 +63,8 @@ export default function CreatePosterDesignDialog() {
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const input = event.target;
     const file = input.files?.[0];
-    const load = ++fileLoadRef.current;
+    const pick = ++filePickCountRef.current;
+    const isLatestPick = () => pick === filePickCountRef.current;
     input.setCustomValidity("");
     clearImage();
     if (!file) return;
@@ -73,34 +72,24 @@ export default function CreatePosterDesignDialog() {
     // Reject invalid files by marking the input invalid, which blocks the form
     // from submitting and shows the browser's validation message.
     function rejectFile(message: string) {
-      if (load !== fileLoadRef.current) return;
+      if (!isLatestPick()) return;
       input.setCustomValidity(message);
       input.reportValidity();
       clearImage();
     }
 
-    let pageCount: number | undefined;
-    if (file.type === PosterDesignImageRules.PDF_TYPE) {
-      const count = await readPdfPageCount(file);
-      if (count === null) {
-        rejectFile("This PDF can't be read.");
-        return;
-      }
-      pageCount = count;
-    }
-    const fileError = validatePosterImage({
-      type: file.type,
-      size: file.size,
-      pageCount,
-    });
-    if (fileError) {
-      rejectFile(fileError);
+    const { error, contentType } = await validatePosterImage(file);
+    if (error) {
+      rejectFile(error);
       return;
     }
 
     try {
-      const loaded = await loadDesignImage(file);
-      if (load !== fileLoadRef.current) return;
+      // Loaded as its real format, which the file's own type may not be.
+      const loaded = await loadDesignImage(
+        file.slice(0, file.size, contentType),
+      );
+      if (!isLatestPick()) return;
       setImage(loaded);
       setQrValues(DEFAULT_QR_VALUES);
     } catch {

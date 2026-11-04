@@ -4,7 +4,7 @@ A poster design's image can be a PNG, a JPEG or a one-page PDF. Posters are gene
 
 Browsers can't draw a PDF onto a canvas, so previews, including the QR placement editor, render page 1 with `pdfjs-dist`. It's loaded lazily, only when a design is a PDF. The one-page rule lives in the domain (`PosterDesignImageRules`), which is given a page count that the application layer reads with pdf-lib. The form also checks it before uploading.
 
-PDFs can contain scripts, and design images are served from the app's own origin. The design-image route therefore responds with `Content-Security-Policy: sandbox`, `X-Content-Type-Options: nosniff` and, for PDFs, `Content-Disposition: attachment`. The app only ever fetches these files and never opens them as documents.
+PDFs can contain scripts, and design images are served from the app's own origin. The design-image route therefore responds with `Content-Security-Policy: sandbox`, `X-Content-Type-Options: nosniff` and, for PDFs, `Content-Disposition: attachment`. The app only ever fetches these files and never opens them as documents. A design's stored content type is detected from the file's first bytes on upload, not taken from the browser, so a PDF can't be served inline by uploading it as an image.
 
 ## Considered Options
 

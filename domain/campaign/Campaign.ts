@@ -2,6 +2,7 @@ import type { UserId } from "../user/UserId";
 import { CampaignId } from "./CampaignId";
 import type { CampaignTarget } from "./CampaignTarget";
 import { PosterDesign } from "./design/PosterDesign";
+import type { PosterDesignId } from "./design/PosterDesignId";
 import type { QrPlacement } from "./design/QrPlacement";
 
 export type CampaignProps = {
@@ -62,6 +63,11 @@ export class Campaign {
 
   getDesigns(): readonly PosterDesign[] {
     return this.designs;
+  }
+
+  /** One of this campaign's designs, or `undefined` if it has no such design. */
+  findDesign(id: PosterDesignId): PosterDesign | undefined {
+    return this.designs.find((design) => design.id === id);
   }
 
   updateDetails(name: string, target: CampaignTarget): void {

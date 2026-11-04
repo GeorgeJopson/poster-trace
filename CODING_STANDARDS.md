@@ -24,7 +24,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 - **Owner-facing use cases call `requireUserId` first**, before any validation, id parsing or repository call. A signed-out request must get `NotAuthenticatedError` whatever its input.
 - **Use cases return plain, serialisable DTOs**, never entities. Class instances can't cross from Server to Client Components.
-- **Server-only.** Every `services/` file imports `server-only`. `dto/` (types only) and `validation/` (pure functions) stay browser-safe and never import it.
+- **Server-only.** Every `services/` file imports `server-only`. `dto/` (types only), `validation/` (pure functions) and `files/` (reading uploaded files, shared by services and forms) stay browser-safe and never import it.
 - **Services call the domain factories directly**; the `validation/` functions are for forms only. Any check that needs the database or session belongs in a service and reaches the form through a Server Action.
 - **Constructor injection.** A class never calls `new` on a dependency or imports a module-level singleton (Better Auth's `auth` is the one exception, see ADR-0002).
 

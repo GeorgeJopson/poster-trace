@@ -9,6 +9,7 @@ import {
 
 import type { PosterDto } from "@application/dto/PosterDto";
 import type { QrPlacementDto } from "@application/dto/PosterDesignDto";
+import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
 
 import { createQrModules, type QrModules } from "./drawPoster";
 
@@ -108,11 +109,11 @@ async function embedDesign(
   design: PosterPdfDesign,
 ): Promise<PDFImage | PDFEmbeddedPage> {
   switch (design.contentType) {
-    case "image/png":
+    case PosterDesignImageRules.PNG_TYPE:
       return pdf.embedPng(design.data);
-    case "image/jpeg":
+    case PosterDesignImageRules.JPEG_TYPE:
       return pdf.embedJpg(design.data);
-    case "application/pdf": {
+    case PosterDesignImageRules.PDF_TYPE: {
       // Embedded as a vector page, so it prints at full quality.
       const [page] = await pdf.embedPdf(design.data, [0]);
       return page;

@@ -86,4 +86,12 @@ describe("PosterDesign", () => {
     expect(design.qrPlacement).toBe(placement);
     expect(PosterDesign.create(placement).id).not.toBe(design.id);
   });
+
+  it("finds one of its designs by id", () => {
+    const campaign = Campaign.create(ownerId, "Name", target);
+    campaign.addDesign(placement);
+    const second = campaign.addDesign(placement);
+    expect(campaign.findDesign(second.id)).toBe(second);
+    expect(campaign.findDesign(PosterDesignId.generate())).toBeUndefined();
+  });
 });

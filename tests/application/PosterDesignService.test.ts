@@ -8,13 +8,14 @@ import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
+import { pngBytes } from "../support/images";
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 
-function image(type = "image/png", content: BlobPart = "png bytes") {
+function image(type = "image/png", content: BlobPart = pngBytes()) {
   return new Blob([content], { type });
 }
 
@@ -51,7 +52,9 @@ describe("createPosterDesign", () => {
 
     const stored = await service.getMyPosterDesignImage(designId);
     expect(stored?.contentType).toBe("image/png");
-    expect(await new Response(stored?.data).text()).toBe("png bytes");
+    expect(
+      new Uint8Array(await new Response(stored?.data).arrayBuffer()),
+    ).toEqual(pngBytes());
   });
 
   it("keeps the campaign's other designs", async () => {
@@ -78,8 +81,15 @@ describe("createPosterDesign", () => {
       "a NaN QR value",
       { image: image(), qrPlacement: { ...qrPlacement, x: NaN } },
     ],
-    ["a non-image file", { image: image("text/plain"), qrPlacement }],
-    ["an unreadable PDF", { image: image("application/pdf"), qrPlacement }],
+    ["a non-image file", { image: image("text/plain", "hello"), qrPlacement }],
+    [
+      "a text file labelled as a PNG",
+      { image: image("image/png", "not a png"), qrPlacement },
+    ],
+    [
+      "an unreadable PDF",
+      { image: image("application/pdf", "%PDF-1.7 garbage"), qrPlacement },
+    ],
     ["an empty image", { image: image("image/png", ""), qrPlacement }],
   ])("rejects %s before storing anything", async (_case, input) => {
     await expect(service.createPosterDesign(campaignId, input)).rejects.toThrow(
@@ -117,10 +127,33 @@ describe("createPosterDesign", () => {
   it("rejects a PDF that can't be read", async () => {
     await expect(
       service.createPosterDesign(campaignId, {
-        image: image("application/pdf", "not a pdf"),
+        image: image("application/pdf", "%PDF-1.7 garbage"),
         qrPlacement,
       }),
     ).rejects.toThrow(new ValidationError("This PDF can't be read."));
+  });
+
+  it("stores a file's real format, whatever type it was uploaded as", async () => {
+    // So a PDF can't be served inline by uploading it as an image.
+    await service.createPosterDesign(campaignId, {
+      image: image("image/png", await makePdf(1)),
+      qrPlacement,
+    });
+    const designId = (await campaignService.getMyCampaign(campaignId))!
+      .posterDesigns[0].id;
+    const stored = await service.getMyPosterDesignImage(designId);
+    expect(stored?.contentType).toBe("application/pdf");
+  });
+
+  it("checks the page count of a PDF uploaded as an image", async () => {
+    await expect(
+      service.createPosterDesign(campaignId, {
+        image: image("image/png", await makePdf(2)),
+        qrPlacement,
+      }),
+    ).rejects.toThrow(
+      new ValidationError("The PDF must have exactly one page."),
+    );
   });
 
   it("throws NotFoundError for another user's campaign", async () => {

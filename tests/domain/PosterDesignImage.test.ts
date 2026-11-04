@@ -59,6 +59,45 @@ describe("PosterDesignImageRules", () => {
   });
 });
 
+describe("PosterDesignImageRules.detectType", () => {
+  const bytes = (...values: (number | string)[]) =>
+    new Uint8Array(
+      values.flatMap((value) =>
+        typeof value === "string"
+          ? [...value].map((char) => char.charCodeAt(0))
+          : [value],
+      ),
+    );
+
+  it.each([
+    ["a PNG", bytes(0x89, "PNG\r\n\x1a\n", "rest"), "image/png"],
+    ["a JPEG", bytes(0xff, 0xd8, 0xff, 0xe0, "rest"), "image/jpeg"],
+    ["a PDF", bytes("%PDF-1.7\n"), "application/pdf"],
+    [
+      "a PDF with bytes before its header",
+      bytes("junk\n%PDF-1.4"),
+      "application/pdf",
+    ],
+  ])("recognises %s from its first bytes", (_case, header, type) => {
+    expect(PosterDesignImageRules.detectType(header)).toBe(type);
+  });
+
+  it.each([
+    ["text", bytes("hello")],
+    ["a GIF", bytes("GIF89a")],
+    ["a truncated PNG signature", bytes(0x89, "PNG")],
+    ["nothing", bytes()],
+  ])("returns null for %s", (_case, header) => {
+    expect(PosterDesignImageRules.detectType(header)).toBeNull();
+  });
+
+  it("only looks for a PDF header within the first 1024 bytes", () => {
+    const late = new Uint8Array(1100);
+    late.set(bytes("%PDF-1.7"), 1024);
+    expect(PosterDesignImageRules.detectType(late)).toBeNull();
+  });
+});
+
 describe("PosterDesignImageUpload", () => {
   it("keeps the validated content type, not the blob's own", () => {
     const data = new Blob(["image"], { type: "text/plain" });

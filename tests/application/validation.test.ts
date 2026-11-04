@@ -5,6 +5,9 @@ import { validateCampaignTarget } from "@application/validation/validateCampaign
 import { validatePosterImage } from "@application/validation/validatePosterImage";
 import { ValidationError } from "@domain/shared/ValidationError";
 
+import { pngBytes } from "../support/images";
+import { makePdf } from "../support/pdfs";
+
 describe("getValidationMessage", () => {
   it("returns null when the check passes", () => {
     expect(getValidationMessage(() => "ok")).toBeNull();
@@ -45,17 +48,58 @@ describe("validateCampaignTarget", () => {
 });
 
 describe("validatePosterImage", () => {
-  it("passes an image", () => {
-    expect(validatePosterImage({ type: "image/jpeg", size: 1024 })).toBeNull();
+  const file = (content: BlobPart, type = "") => new Blob([content], { type });
+
+  it("passes an image, giving its format", async () => {
+    expect(await validatePosterImage(file(pngBytes(), "image/png"))).toEqual({
+      error: null,
+      contentType: "image/png",
+    });
+  });
+
+  it("passes a one-page PDF", async () => {
+    expect(await validatePosterImage(file(await makePdf(1)))).toEqual({
+      error: null,
+      contentType: "application/pdf",
+    });
+  });
+
+  it("gives a file's real format, not the type it was picked as", async () => {
+    expect(
+      (await validatePosterImage(file(await makePdf(1), "image/png")))
+        .contentType,
+    ).toBe("application/pdf");
   });
 
   it.each([
-    [{ type: "text/plain", size: 10 }, "Please choose a PNG, JPEG or PDF."],
+    ["an empty file", () => file(""), "A poster image is required"],
     [
-      { type: "image/png", size: 6 * 1024 * 1024 },
+      "a text file",
+      () => file("hello", "text/plain"),
+      "Please choose a PNG, JPEG or PDF.",
+    ],
+    [
+      "a text file picked as a PNG",
+      () => file("hello", "image/png"),
+      "Please choose a PNG, JPEG or PDF.",
+    ],
+    [
+      "an image over 5 MB",
+      () => file(pngBytes("x".repeat(5 * 1024 * 1024))),
       "The image must be 5 MB or less.",
     ],
-  ])("returns the message for %j", (file, message) => {
-    expect(validatePosterImage(file)).toBe(message);
+    [
+      "an unreadable PDF",
+      () => file("%PDF-1.7 garbage"),
+      "This PDF can't be read.",
+    ],
+  ])("returns the message for %s", async (_case, makeFile, message) => {
+    expect((await validatePosterImage(makeFile())).error).toBe(message);
+  });
+
+  it("returns the message for a PDF with two pages", async () => {
+    expect((await validatePosterImage(file(await makePdf(2)))).error).toBe(
+      "The PDF must have exactly one page.",
+    );
   });
 });

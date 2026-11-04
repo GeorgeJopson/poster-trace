@@ -60,6 +60,34 @@ test("won't generate more than 100 posters at once", async ({ page }) => {
   await expect(dialog).toBeVisible();
 });
 
+test.describe("shows why the server won't generate posters", () => {
+  // The browser blocks these values, so its checks are removed to see the
+  // server's.
+  for (const [count, message] of [
+    ["101", "You can generate at most 100 posters at a time."],
+    ["2.5", "The number of posters must be a whole number of at least 1."],
+  ]) {
+    test(`for ${count}`, async ({ page }) => {
+      await addPosterDesign(page);
+
+      await page
+        .getByRole("button", { name: /Poster design 1.*Generate Posters/ })
+        .click();
+      const dialog = page.getByRole("dialog", { name: "Generate posters" });
+      const input = dialog.getByLabel("Number of posters");
+      await input.evaluate((element: HTMLInputElement) => {
+        element.removeAttribute("max");
+        element.step = "any";
+      });
+      await input.fill(count);
+      await dialog.getByRole("button", { name: "Generate" }).click();
+
+      await expect(dialog.getByRole("alert")).toHaveText(message);
+      await expect(dialog).toBeVisible();
+    });
+  }
+});
+
 test("adds a one-page PDF design, previews it and generates posters", async ({
   page,
 }) => {

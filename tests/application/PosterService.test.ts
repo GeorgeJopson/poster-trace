@@ -10,6 +10,7 @@ import { PosterId } from "@domain/poster/PosterId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
+import { pngBytes } from "../support/images";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
@@ -31,7 +32,7 @@ async function addCampaignWithDesign() {
     target: "https://example.com/",
   });
   await new PosterDesignService(sessions, campaigns).createPosterDesign(id, {
-    image: new Blob(["png bytes"], { type: "image/png" }),
+    image: new Blob([pngBytes()], { type: "image/png" }),
     qrPlacement,
   });
   const campaign = await campaignService.getMyCampaign(id);

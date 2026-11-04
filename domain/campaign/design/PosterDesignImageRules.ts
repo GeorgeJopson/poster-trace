@@ -2,10 +2,16 @@ import { ValidationError } from "../../shared/ValidationError";
 
 const MAX_SIZE_LABEL = "5 MB";
 
+const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+const JPEG_SIGNATURE = [0xff, 0xd8, 0xff];
+const PDF_HEADER = "%PDF-";
+
 /** What a poster design's image must be. */
 export class PosterDesignImageRules {
   static readonly MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
+  static readonly PNG_TYPE = "image/png";
+  static readonly JPEG_TYPE = "image/jpeg";
   static readonly PDF_TYPE = "application/pdf";
 
   /**
@@ -13,10 +19,31 @@ export class PosterDesignImageRules {
    * because it can carry scripts.
    */
   static readonly ALLOWED_TYPES: readonly string[] = [
-    "image/png",
-    "image/jpeg",
+    PosterDesignImageRules.PNG_TYPE,
+    PosterDesignImageRules.JPEG_TYPE,
     PosterDesignImageRules.PDF_TYPE,
   ];
+
+  /** How many of a file's first bytes `detectType` needs. */
+  static readonly HEADER_BYTES = 1024;
+
+  /**
+   * Which allowed format a file is, from its first bytes, or `null` if it
+   * isn't one. A file's own type comes from the browser, which guesses it from
+   * the file name, so this is what decides how a design is stored and served.
+   */
+  static detectType(header: Uint8Array): string | null {
+    const startsWith = (signature: readonly number[]) =>
+      signature.every((byte, i) => header[i] === byte);
+    if (startsWith(PNG_SIGNATURE)) return PosterDesignImageRules.PNG_TYPE;
+    if (startsWith(JPEG_SIGNATURE)) return PosterDesignImageRules.JPEG_TYPE;
+    // PDF readers accept the header anywhere in the first 1024 bytes.
+    const start = new TextDecoder("latin1").decode(
+      header.subarray(0, PosterDesignImageRules.HEADER_BYTES),
+    );
+    if (start.includes(PDF_HEADER)) return PosterDesignImageRules.PDF_TYPE;
+    return null;
+  }
 
   /**
    * Takes the file's type and size rather than a `File`, so the form can

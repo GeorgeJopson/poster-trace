@@ -20,9 +20,9 @@ export async function GET(
       // A design's image never changes, so the browser can keep it. Private
       // so shared caches never hold one user's image.
       "Cache-Control": "private, max-age=31536000, immutable",
-      // The content type comes from the upload, so stop the browser guessing
-      // a different one, and never run anything in the file if it's opened
-      // directly.
+      // The content type was detected from the file's bytes on upload. Stop
+      // the browser guessing a different one anyway, and never run anything
+      // in the file if it's opened directly.
       "X-Content-Type-Options": "nosniff",
       "Content-Security-Policy": "default-src 'none'; sandbox",
       // PDFs can carry scripts, so download one opened directly rather than
