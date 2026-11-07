@@ -61,10 +61,18 @@ function getScanTargetLookup() {
 }
 
 /**
- * Where QR codes point. Printed posters outlive deploy previews, so this is
- * the production URL in every Netlify context.
+ * Where QR codes point. A poster generated on a deploy preview or branch
+ * deploy only exists in that deploy's database branch, so its QR code points
+ * back at that deploy. Everywhere else it's POSTER_TRACE_URL, which is the
+ * production URL in production (see ADR-0014).
  */
 function getPosterTraceUrl() {
+  const isNetlifyPreview =
+    process.env.NETLIFY_CONTEXT === "deploy-preview" ||
+    process.env.NETLIFY_CONTEXT === "branch-deploy";
+  if (isNetlifyPreview && process.env.NETLIFY_DEPLOY_PRIME_URL) {
+    return process.env.NETLIFY_DEPLOY_PRIME_URL;
+  }
   const url = process.env.POSTER_TRACE_URL;
   if (!url) {
     throw new Error("POSTER_TRACE_URL isn't set (see README.md).");
