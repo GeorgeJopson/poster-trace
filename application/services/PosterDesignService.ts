@@ -10,7 +10,7 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 import { requireUserId } from "../auth/requireUserId";
 import type { CreatePosterDesignInput } from "../dto/inputs";
 import type { PosterDesignImageDto } from "../dto/PosterDesignImageDto";
-import { readPosterDesignImage } from "../files/readPosterDesignImage";
+import { getPosterDesignImageDetails } from "../files/getPosterDesignImageDetails";
 import type { SessionProvider } from "../ports/SessionProvider";
 
 /** The poster designs of the signed-in user's campaigns. */
@@ -30,7 +30,7 @@ export class PosterDesignService {
     // Stored as its real format, so the image route serves it as that.
     const image = PosterDesignImageUpload.create(
       input.image,
-      await readPosterDesignImage(input.image),
+      await getPosterDesignImageDetails(input.image),
     );
 
     const id = CampaignId.parse(campaignId);

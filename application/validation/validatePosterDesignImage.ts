@@ -4,7 +4,7 @@ import {
 } from "@domain/campaign/design/PosterDesignImageRules";
 import { ValidationError } from "@domain/shared/ValidationError";
 
-import { readPosterDesignImage } from "../files/readPosterDesignImage";
+import { getPosterDesignImageDetails } from "../files/getPosterDesignImageDetails";
 
 export type PosterDesignImageCheck =
   /** Why the file can't be used as a poster design. */
@@ -20,7 +20,7 @@ export async function validatePosterDesignImage(
   file: Blob,
 ): Promise<PosterDesignImageCheck> {
   try {
-    const details = await readPosterDesignImage(file);
+    const details = await getPosterDesignImageDetails(file);
     PosterDesignImageRules.assertValid(details);
     return { error: null, contentType: details.type };
   } catch (error) {

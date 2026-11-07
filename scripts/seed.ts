@@ -7,7 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { hashPassword } from "better-auth/crypto";
 
-import { readPosterDesignImage } from "@application/files/readPosterDesignImage";
+import { getPosterDesignImageDetails } from "@application/files/getPosterDesignImageDetails";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
@@ -61,7 +61,7 @@ async function uploadDesignImage(filename: string) {
   // here rather than when a page loads it.
   const image = PosterDesignImageUpload.create(
     data,
-    await readPosterDesignImage(data),
+    await getPosterDesignImageDetails(data),
   );
   // The store doesn't assign keys, so generate one, as the app does.
   const key = crypto.randomUUID();
