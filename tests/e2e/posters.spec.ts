@@ -110,6 +110,105 @@ test("adds an A4 PDF design, previews it and generates posters", async ({
   expect(pdf.getPageCount()).toBe(2);
 });
 
+test.describe("the design preview's QR code", () => {
+  type DecodedQrCode = {
+    data: string;
+    /** The QR code's own top-left corner, as a share of the canvas's size. */
+    topLeft: { x: number; y: number };
+  };
+
+  /**
+   * Reads the QR code drawn on the preview canvas, with jsQR loaded into the
+   * page, or `null` if there's no readable QR code on it.
+   */
+  async function readPreviewQrCode(page: Page): Promise<DecodedQrCode | null> {
+    if (!(await page.evaluate(() => "jsQR" in window))) {
+      await page.addScriptTag({ path: require.resolve("jsqr/dist/jsQR.js") });
+    }
+    return page
+      .getByRole("dialog", { name: "Create new poster design" })
+      .locator("canvas")
+      .evaluate((canvas: HTMLCanvasElement) => {
+        const { width, height } = canvas;
+        const pixels = canvas
+          .getContext("2d")!
+          .getImageData(0, 0, width, height);
+        const jsQR = (
+          window as unknown as { jsQR: typeof import("jsqr").default }
+        ).jsQR;
+        const code = jsQR(pixels.data, width, height);
+        if (!code) return null;
+        const corner = code.location.topLeftCorner;
+        return {
+          data: code.data,
+          topLeft: { x: corner.x / width, y: corner.y / height },
+        };
+      });
+  }
+
+  async function placeQrCode(
+    page: Page,
+    placement: { x: string; y: string; size: string; rotation: string },
+  ) {
+    const dialog = page.getByRole("dialog", {
+      name: "Create new poster design",
+    });
+    await dialog.getByLabel("QR X position").fill(placement.x);
+    await dialog.getByLabel("QR Y position").fill(placement.y);
+    await dialog.getByLabel("QR size").fill(placement.size);
+    await dialog.getByLabel("QR rotation").fill(placement.rotation);
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.getByRole("button", { name: "New Poster Design" }).click();
+    const dialog = page.getByRole("dialog", {
+      name: "Create new poster design",
+    });
+    await dialog.getByLabel(DESIGN_FILE_LABEL).setInputFiles(await pdfFile());
+    // The size slider is enabled once the image has loaded.
+    await expect(dialog.getByLabel("QR size")).toBeEnabled();
+  });
+
+  test("encodes a sample scan URL, as its posters encode theirs", async ({
+    page,
+  }) => {
+    await placeQrCode(page, { x: "25", y: "20", size: "50", rotation: "0" });
+
+    await expect
+      .poll(async () => (await readPreviewQrCode(page))?.data)
+      .toMatch(
+        /^https?:\/\/[^/]+\/redirect\/00000000-0000-0000-0000-000000000000$/,
+      );
+  });
+
+  test("is drawn at its placement, from the design's top-left corner", async ({
+    page,
+  }) => {
+    await placeQrCode(page, { x: "25", y: "20", size: "50", rotation: "0" });
+
+    // 25% across and 20% down.
+    await expect
+      .poll(async () => (await readPreviewQrCode(page))?.topLeft)
+      .toEqual({
+        x: expect.closeTo(0.25, 2),
+        y: expect.closeTo(0.2, 2),
+      });
+  });
+
+  test("turns clockwise, as on the printed posters", async ({ page }) => {
+    await placeQrCode(page, { x: "25", y: "20", size: "50", rotation: "90" });
+
+    // A quarter turn clockwise about its centre takes its top-left corner to
+    // the top-right: 25% + 50% across, and still 20% down.
+    await expect
+      .poll(async () => (await readPreviewQrCode(page))?.topLeft)
+      .toEqual({
+        x: expect.closeTo(0.75, 2),
+        y: expect.closeTo(0.2, 2),
+      });
+  });
+});
+
 test.describe("rejects a design that isn't a one-page A4 PDF", () => {
   const cases: [string, () => Promise<PickedFile>, string][] = [
     [
