@@ -162,6 +162,60 @@ describe("InMemoryCampaignRepository.save", () => {
     expect(loaded?.getDesigns()).toEqual([]);
     const [bobs] = (await repository.findAllByOwner(bob))[0].getDesigns();
     expect({ ...bobs.qrPlacement }).toEqual({ ...placement });
+    expect(repository.images.size).toBe(1);
+  });
+
+  it("throws NotFoundError for another campaign's design that still holds its image", async () => {
+    const repository = new InMemoryCampaignRepository();
+    const other = Campaign.create(bob, "Bob's", target);
+    const bobsDesign = other.addDesign(placement, image);
+    await repository.save(other);
+    const campaign = Campaign.create(ownerId, "Name", target);
+    await repository.save(campaign);
+
+    const attempt = Campaign.restore({
+      id: campaign.id,
+      ownerId,
+      name: "Renamed",
+      target,
+      designs: [bobsDesign],
+    });
+
+    await expect(repository.save(attempt)).rejects.toThrow(NotFoundError);
+    const loaded = await repository.findByIdForOwner(campaign.id, ownerId);
+    expect(loaded?.getName()).toBe("Name");
+    expect(loaded?.getDesigns()).toEqual([]);
+    expect(repository.images.size).toBe(1);
+  });
+
+  it("adds a new design without loading or storing the stored ones' images", async () => {
+    const repository = new InMemoryCampaignRepository();
+    const campaign = Campaign.create(ownerId, "Name", target);
+    const stored = campaign.addDesign(placement, image);
+    await repository.save(campaign);
+
+    let loads = 0;
+    const loaded = Campaign.restore({
+      id: campaign.id,
+      ownerId,
+      name: "Name",
+      target,
+      designs: [
+        PosterDesign.restore({
+          id: stored.id,
+          qrPlacement: placement,
+          imageLoader: async () => {
+            loads++;
+            return image;
+          },
+        }),
+      ],
+    });
+    loaded.addDesign(placement, image);
+    await repository.save(loaded);
+
+    expect(loads).toBe(0);
+    expect(repository.images.size).toBe(2);
   });
 });
 

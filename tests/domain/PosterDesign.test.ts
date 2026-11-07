@@ -51,3 +51,41 @@ describe("PosterDesign.restore", () => {
     );
   });
 });
+
+describe("PosterDesign.image", () => {
+  it("loads again after a failed load", async () => {
+    let loads = 0;
+    const design = PosterDesign.restore({
+      id: PosterDesignId.generate(),
+      qrPlacement: placement,
+      imageLoader: async () => {
+        if (++loads === 1) throw new Error("network error");
+        return image;
+      },
+    });
+
+    // Callers waiting on the failed load all see it fail.
+    const results = await Promise.allSettled([design.image(), design.image()]);
+    expect(results.map(({ status }) => status)).toEqual([
+      "rejected",
+      "rejected",
+    ]);
+    expect(loads).toBe(1);
+
+    expect(await design.image()).toBe(image);
+    expect(await design.image()).toBe(image);
+    expect(loads).toBe(2);
+  });
+
+  it("loads again after finding the image missing", async () => {
+    let loads = 0;
+    const design = PosterDesign.restore({
+      id: PosterDesignId.generate(),
+      qrPlacement: placement,
+      imageLoader: async () => (++loads === 1 ? null : image),
+    });
+
+    await expect(design.image()).rejects.toThrow();
+    expect(await design.image()).toBe(image);
+  });
+});

@@ -93,4 +93,22 @@ describe("OrphanedDesignImageCleanup.run", () => {
     expect(await cleanup.run()).toBe(1);
     expect(blobStore.blobs.size).toBe(0);
   });
+
+  it("deletes only the old orphans in a mixed store", async () => {
+    await addDesign();
+    const [inUse] = blobStore.blobs.keys();
+    await addOrphan("old");
+    now = after(12);
+    await addOrphan("recent");
+    now = after(30);
+
+    expect(await cleanup.run()).toBe(1);
+    expect([...blobStore.blobs.keys()].sort()).toEqual(
+      [inUse, "recent"].sort(),
+    );
+  });
+
+  it("does nothing when the store is empty", async () => {
+    expect(await cleanup.run()).toBe(0);
+  });
 });

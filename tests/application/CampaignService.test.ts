@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { NotAuthenticatedError } from "@application/errors/NotAuthenticatedError";
 import { CampaignService } from "@application/services/CampaignService";
+import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
+import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 
@@ -96,6 +98,27 @@ describe("updateCampaign", () => {
       name: "Renamed",
       target: "https://example.com/new",
     });
+  });
+
+  it("keeps the campaign's designs and their images", async () => {
+    const { id } = await service.createCampaign(fields);
+    const designs = new PosterDesignService(sessions, campaigns);
+    const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
+    await designs.createPosterDesign(id, {
+      image: new Blob([await makePdf(1)], { type: "application/pdf" }),
+      qrPlacement,
+    });
+
+    await service.updateCampaign(id, fields);
+
+    const campaign = await service.getMyCampaign(id);
+    expect(campaign?.posterDesigns).toEqual([
+      { id: expect.any(String), qrPlacement },
+    ]);
+    expect(campaigns.images.size).toBe(1);
+    expect(
+      await designs.getMyPosterDesignImage(campaign!.posterDesigns[0].id),
+    ).not.toBeNull();
   });
 
   it("throws NotFoundError for another user's campaign", async () => {

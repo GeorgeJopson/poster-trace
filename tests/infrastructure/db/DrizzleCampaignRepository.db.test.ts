@@ -249,6 +249,69 @@ describe("save", () => {
   });
 });
 
+describe("save with stored designs", () => {
+  it("adds a new design without loading or uploading the stored ones' images", async () => {
+    const campaign = await addCampaign();
+    const stored = await addDesign(campaign);
+    const [key] = blobStore.blobs.keys();
+
+    let loads = 0;
+    const loaded = Campaign.restore({
+      id: campaign.id,
+      ownerId: alice,
+      name: "Campaign",
+      target,
+      designs: [
+        PosterDesign.restore({
+          id: stored.id,
+          qrPlacement: placement,
+          imageLoader: async () => {
+            loads++;
+            return upload();
+          },
+        }),
+      ],
+    });
+    const added = loaded.addDesign(placement, upload());
+    await repository.save(loaded);
+
+    expect(loads).toBe(0);
+    expect(blobStore.blobs.size).toBe(2);
+    expect(blobStore.blobs.has(key)).toBe(true);
+    expect((await load(campaign)).getDesigns().map((d) => d.id)).toEqual([
+      stored.id,
+      added.id,
+    ]);
+    // The stored design still points to its original image.
+    const image = await repository.findDesignImageForOwner(stored.id, alice);
+    expect(await new Response(image?.data).text()).toBe("image bytes");
+  });
+
+  it("throws NotFoundError for another campaign's design that still holds its image", async () => {
+    const bobs = Campaign.create(bob, "Bob's", target);
+    const bobsDesign = bobs.addDesign(placement, upload());
+    await repository.save(bobs);
+    const campaign = await addCampaign();
+
+    const attempt = Campaign.restore({
+      id: campaign.id,
+      ownerId: alice,
+      name: "Renamed",
+      target,
+      designs: [bobsDesign],
+    });
+
+    await expect(repository.save(attempt)).rejects.toThrow(NotFoundError);
+    const reloaded = await load(campaign);
+    expect(reloaded.getName()).toBe("Campaign");
+    expect(reloaded.getDesigns()).toEqual([]);
+    // No second copy of Bob's image was uploaded.
+    expect(blobStore.blobs.size).toBe(1);
+    const [stored] = (await load(bobs)).getDesigns();
+    expect(stored.id).toBe(bobsDesign.id);
+  });
+});
+
 describe("findDesignImageForOwner", () => {
   it("returns null for another owner's or an unknown design", async () => {
     const design = await addDesign(await addCampaign());
