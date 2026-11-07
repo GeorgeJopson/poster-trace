@@ -1,6 +1,6 @@
 import { getStore } from "@netlify/blobs";
 
-import type { BlobStore } from "./BlobStore";
+import type { BlobStore, StoredBlob } from "./BlobStore";
 
 // Not marked "server-only": the seed script (run with tsx) uses it too.
 
@@ -24,6 +24,18 @@ export class NetlifyBlobStore implements BlobStore {
     );
   }
 
+  /**
+   * The poster design store, allowing deletes only where `deletesAllowedIn`
+   * says. Shared by the app's container, the clean-up job and the seed
+   * script.
+   */
+  static forPosterDesigns(): NetlifyBlobStore {
+    return new NetlifyBlobStore(
+      NetlifyBlobStore.POSTER_DESIGN_STORE,
+      NetlifyBlobStore.deletesAllowedIn(process.env.NETLIFY_CONTEXT),
+    );
+  }
+
   constructor(
     private readonly storeName: string,
     private readonly deletesAllowed: boolean,
@@ -31,7 +43,7 @@ export class NetlifyBlobStore implements BlobStore {
 
   async set(key: string, data: Blob, contentType: string): Promise<void> {
     await this.getStore().set(key, await data.arrayBuffer(), {
-      metadata: { contentType },
+      metadata: { contentType, uploadedAt: new Date().toISOString() },
     });
   }
 
@@ -46,6 +58,26 @@ export class NetlifyBlobStore implements BlobStore {
       data: entry.data,
       contentType: String(entry.metadata.contentType),
     };
+  }
+
+  /** Reads each blob's metadata, so it's one request per blob. */
+  async list(): Promise<StoredBlob[]> {
+    const store = this.getStore();
+    const { blobs } = await store.list();
+    const stored = await Promise.all(
+      blobs.map(async ({ key }) => {
+        const entry = await store.getMetadata(key);
+        // Deleted since it was listed.
+        if (!entry) return null;
+        const { uploadedAt } = entry.metadata;
+        return {
+          key,
+          uploadedAt:
+            typeof uploadedAt === "string" ? new Date(uploadedAt) : null,
+        };
+      }),
+    );
+    return stored.filter((blob) => blob !== null);
   }
 
   async delete(key: string): Promise<void> {

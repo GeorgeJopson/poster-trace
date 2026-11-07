@@ -38,7 +38,7 @@ export class CampaignService {
     const userId = await requireUserId(this.sessions);
     const target = CampaignTarget.create(input.target);
     const campaign = Campaign.create(userId, input.name, target);
-    await this.campaigns.add(campaign);
+    await this.campaigns.save(campaign);
     return CampaignDtoMapper.toDto(campaign);
   }
 
@@ -51,7 +51,8 @@ export class CampaignService {
     if (!campaign) {
       throw new NotFoundError("Campaign not found");
     }
-    campaign.updateDetails(input.name, target);
-    await this.campaigns.updateDetails(campaign);
+    campaign.setName(input.name);
+    campaign.setTarget(target);
+    await this.campaigns.save(campaign);
   }
 }

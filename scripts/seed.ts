@@ -11,7 +11,7 @@ import { getPosterDesignImageDetails } from "@application/files/getPosterDesignI
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { PosterId } from "@domain/poster/PosterId";
 import {
   QrPlacement,
@@ -59,7 +59,7 @@ async function uploadDesignImage(filename: string) {
   ]);
   // Checked as an upload is, so a seed file that isn't a valid design fails
   // here rather than when a page loads it.
-  const image = PosterDesignImageUpload.create(
+  const image = PosterDesignImage.create(
     data,
     await getPosterDesignImageDetails(data),
   );
@@ -153,10 +153,7 @@ async function getSeedUser() {
 
 async function main() {
   await blobStorage;
-  blobStore = new NetlifyBlobStore(
-    NetlifyBlobStore.POSTER_DESIGN_STORE,
-    NetlifyBlobStore.deletesAllowedIn(process.env.NETLIFY_CONTEXT),
-  );
+  blobStore = NetlifyBlobStore.forPosterDesigns();
 
   // Clear existing poster data so the seed is repeatable. Deleting campaigns
   // cascades to their designs, posters and scans, so delete the designs'

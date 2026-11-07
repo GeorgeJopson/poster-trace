@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { PosterDesignImageRef } from "@domain/campaign/design/PosterDesignImageRef";
 import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
-import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { ValidationError } from "@domain/shared/ValidationError";
 
 const MAX = PosterDesignImageRules.MAX_SIZE_BYTES;
@@ -139,7 +138,7 @@ describe("PosterDesignImageRules.detectType", () => {
   });
 });
 
-describe("PosterDesignImageUpload", () => {
+describe("PosterDesignImage", () => {
   const details = {
     type: "application/pdf",
     pageCount: 1,
@@ -149,7 +148,7 @@ describe("PosterDesignImageUpload", () => {
 
   it("keeps the validated content type, not the blob's own", () => {
     const data = new Blob(["%PDF"], { type: "text/plain" });
-    const upload = PosterDesignImageUpload.create(data, details);
+    const upload = PosterDesignImage.create(data, details);
     expect(upload.contentType).toBe("application/pdf");
     expect(upload.data).toBe(data);
   });
@@ -157,10 +156,10 @@ describe("PosterDesignImageUpload", () => {
   it("validates the PDF's page count and size", () => {
     const data = new Blob(["%PDF"]);
     expect(() =>
-      PosterDesignImageUpload.create(data, { ...details, pageCount: 2 }),
+      PosterDesignImage.create(data, { ...details, pageCount: 2 }),
     ).toThrow("The PDF must have exactly one page.");
     expect(() =>
-      PosterDesignImageUpload.create(data, {
+      PosterDesignImage.create(data, {
         ...details,
         pageSize: { width: 612, height: 792 },
       }),
@@ -169,20 +168,28 @@ describe("PosterDesignImageUpload", () => {
 
   it("validates the content type and size", () => {
     expect(() =>
-      PosterDesignImageUpload.create(new Blob(["x"]), {
+      PosterDesignImage.create(new Blob(["x"]), {
         ...details,
         type: "image/png",
       }),
     ).toThrow("Please choose a PDF.");
-    expect(() => PosterDesignImageUpload.create(new Blob([]), details)).toThrow(
+    expect(() => PosterDesignImage.create(new Blob([]), details)).toThrow(
       "A poster design PDF is required",
     );
   });
 });
 
-describe("PosterDesignImageRef", () => {
-  it("wraps a non-empty reference", () => {
-    expect(PosterDesignImageRef.from("blob-key")).toBe("blob-key");
-    expect(() => PosterDesignImageRef.from("")).toThrow(ValidationError);
+describe("PosterDesignImage.restore", () => {
+  it("rebuilds a stored image with its stored type", () => {
+    const data = new Blob(["%PDF"]);
+    const image = PosterDesignImage.restore(data, "application/pdf");
+    expect(image.data).toBe(data);
+    expect(image.contentType).toBe("application/pdf");
+  });
+
+  it("rejects a stored type that isn't allowed", () => {
+    expect(() =>
+      PosterDesignImage.restore(new Blob(["x"]), "image/png"),
+    ).toThrow(ValidationError);
   });
 });

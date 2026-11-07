@@ -24,6 +24,10 @@ _Avoid_: Destination, redirect URL, link
 One layout for a campaign's posters: an uploaded one-page, portrait A4 PDF with a QR code placed on it. It belongs to exactly one campaign.
 _Avoid_: Design image, template
 
+**Image**:
+The PDF a user uploads for a poster design, which the QR code is placed on. Every poster generated from the design is a copy of it. A design's image never changes once it's uploaded.
+_Avoid_: Blob, file, template
+
 **QR Placement**:
 Where the QR code sits on a poster design: its `x` and `y` position, `size` and `rotation`.
 _Avoid_: QR position, QR settings

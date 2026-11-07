@@ -1,6 +1,5 @@
 import "server-only";
 
-import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
 import type { UserRepository } from "@domain/user/UserRepository";
 
 import { requireUserId } from "../auth/requireUserId";
@@ -13,7 +12,6 @@ export class AccountService {
   constructor(
     private readonly sessions: SessionProvider,
     private readonly users: UserRepository,
-    private readonly campaigns: CampaignRepository,
     private readonly accountGateway: AccountGateway,
   ) {}
 
@@ -32,22 +30,12 @@ export class AccountService {
   }
 
   /**
-   * Deletes the signed-in user. Deleting the user deletes their campaigns and
-   * designs too; the design images are stored separately, so they're deleted
-   * here.
+   * Deletes the signed-in user, which deletes their campaigns and designs
+   * too. Their images are left for the daily clean-up job (ADR-0013).
    */
   async deleteAccount(): Promise<void> {
-    const userId = await requireUserId(this.sessions);
-
-    // Read first, since deleting the user deletes the designs that point to
-    // the images.
-    const imageRefs =
-      await this.campaigns.findAllDesignImageRefsByOwner(userId);
-
-    // Throws if the delete is refused. Images are only deleted after this
-    // succeeds, so a refused delete leaves the account intact.
+    await requireUserId(this.sessions);
+    // Throws if the delete is refused.
     await this.accountGateway.deleteCurrentAccount();
-
-    await this.campaigns.deleteDesignImages(imageRefs);
   }
 }

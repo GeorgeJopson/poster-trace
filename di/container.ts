@@ -43,10 +43,7 @@ let campaignRepository: CampaignRepository | undefined;
 function getCampaignRepository() {
   return (campaignRepository ??= new DrizzleCampaignRepository(
     getDb(),
-    new NetlifyBlobStore(
-      NetlifyBlobStore.POSTER_DESIGN_STORE,
-      NetlifyBlobStore.deletesAllowedIn(process.env.NETLIFY_CONTEXT),
-    ),
+    NetlifyBlobStore.forPosterDesigns(),
   ));
 }
 
@@ -98,7 +95,6 @@ export function getAccountService() {
   return (accountService ??= new AccountService(
     getSessionProvider(),
     getUserRepository(),
-    getCampaignRepository(),
     getAccountGateway(),
   ));
 }
