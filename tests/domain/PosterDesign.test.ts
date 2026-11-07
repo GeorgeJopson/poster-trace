@@ -14,38 +14,28 @@ describe("PosterDesign.create", () => {
   it("holds the image it was given", async () => {
     const design = PosterDesign.create(placement, image);
 
-    expect(design.image).toBe(image);
-    expect(await design.loadImage()).toBe(image);
+    expect(await design.image()).toBe(image);
   });
 });
 
 describe("PosterDesign.restore", () => {
-  it("has no image until it's loaded", async () => {
-    const design = PosterDesign.restore({
-      id: PosterDesignId.generate(),
-      qrPlacement: placement,
-      loadImage: async () => image,
-    });
-
-    expect(design.image).toBeUndefined();
-    expect(await design.loadImage()).toBe(image);
-    expect(design.image).toBe(image);
-  });
-
-  it("loads its image only once", async () => {
+  it("loads its image only when first asked, and only once", async () => {
     let loads = 0;
     const design = PosterDesign.restore({
       id: PosterDesignId.generate(),
       qrPlacement: placement,
-      loadImage: async () => {
+      imageLoader: async () => {
         loads++;
         return image;
       },
     });
 
-    await Promise.all([design.loadImage(), design.loadImage()]);
-    await design.loadImage();
+    expect(loads).toBe(0);
+    const [first, second] = await Promise.all([design.image(), design.image()]);
+    expect(await design.image()).toBe(image);
 
+    expect(first).toBe(image);
+    expect(second).toBe(image);
     expect(loads).toBe(1);
   });
 
@@ -53,10 +43,10 @@ describe("PosterDesign.restore", () => {
     const design = PosterDesign.restore({
       id: PosterDesignId.generate(),
       qrPlacement: placement,
-      loadImage: async () => null,
+      imageLoader: async () => null,
     });
 
-    await expect(design.loadImage()).rejects.toThrow(
+    await expect(design.image()).rejects.toThrow(
       "Poster design image is missing",
     );
   });

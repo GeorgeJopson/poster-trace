@@ -37,10 +37,14 @@ describe("Campaign", () => {
 
   it("restores a stored campaign without generating anything", () => {
     const id = CampaignId.generate();
+    let loads = 0;
     const design = PosterDesign.restore({
       id: PosterDesignId.generate(),
       qrPlacement: placement,
-      loadImage: async () => image,
+      imageLoader: async () => {
+        loads++;
+        return image;
+      },
     });
     const campaign = Campaign.restore({
       id,
@@ -52,7 +56,7 @@ describe("Campaign", () => {
     expect(campaign.id).toBe(id);
     expect(campaign.getName()).toBe("Stored");
     expect(campaign.getDesigns()).toEqual([design]);
-    expect(design.image).toBeUndefined();
+    expect(loads).toBe(0);
   });
 
   it("updates its name", () => {
@@ -70,7 +74,7 @@ describe("Campaign", () => {
     expect(campaign.getName()).toBe("Name");
   });
 
-  it("adds designs with fresh ids, in order", () => {
+  it("adds designs with fresh ids, in order", async () => {
     const campaign = Campaign.create(ownerId, "Name", target);
     const first = campaign.addDesign(placement, image);
     const second = campaign.addDesign(placement, image);
@@ -78,7 +82,7 @@ describe("Campaign", () => {
     expect(PosterDesignId.parse(first.id)).toBe(first.id);
     expect(first.id).not.toBe(second.id);
     expect(first.qrPlacement).toBe(placement);
-    expect(first.image).toBe(image);
+    expect(await first.image()).toBe(image);
     expect(campaign.getDesigns()).toEqual([first, second]);
   });
 

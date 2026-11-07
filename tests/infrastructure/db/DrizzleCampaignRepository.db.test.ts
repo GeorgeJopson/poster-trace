@@ -133,7 +133,7 @@ describe("save", () => {
         PosterDesign.restore({
           id: design.id,
           qrPlacement: moved,
-          loadImage: async () => null,
+          imageLoader: async () => null,
         }),
       ],
     });
@@ -232,7 +232,7 @@ describe("save", () => {
         PosterDesign.restore({
           id: designId(bobsDesign.id),
           qrPlacement: moved,
-          loadImage: async () => null,
+          imageLoader: async () => null,
         }),
       ],
     });
@@ -262,14 +262,13 @@ describe("findDesignImageForOwner", () => {
   });
 });
 
-describe("loadImage", () => {
+describe("design images", () => {
   it("loads a stored design's image", async () => {
     const design = await addDesign(await addCampaign());
 
     const [loaded] = (await repository.findAllByOwner(alice))[0].getDesigns();
     expect(loaded.id).toBe(design.id);
-    expect(loaded.image).toBeUndefined();
-    const image = await loaded.loadImage();
+    const image = await loaded.image();
     expect(image.contentType).toBe("application/pdf");
     expect(await image.data.text()).toBe("image bytes");
   });
@@ -280,7 +279,7 @@ describe("loadImage", () => {
     blobStore.blobs.clear();
 
     const [design] = (await load(campaign)).getDesigns();
-    await expect(design.loadImage()).rejects.toThrow(
+    await expect(design.image()).rejects.toThrow(
       "Poster design image is missing",
     );
   });

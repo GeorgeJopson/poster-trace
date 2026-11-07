@@ -51,7 +51,9 @@ export class DrizzleCampaignRepository implements CampaignRepository {
       orderBy: { createdAt: "asc", id: "asc" },
       with: { posterDesigns: designsInOrder },
     });
-    return rows.map((row) => CampaignRowMapper.toEntity(row, this.imageLoader));
+    return rows.map((row) =>
+      CampaignRowMapper.toEntity(row, this.imageLoaderFor),
+    );
   }
 
   async findByIdForOwner(
@@ -62,7 +64,7 @@ export class DrizzleCampaignRepository implements CampaignRepository {
       where: { id, userId: ownerId },
       with: { posterDesigns: designsInOrder },
     });
-    return row ? CampaignRowMapper.toEntity(row, this.imageLoader) : null;
+    return row ? CampaignRowMapper.toEntity(row, this.imageLoaderFor) : null;
   }
 
   async save(campaign: Campaign): Promise<void> {
@@ -135,9 +137,9 @@ export class DrizzleCampaignRepository implements CampaignRepository {
         .onConflictDoNothing({ target: posterDesign.id })
         .returning();
       if (inserted) {
-        // A design that isn't stored must bring its image. Throwing rolls
-        // back the insert.
-        const image = design.image;
+        // A design that isn't stored must bring its image: a new one holds
+        // it in memory. Throwing rolls back the insert.
+        const image = await design.image().catch(() => null);
         if (!image) throw new NotFoundError("Poster design not found");
         await this.blobStore.set(key, image.data, image.contentType);
         continue;
@@ -161,7 +163,7 @@ export class DrizzleCampaignRepository implements CampaignRepository {
   }
 
   /** Loads the image under `key`, for a restored design. */
-  private readonly imageLoader = (key: string) => async () => {
+  private readonly imageLoaderFor = (key: string) => async () => {
     const blob = await this.blobStore.getStream(key);
     if (!blob) return null;
     const data = await new Response(blob.data).blob();

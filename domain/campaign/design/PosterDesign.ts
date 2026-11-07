@@ -9,7 +9,7 @@ export type PosterDesignProps = {
   id: PosterDesignId;
   qrPlacement: QrPlacement;
   /** How a restored design fetches its image, when it's first needed. */
-  loadImage: PosterDesignImageLoader;
+  imageLoader: PosterDesignImageLoader;
 };
 
 /**
@@ -20,31 +20,24 @@ export type PosterDesignProps = {
 export class PosterDesign {
   readonly id: PosterDesignId;
   readonly qrPlacement: QrPlacement;
-  private readonly loader: PosterDesignImageLoader;
+  private readonly imageLoader: PosterDesignImageLoader;
   private loading?: Promise<PosterDesignImage>;
 
   private constructor(
-    { id, qrPlacement, loadImage }: PosterDesignProps,
+    { id, qrPlacement, imageLoader }: PosterDesignProps,
     private loadedImage?: PosterDesignImage,
   ) {
     this.id = id;
     this.qrPlacement = qrPlacement;
-    this.loader = loadImage;
+    this.imageLoader = imageLoader;
   }
 
   /**
-   * The design's image if it's in memory: given to `create`, or already
-   * loaded. `undefined` until a restored design's image is loaded.
+   * The design's image. A new design has it in memory; a restored one fetches
+   * it on the first call and keeps it after that. Throws if a stored design's
+   * image is missing.
    */
-  get image(): PosterDesignImage | undefined {
-    return this.loadedImage;
-  }
-
-  /**
-   * The design's image, fetched on the first call and kept after that.
-   * Throws if a stored design's image is missing.
-   */
-  loadImage(): Promise<PosterDesignImage> {
+  image(): Promise<PosterDesignImage> {
     if (this.loadedImage) return Promise.resolve(this.loadedImage);
     return (this.loading ??= this.fetchImage());
   }
@@ -58,7 +51,7 @@ export class PosterDesign {
       {
         id: PosterDesignId.generate(),
         qrPlacement,
-        loadImage: async () => image,
+        imageLoader: async () => image,
       },
       image,
     );
@@ -71,7 +64,7 @@ export class PosterDesign {
 
   private async fetchImage(): Promise<PosterDesignImage> {
     try {
-      const image = await this.loader();
+      const image = await this.imageLoader();
       if (!image) throw new Error("Poster design image is missing");
       this.loadedImage = image;
       return image;

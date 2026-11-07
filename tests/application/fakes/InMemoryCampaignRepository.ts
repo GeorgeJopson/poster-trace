@@ -65,11 +65,13 @@ export class InMemoryCampaignRepository implements CampaignRepository {
       designs: [],
     };
     // Checked before writing anything, so a failed save changes nothing.
+    const newImages = new Map<PosterDesignId, PosterDesignImage>();
     for (const design of campaign.getDesigns()) {
-      const storedHere = stored.designs.some((d) => d.id === design.id);
-      if (!storedHere && (this.isStored(design.id) || !design.image)) {
-        throw new NotFoundError("Poster design not found");
-      }
+      if (stored.designs.some((d) => d.id === design.id)) continue;
+      const image =
+        !this.isStored(design.id) && (await design.image().catch(() => null));
+      if (!image) throw new NotFoundError("Poster design not found");
+      newImages.set(design.id, image);
     }
 
     if (!existing) this.campaigns.push(stored);
@@ -83,7 +85,7 @@ export class InMemoryCampaignRepository implements CampaignRepository {
         stored.designs.push({
           id: design.id,
           qrPlacement: design.qrPlacement,
-          imageKey: this.storeImage(design.image!),
+          imageKey: this.storeImage(newImages.get(design.id)!),
         });
       }
     }
@@ -138,7 +140,7 @@ export class InMemoryCampaignRepository implements CampaignRepository {
         PosterDesign.restore({
           id,
           qrPlacement,
-          loadImage: async () => {
+          imageLoader: async () => {
             const image = this.images.get(imageKey);
             return image
               ? PosterDesignImage.restore(image.data, image.contentType)

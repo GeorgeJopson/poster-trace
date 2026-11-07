@@ -19,18 +19,18 @@ export interface CampaignRepository {
   /**
    * Stores the whole campaign, all or nothing: inserts it if it's new, or
    * updates its name and target. Designs that aren't stored yet are stored
-   * with their `image`; stored designs get their QR placement updated, and
+   * with their `image()`; stored designs get their QR placement updated, and
    * keep their image, which never changes. A stored design that's missing
    * from the campaign is kept, never deleted. Throws `NotFoundError` if the
    * campaign or one of its designs is stored under someone else, or a design
-   * that isn't stored has no `image` in memory.
+   * that isn't stored has no image.
    */
   save(campaign: Campaign): Promise<void>;
 
   /**
    * The design's image as a stream, for serving it, or `null` if it's
    * missing or not owned. To use an image's bytes, load the campaign and
-   * call the design's `loadImage()` instead.
+   * call the design's `image()` instead.
    */
   findDesignImageForOwner(
     designId: PosterDesignId,

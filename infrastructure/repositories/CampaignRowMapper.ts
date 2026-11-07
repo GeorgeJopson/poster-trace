@@ -32,7 +32,7 @@ export type CampaignRowWithDesigns = Pick<
 export class CampaignRowMapper {
   static toEntity(
     row: CampaignRowWithDesigns,
-    imageLoader: ImageLoaderFactory,
+    imageLoaderFor: ImageLoaderFactory,
   ): Campaign {
     return Campaign.restore({
       id: CampaignId.from(row.id),
@@ -40,20 +40,20 @@ export class CampaignRowMapper {
       name: row.name,
       target: CampaignTarget.create(row.target),
       designs: row.posterDesigns.map((design) =>
-        CampaignRowMapper.designToEntity(design, imageLoader),
+        CampaignRowMapper.designToEntity(design, imageLoaderFor),
       ),
     });
   }
 
   static designToEntity(
     row: PosterDesignRow,
-    imageLoader: ImageLoaderFactory,
+    imageLoaderFor: ImageLoaderFactory,
   ): PosterDesign {
     const { x, y, size, rotation } = row;
     return PosterDesign.restore({
       id: PosterDesignId.from(row.id),
       qrPlacement: QrPlacement.create({ x, y, size, rotation }),
-      loadImage: imageLoader(row.designImageKey),
+      imageLoader: imageLoaderFor(row.designImageKey),
     });
   }
 }

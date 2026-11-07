@@ -55,7 +55,7 @@ describe("InMemoryCampaignRepository.save", () => {
         PosterDesign.restore({
           id: first.id,
           qrPlacement: moved,
-          loadImage: async () => null,
+          imageLoader: async () => null,
         }),
       ],
     });
@@ -151,7 +151,7 @@ describe("InMemoryCampaignRepository.save", () => {
         PosterDesign.restore({
           id: designId(bobsDesign.id),
           qrPlacement: moved,
-          loadImage: async () => null,
+          imageLoader: async () => null,
         }),
       ],
     });
@@ -165,7 +165,7 @@ describe("InMemoryCampaignRepository.save", () => {
   });
 });
 
-describe("InMemoryCampaignRepository loadImage", () => {
+describe("InMemoryCampaignRepository design images", () => {
   it("loads a stored design's image", async () => {
     const repository = new InMemoryCampaignRepository();
     const campaign = Campaign.create(ownerId, "Name", target);
@@ -174,8 +174,7 @@ describe("InMemoryCampaignRepository loadImage", () => {
 
     const loaded = await repository.findByIdForOwner(campaign.id, ownerId);
     const [design] = loaded!.getDesigns();
-    expect(design.image).toBeUndefined();
-    const stored = await design.loadImage();
+    const stored = await design.image();
     expect(stored.contentType).toBe("application/pdf");
     expect(await stored.data.text()).toBe("image");
   });
