@@ -187,8 +187,10 @@ Environment variables), scoped to the Builds and Functions:
 
 - `BETTER_AUTH_URL` — public site URL, e.g. `https://www.postertrace.app`
 - `POSTER_TRACE_URL` — the production site URL, e.g.
-  `https://www.postertrace.app`, in every deploy context. Generated posters'
-  QR codes point to it, and a printed poster outlives any deploy preview.
+  `https://www.postertrace.app`. Posters generated in production have QR codes
+  that point to it. Posters generated on a deploy preview or branch deploy
+  point to that deploy's own URL instead, because they only exist in its
+  database branch, so their QR codes stop working once the deploy is deleted.
 - `BETTER_AUTH_SECRET` — random secret for signing sessions
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — Google OAuth credentials
 - `RESEND_KEY` — Resend API key, in every deploy context

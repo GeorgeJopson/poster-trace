@@ -35,7 +35,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 ## Presentation
 
-- **Every service call from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`.** The layout guard isn't enough, because layouts don't re-render on client navigation and Server Actions don't run through them. The image route is the one exception: it maps `NotAuthenticatedError` to a 404.
+- **Every service call from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`.** The layout guard isn't enough, because layouts don't re-render on client navigation and Server Actions don't run through them. Two route handlers are exceptions: the image route maps `NotAuthenticatedError` to a 404, and the scan redirect route (`/redirect/[posterId]`) never checks a session, because anyone can scan a poster (see ADR-0014).
 - **Services come from `@di/container` getters.** Client Components never call services; they get DTOs through props, or call Server Actions.
 - **Forms validate through `@application/validation`**, not by calling domain factories. They may read domain constants such as `CampaignTarget.MAX_LENGTH` and `QrPlacement.RANGES`.
 - **Client Components reach auth through `@clientApplication`.**
