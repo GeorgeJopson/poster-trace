@@ -1,3 +1,5 @@
+import { inArray } from "drizzle-orm";
+
 import type { Db } from "../db/client";
 import { posterDesign } from "../db/schema";
 import type { BlobStore } from "./BlobStore";
@@ -22,21 +24,23 @@ export class OrphanedDesignImageCleanup {
 
   /** Returns how many images were deleted. */
   async run(): Promise<number> {
-    // A blob listed here whose design commits after the read below looks
-    // orphaned, which is what the grace period is for.
-    const blobs = await this.blobStore.list();
-    const designs = await this.db
-      .select({ key: posterDesign.designImageKey })
-      .from(posterDesign);
-    const inUse = new Set(designs.map(({ key }) => key));
-
     const cutoff =
       this.now().getTime() - OrphanedDesignImageCleanup.GRACE_PERIOD_MS;
-    const orphans = blobs.filter(
-      ({ key, uploadedAt }) =>
-        !inUse.has(key) && (!uploadedAt || uploadedAt.getTime() <= cutoff),
-    );
-    for (const { key } of orphans) {
+    // A blob listed here whose design commits after the query below looks
+    // orphaned, which is what the grace period is for.
+    const candidates = (await this.blobStore.list())
+      .filter(({ uploadedAt }) => !uploadedAt || uploadedAt.getTime() <= cutoff)
+      .map(({ key }) => key);
+    if (candidates.length === 0) return 0;
+
+    const designs = await this.db
+      .select({ key: posterDesign.designImageKey })
+      .from(posterDesign)
+      .where(inArray(posterDesign.designImageKey, candidates));
+    const inUse = new Set(designs.map(({ key }) => key));
+
+    const orphans = candidates.filter((key) => !inUse.has(key));
+    for (const key of orphans) {
       await this.blobStore.delete(key);
     }
     return orphans.length;
