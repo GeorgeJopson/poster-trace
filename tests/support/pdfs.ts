@@ -25,7 +25,7 @@ export async function makePdf(
 }
 
 /**
- * What `PosterDesignImageUpload.create` is given for a valid design: a
+ * What `PosterDesignImage.create` is given for a valid design: a
  * one-page portrait A4 PDF. The bytes themselves aren't parsed there.
  */
 export const A4_PDF_DETAILS = {

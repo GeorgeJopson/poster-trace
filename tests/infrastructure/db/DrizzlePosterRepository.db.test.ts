@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { Campaign } from "@domain/campaign/Campaign";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
-import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { Poster } from "@domain/poster/Poster";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
@@ -31,7 +31,7 @@ beforeEach(async () => {
   );
   const design = campaign.addDesign(
     QrPlacement.create({ x: 10, y: 10, size: 20, rotation: 0 }),
-    PosterDesignImageUpload.create(new Blob(["pdf"]), A4_PDF_DETAILS),
+    PosterDesignImage.create(new Blob(["pdf"]), A4_PDF_DETAILS),
   );
   await campaigns.save(campaign);
   designId = design.id;

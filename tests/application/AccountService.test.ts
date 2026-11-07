@@ -28,7 +28,7 @@ beforeEach(() => {
   gateway = new FakeAccountGateway(() =>
     campaigns.deleteAllByOwner(UserId.from("alice")),
   );
-  service = new AccountService(sessions, users, campaigns, gateway);
+  service = new AccountService(sessions, users, gateway);
 });
 
 /** Gives the signed-in user a campaign with `count` designs. */
@@ -68,26 +68,18 @@ describe("requireCurrentUserId", () => {
 });
 
 describe("deleteAccount", () => {
-  it("deletes the account, then its design images", async () => {
+  it("deletes the account and leaves its images for the clean-up job", async () => {
     await addDesigns(2);
-    sessions.signInAs("bob");
-    await addDesigns(1);
-    sessions.signInAs("alice");
-    const aliceRefs = await campaigns.findAllDesignImageRefsByOwner(
-      UserId.from("alice"),
-    );
 
     await service.deleteAccount();
 
     expect(gateway.deleteCount).toBe(1);
-    // The refs were read before the delete cascaded to the designs.
-    expect(campaigns.deletedImageRefs).toEqual(aliceRefs);
-    expect(aliceRefs).toHaveLength(2);
-    // Bob's image is untouched.
-    expect(campaigns.images.size).toBe(1);
+    expect(await campaigns.findAllByOwner(UserId.from("alice"))).toEqual([]);
+    // Images nothing points to are deleted later (ADR-0013).
+    expect(campaigns.images.size).toBe(2);
   });
 
-  it("keeps the images if the delete is refused", async () => {
+  it("keeps the account if the delete is refused", async () => {
     await addDesigns(2);
     gateway.refusal =
       "Session expired. Re-authenticate to perform this action.";
@@ -95,8 +87,9 @@ describe("deleteAccount", () => {
     await expect(service.deleteAccount()).rejects.toThrow(
       new AccountDeletionRefusedError(gateway.refusal),
     );
-    expect(campaigns.deletedImageRefs).toEqual([]);
-    expect(campaigns.images.size).toBe(2);
+    expect(await campaigns.findAllByOwner(UserId.from("alice"))).toHaveLength(
+      1,
+    );
   });
 });
 

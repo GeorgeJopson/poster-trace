@@ -5,7 +5,7 @@ import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesign } from "@domain/campaign/design/PosterDesign";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { UserId } from "@domain/user/UserId";
 
@@ -14,7 +14,7 @@ import { A4_PDF_DETAILS } from "../support/pdfs";
 const ownerId = UserId.from("owner");
 const target = CampaignTarget.create("https://example.com/");
 const placement = QrPlacement.create({ x: 1, y: 2, size: 3, rotation: 4 });
-const image = PosterDesignImageUpload.create(
+const image = PosterDesignImage.create(
   new Blob(["pdf"], { type: "application/pdf" }),
   A4_PDF_DETAILS,
 );
@@ -40,6 +40,7 @@ describe("Campaign", () => {
     const design = PosterDesign.restore({
       id: PosterDesignId.generate(),
       qrPlacement: placement,
+      loadImage: async () => image,
     });
     const campaign = Campaign.restore({
       id,
@@ -51,7 +52,7 @@ describe("Campaign", () => {
     expect(campaign.id).toBe(id);
     expect(campaign.getName()).toBe("Stored");
     expect(campaign.getDesigns()).toEqual([design]);
-    expect(design.newImage).toBeUndefined();
+    expect(design.image).toBeUndefined();
   });
 
   it("updates its name and target", () => {
@@ -70,7 +71,7 @@ describe("Campaign", () => {
     expect(PosterDesignId.parse(first.id)).toBe(first.id);
     expect(first.id).not.toBe(second.id);
     expect(first.qrPlacement).toBe(placement);
-    expect(first.newImage).toBe(image);
+    expect(first.image).toBe(image);
     expect(campaign.getDesigns()).toEqual([first, second]);
   });
 

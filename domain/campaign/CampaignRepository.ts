@@ -3,7 +3,6 @@ import type { Campaign } from "./Campaign";
 import type { CampaignId } from "./CampaignId";
 import type { PosterDesignId } from "./design/PosterDesignId";
 import type { PosterDesignImageContent } from "./design/PosterDesignImageContent";
-import type { PosterDesignImageRef } from "./design/PosterDesignImageRef";
 
 /**
  * Stores campaigns with their designs. Reads for an owner take their id, and
@@ -19,26 +18,22 @@ export interface CampaignRepository {
 
   /**
    * Stores the whole campaign, all or nothing: inserts it if it's new, or
-   * updates its name and target. New designs are stored with their
-   * `newImage`; stored designs get their QR placement updated, and keep
-   * their image. A stored design that's missing from the campaign is kept,
-   * never deleted. Throws `NotFoundError` if the campaign or one of its
-   * designs is stored under someone else, or a design without a `newImage`
-   * isn't stored.
+   * updates its name and target. Designs that aren't stored yet are stored
+   * with their `image`; stored designs get their QR placement updated, and
+   * keep their image, which never changes. A stored design that's missing
+   * from the campaign is kept, never deleted. Throws `NotFoundError` if the
+   * campaign or one of its designs is stored under someone else, or a design
+   * that isn't stored has no `image` in memory.
    */
   save(campaign: Campaign): Promise<void>;
 
-  /** The design's image, or `null` if it's missing or not owned. */
+  /**
+   * The design's image as a stream, for serving it, or `null` if it's
+   * missing or not owned. To use an image's bytes, load the campaign and
+   * call the design's `loadImage()` instead.
+   */
   findDesignImageForOwner(
     designId: PosterDesignId,
     ownerId: UserId,
   ): Promise<PosterDesignImageContent | null>;
-
-  /** Every design image of the owner's campaigns, for account deletion. */
-  findAllDesignImageRefsByOwner(
-    ownerId: UserId,
-  ): Promise<PosterDesignImageRef[]>;
-
-  /** Deletes stored design images, for account deletion. */
-  deleteDesignImages(refs: PosterDesignImageRef[]): Promise<void>;
 }

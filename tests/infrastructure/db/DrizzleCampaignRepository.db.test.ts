@@ -5,7 +5,7 @@ import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesign } from "@domain/campaign/design/PosterDesign";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { UserId } from "@domain/user/UserId";
@@ -27,7 +27,7 @@ const placement = QrPlacement.create({
 
 function upload() {
   // The blob's own type differs, to show the validated type is what's stored.
-  return PosterDesignImageUpload.create(
+  return PosterDesignImage.create(
     new Blob(["image bytes"], { type: "application/octet-stream" }),
     A4_PDF_DETAILS,
   );
@@ -129,7 +129,13 @@ describe("save", () => {
       ownerId: alice,
       name: "Renamed",
       target: CampaignTarget.create("https://example.com/new"),
-      designs: [PosterDesign.restore({ id: design.id, qrPlacement: moved })],
+      designs: [
+        PosterDesign.restore({
+          id: design.id,
+          qrPlacement: moved,
+          loadImage: async () => null,
+        }),
+      ],
     });
     await repository.save(changed);
 
@@ -169,39 +175,21 @@ describe("save", () => {
     expect(reloaded.getDesigns().map((d) => d.id)).toEqual([added.id]);
   });
 
-  it("deletes the uploaded images if a later upload fails", async () => {
-    const failing = new FakeBlobStore();
+  it("stores nothing in the database if an upload fails", async () => {
     let uploads = 0;
-    failing.set = async (key, data, contentType) => {
+    const set = blobStore.set.bind(blobStore);
+    blobStore.set = async (key, data, contentType) => {
       if (++uploads === 2) throw new Error("upload failed");
-      failing.blobs.set(key, { data, contentType });
+      await set(key, data, contentType);
     };
     const campaign = Campaign.create(alice, "Campaign", target);
     campaign.addDesign(placement, upload());
     campaign.addDesign(placement, upload());
 
-    await expect(
-      new DrizzleCampaignRepository(db, failing).save(campaign),
-    ).rejects.toThrow("upload failed");
-    expect(failing.blobs.size).toBe(0);
+    await expect(repository.save(campaign)).rejects.toThrow("upload failed");
     expect(await repository.findByIdForOwner(campaign.id, alice)).toBeNull();
-  });
-
-  it("throws the save's own error even if deleting its images fails", async () => {
-    blobStore.delete = async () => {
-      throw new Error("delete failed");
-    };
-    const campaign = await addCampaign();
-    const asBob = Campaign.restore({
-      id: campaign.id,
-      ownerId: bob,
-      name: "Stolen",
-      target,
-      designs: [],
-    });
-    asBob.addDesign(placement, upload());
-
-    await expect(repository.save(asBob)).rejects.toThrow(NotFoundError);
+    // The first upload is left for the clean-up job (ADR-0013).
+    expect(blobStore.blobs.size).toBe(1);
   });
 
   it("throws NotFoundError and writes nothing for another owner's campaign", async () => {
@@ -244,6 +232,7 @@ describe("save", () => {
         PosterDesign.restore({
           id: designId(bobsDesign.id),
           qrPlacement: moved,
+          loadImage: async () => null,
         }),
       ],
     });
@@ -273,21 +262,26 @@ describe("findDesignImageForOwner", () => {
   });
 });
 
-describe("findAllDesignImageRefsByOwner / deleteDesignImages", () => {
-  it("finds and deletes every image of the owner's campaigns", async () => {
-    await addDesign(await addCampaign());
-    const second = await addCampaign();
-    await addDesign(second);
-    await addDesign(second);
-    await addDesign(await addCampaign(bob));
-    const bobKeys = new Set(blobStore.blobs.keys());
+describe("loadImage", () => {
+  it("loads a stored design's image", async () => {
+    const design = await addDesign(await addCampaign());
 
-    const refs = await repository.findAllDesignImageRefsByOwner(alice);
-    expect(refs).toHaveLength(3);
-    for (const ref of refs) bobKeys.delete(ref);
-    expect(bobKeys.size).toBe(1);
+    const [loaded] = (await repository.findAllByOwner(alice))[0].getDesigns();
+    expect(loaded.id).toBe(design.id);
+    expect(loaded.image).toBeUndefined();
+    const image = await loaded.loadImage();
+    expect(image.contentType).toBe("application/pdf");
+    expect(await image.data.text()).toBe("image bytes");
+  });
 
-    await repository.deleteDesignImages(refs);
-    expect([...blobStore.blobs.keys()]).toEqual([...bobKeys]);
+  it("throws if the stored image is missing", async () => {
+    const campaign = await addCampaign();
+    await addDesign(campaign);
+    blobStore.blobs.clear();
+
+    const [design] = (await load(campaign)).getDesigns();
+    await expect(design.loadImage()).rejects.toThrow(
+      "Poster design image is missing",
+    );
   });
 });

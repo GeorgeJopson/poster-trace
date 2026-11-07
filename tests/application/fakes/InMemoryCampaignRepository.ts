@@ -5,8 +5,7 @@ import type { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesign } from "@domain/campaign/design/PosterDesign";
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import type { PosterDesignImageContent } from "@domain/campaign/design/PosterDesignImageContent";
-import { PosterDesignImageRef } from "@domain/campaign/design/PosterDesignImageRef";
-import type { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import type { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import type { UserId } from "@domain/user/UserId";
@@ -14,7 +13,7 @@ import type { UserId } from "@domain/user/UserId";
 type StoredDesign = {
   id: PosterDesignId;
   qrPlacement: QrPlacement;
-  imageRef: PosterDesignImageRef;
+  imageKey: string;
 };
 
 type StoredCampaign = {
@@ -31,18 +30,18 @@ type StoredImage = { data: Blob; contentType: string };
  * Behaves like DrizzleCampaignRepository: it stores copies, not the entities
  * it's given, so a change only persists once the campaign is saved. `save`
  * writes all or nothing, keeps stored designs missing from the campaign, and
- * stores a design's `newImage` only when the design is new.
+ * stores a design's `image` only when the design is new. Like the real one,
+ * it never deletes images.
  */
 export class InMemoryCampaignRepository implements CampaignRepository {
   // In insertion order, like ordering by created_at.
   readonly campaigns: StoredCampaign[] = [];
-  readonly images = new Map<PosterDesignImageRef, StoredImage>();
-  readonly deletedImageRefs: PosterDesignImageRef[] = [];
+  readonly images = new Map<string, StoredImage>();
 
   async findAllByOwner(ownerId: UserId): Promise<Campaign[]> {
     return this.campaigns
       .filter((campaign) => campaign.ownerId === ownerId)
-      .map(toEntity);
+      .map((stored) => this.toEntity(stored));
   }
 
   async findByIdForOwner(
@@ -50,7 +49,7 @@ export class InMemoryCampaignRepository implements CampaignRepository {
     ownerId: UserId,
   ): Promise<Campaign | null> {
     const stored = this.findStored(id, ownerId);
-    return stored ? toEntity(stored) : null;
+    return stored ? this.toEntity(stored) : null;
   }
 
   async save(campaign: Campaign): Promise<void> {
@@ -68,7 +67,7 @@ export class InMemoryCampaignRepository implements CampaignRepository {
     // Checked before writing anything, so a failed save changes nothing.
     for (const design of campaign.getDesigns()) {
       const storedHere = stored.designs.some((d) => d.id === design.id);
-      if (!storedHere && (this.isStored(design.id) || !design.newImage)) {
+      if (!storedHere && (this.isStored(design.id) || !design.image)) {
         throw new NotFoundError("Poster design not found");
       }
     }
@@ -84,7 +83,7 @@ export class InMemoryCampaignRepository implements CampaignRepository {
         stored.designs.push({
           id: design.id,
           qrPlacement: design.qrPlacement,
-          imageRef: this.storeImage(design.newImage!),
+          imageKey: this.storeImage(design.image!),
         });
       }
     }
@@ -98,24 +97,9 @@ export class InMemoryCampaignRepository implements CampaignRepository {
       .filter((campaign) => campaign.ownerId === ownerId)
       .flatMap((campaign) => campaign.designs)
       .find((design) => design.id === designId);
-    const image = design && this.images.get(design.imageRef);
+    const image = design && this.images.get(design.imageKey);
     if (!image) return null;
     return { data: image.data.stream(), contentType: image.contentType };
-  }
-
-  async findAllDesignImageRefsByOwner(
-    ownerId: UserId,
-  ): Promise<PosterDesignImageRef[]> {
-    return this.campaigns
-      .filter((campaign) => campaign.ownerId === ownerId)
-      .flatMap((campaign) => campaign.designs.map((design) => design.imageRef));
-  }
-
-  async deleteDesignImages(refs: PosterDesignImageRef[]): Promise<void> {
-    for (const ref of refs) {
-      this.images.delete(ref);
-      this.deletedImageRefs.push(ref);
-    }
   }
 
   /** What deleting a user cascades to in the database. */
@@ -132,10 +116,10 @@ export class InMemoryCampaignRepository implements CampaignRepository {
     );
   }
 
-  private storeImage(image: PosterDesignImageUpload) {
-    const ref = PosterDesignImageRef.from(crypto.randomUUID());
-    this.images.set(ref, { data: image.data, contentType: image.contentType });
-    return ref;
+  private storeImage(image: PosterDesignImage) {
+    const key = crypto.randomUUID();
+    this.images.set(key, { data: image.data, contentType: image.contentType });
+    return key;
   }
 
   private findStored(id: CampaignId, ownerId: UserId) {
@@ -143,16 +127,25 @@ export class InMemoryCampaignRepository implements CampaignRepository {
       (campaign) => campaign.id === id && campaign.ownerId === ownerId,
     );
   }
-}
 
-function toEntity(stored: StoredCampaign): Campaign {
-  return Campaign.restore({
-    id: stored.id,
-    ownerId: stored.ownerId,
-    name: stored.name,
-    target: stored.target,
-    designs: stored.designs.map(({ id, qrPlacement }) =>
-      PosterDesign.restore({ id, qrPlacement }),
-    ),
-  });
+  private toEntity(stored: StoredCampaign): Campaign {
+    return Campaign.restore({
+      id: stored.id,
+      ownerId: stored.ownerId,
+      name: stored.name,
+      target: stored.target,
+      designs: stored.designs.map(({ id, qrPlacement, imageKey }) =>
+        PosterDesign.restore({
+          id,
+          qrPlacement,
+          loadImage: async () => {
+            const image = this.images.get(imageKey);
+            return image
+              ? PosterDesignImage.restore(image.data, image.contentType)
+              : null;
+          },
+        }),
+      ),
+    });
+  }
 }

@@ -1,7 +1,10 @@
 import { Campaign } from "@domain/campaign/Campaign";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
-import { PosterDesign } from "@domain/campaign/design/PosterDesign";
+import {
+  PosterDesign,
+  type PosterDesignImageLoader,
+} from "@domain/campaign/design/PosterDesign";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { UserId } from "@domain/user/UserId";
@@ -10,8 +13,11 @@ import type { campaign, posterDesign } from "../db/schema";
 
 export type PosterDesignRow = Pick<
   typeof posterDesign.$inferSelect,
-  "id" | "x" | "y" | "size" | "rotation"
+  "id" | "designImageKey" | "x" | "y" | "size" | "rotation"
 >;
+
+/** Makes the loader for the image stored under a key. */
+export type ImageLoaderFactory = (key: string) => PosterDesignImageLoader;
 
 export type CampaignRowWithDesigns = Pick<
   typeof campaign.$inferSelect,
@@ -24,21 +30,30 @@ export type CampaignRowWithDesigns = Pick<
  * rather than becoming an invalid entity.
  */
 export class CampaignRowMapper {
-  static toEntity(row: CampaignRowWithDesigns): Campaign {
+  static toEntity(
+    row: CampaignRowWithDesigns,
+    imageLoader: ImageLoaderFactory,
+  ): Campaign {
     return Campaign.restore({
       id: CampaignId.from(row.id),
       ownerId: UserId.from(row.userId),
       name: row.name,
       target: CampaignTarget.create(row.target),
-      designs: row.posterDesigns.map(CampaignRowMapper.designToEntity),
+      designs: row.posterDesigns.map((design) =>
+        CampaignRowMapper.designToEntity(design, imageLoader),
+      ),
     });
   }
 
-  static designToEntity(row: PosterDesignRow): PosterDesign {
+  static designToEntity(
+    row: PosterDesignRow,
+    imageLoader: ImageLoaderFactory,
+  ): PosterDesign {
     const { x, y, size, rotation } = row;
     return PosterDesign.restore({
       id: PosterDesignId.from(row.id),
       qrPlacement: QrPlacement.create({ x, y, size, rotation }),
+      loadImage: imageLoader(row.designImageKey),
     });
   }
 }

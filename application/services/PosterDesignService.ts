@@ -3,7 +3,7 @@ import "server-only";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
+import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
@@ -28,7 +28,7 @@ export class PosterDesignService {
     // Validated before anything is stored.
     const qrPlacement = QrPlacement.create(input.qrPlacement);
     // Stored as its real format, so the image route serves it as that.
-    const image = PosterDesignImageUpload.create(
+    const image = PosterDesignImage.create(
       input.image,
       await getPosterDesignImageDetails(input.image),
     );
