@@ -1,11 +1,13 @@
 import "server-only";
 
 import type { AccountGateway } from "@application/ports/AccountGateway";
+import type { ScanTargetLookup } from "@application/ports/ScanTargetLookup";
 import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { PosterService } from "@application/services/PosterService";
+import { ScanService } from "@application/services/ScanService";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
 import type { PosterRepository } from "@domain/poster/PosterRepository";
 import type { UserRepository } from "@domain/user/UserRepository";
@@ -15,6 +17,7 @@ import { auth } from "@infrastructure/auth/betterAuth";
 import { getDb } from "@infrastructure/db/client";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
+import { DrizzleScanTargetLookup } from "@infrastructure/repositories/DrizzleScanTargetLookup";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
 import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
 
@@ -50,6 +53,11 @@ function getCampaignRepository() {
 let posterRepository: PosterRepository | undefined;
 function getPosterRepository() {
   return (posterRepository ??= new DrizzlePosterRepository(getDb()));
+}
+
+let scanTargetLookup: ScanTargetLookup | undefined;
+function getScanTargetLookup() {
+  return (scanTargetLookup ??= new DrizzleScanTargetLookup(getDb()));
 }
 
 /**
@@ -88,6 +96,11 @@ export function getPosterService() {
     getPosterRepository(),
     getPosterTraceUrl(),
   ));
+}
+
+let scanService: ScanService | undefined;
+export function getScanService() {
+  return (scanService ??= new ScanService(getScanTargetLookup()));
 }
 
 let accountService: AccountService | undefined;
