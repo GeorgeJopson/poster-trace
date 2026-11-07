@@ -95,7 +95,7 @@ describe("InMemoryCampaignRepository.save", () => {
     const current = (await repository.findByIdForOwner(campaign.id, ownerId))!;
     const added = current.addDesign(placement, image);
     await repository.save(current);
-    stale.updateDetails("Renamed", target);
+    stale.setName("Renamed");
     await repository.save(stale);
 
     const loaded = await repository.findByIdForOwner(campaign.id, ownerId);

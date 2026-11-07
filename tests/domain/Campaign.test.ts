@@ -55,12 +55,19 @@ describe("Campaign", () => {
     expect(design.image).toBeUndefined();
   });
 
-  it("updates its name and target", () => {
+  it("updates its name", () => {
     const campaign = Campaign.create(ownerId, "Old", target);
-    const newTarget = CampaignTarget.create("https://example.com/new");
-    campaign.updateDetails("New", newTarget);
+    campaign.setName("New");
     expect(campaign.getName()).toBe("New");
+    expect(campaign.getTarget()).toBe(target);
+  });
+
+  it("updates its target", () => {
+    const campaign = Campaign.create(ownerId, "Name", target);
+    const newTarget = CampaignTarget.create("https://example.com/new");
+    campaign.setTarget(newTarget);
     expect(campaign.getTarget()).toBe(newTarget);
+    expect(campaign.getName()).toBe("Name");
   });
 
   it("adds designs with fresh ids, in order", () => {

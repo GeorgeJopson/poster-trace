@@ -167,7 +167,7 @@ describe("save", () => {
     const stale = await load(campaign);
     const added = await addDesign(await load(campaign));
 
-    stale.updateDetails("Renamed", target);
+    stale.setName("Renamed");
     await repository.save(stale);
 
     const reloaded = await load(campaign);

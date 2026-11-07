@@ -51,7 +51,8 @@ export class CampaignService {
     if (!campaign) {
       throw new NotFoundError("Campaign not found");
     }
-    campaign.updateDetails(input.name, target);
+    campaign.setName(input.name);
+    campaign.setTarget(target);
     await this.campaigns.save(campaign);
   }
 }

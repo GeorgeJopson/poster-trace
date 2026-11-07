@@ -71,8 +71,11 @@ export class Campaign {
     return this.designs.find((design) => design.id === id);
   }
 
-  updateDetails(name: string, target: CampaignTarget): void {
+  setName(name: string): void {
     this.name = name;
+  }
+
+  setTarget(target: CampaignTarget): void {
     this.target = target;
   }
 
