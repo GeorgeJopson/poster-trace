@@ -10,6 +10,7 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 import { requireUserId } from "../auth/requireUserId";
 import type { CreatePosterDesignInput } from "../dto/inputs";
 import type { PosterDesignImageDto } from "../dto/PosterDesignImageDto";
+import { getPosterDesignImageDetails } from "../files/getPosterDesignImageDetails";
 import type { SessionProvider } from "../ports/SessionProvider";
 
 /** The poster designs of the signed-in user's campaigns. */
@@ -26,7 +27,11 @@ export class PosterDesignService {
     const userId = await requireUserId(this.sessions);
     // Validated before anything is stored.
     const qrPlacement = QrPlacement.create(input.qrPlacement);
-    const image = PosterDesignImageUpload.create(input.image, input.image.type);
+    // Stored as its real format, so the image route serves it as that.
+    const image = PosterDesignImageUpload.create(
+      input.image,
+      await getPosterDesignImageDetails(input.image),
+    );
 
     const id = CampaignId.parse(campaignId);
     const campaign = id && (await this.campaigns.findByIdForOwner(id, userId));

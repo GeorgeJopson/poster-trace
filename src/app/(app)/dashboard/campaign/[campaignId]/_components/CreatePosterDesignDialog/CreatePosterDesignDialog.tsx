@@ -2,10 +2,11 @@
 
 import React, { useRef, useState, useTransition } from "react";
 
-import { validatePosterImage } from "@application/validation/validatePosterImage";
+import { validatePosterDesignImage } from "@application/validation/validatePosterDesignImage";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
+import loadDesignImage, { type DesignImage } from "@/utils/loadDesignImage";
 import usePosterCanvas from "@/utils/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
 import { useCampaignId, useCampaignTarget } from "../CampaignContext";
@@ -25,10 +26,13 @@ export default function CreatePosterDesignDialog() {
   const target = useCampaignTarget();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<DesignImage | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
+  // Counts picked files, so a slow check or load of an earlier file is ignored.
+  const filePickCountRef = useRef(0);
+  // As a percentage of the width: the QR code must fit the image's height too.
   const maxQrSize = image
-    ? Math.min(image.naturalWidth, image.naturalHeight)
+    ? Math.min(100, (100 * image.height) / image.width)
     : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   usePosterCanvas(
@@ -56,40 +60,41 @@ export default function CreatePosterDesignDialog() {
     setQrValues(DEFAULT_QR_VALUES);
   }
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const input = event.target;
     const file = input.files?.[0];
+    const pick = ++filePickCountRef.current;
+    const isLatestPick = () => pick === filePickCountRef.current;
     input.setCustomValidity("");
-    if (!file) {
-      clearImage();
-      return;
-    }
+    clearImage();
+    if (!file) return;
 
     // Reject invalid files by marking the input invalid, which blocks the form
     // from submitting and shows the browser's validation message.
     function rejectFile(message: string) {
+      if (!isLatestPick()) return;
       input.setCustomValidity(message);
       input.reportValidity();
       clearImage();
     }
-    const fileError = validatePosterImage(file);
-    if (fileError) {
-      rejectFile(fileError);
+
+    const check = await validatePosterDesignImage(file);
+    if (check.error !== null) {
+      rejectFile(check.error);
       return;
     }
 
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      setImage(img);
+    try {
+      // Loaded as its real format, which the file's own type may not be.
+      const loaded = await loadDesignImage(
+        file.slice(0, file.size, check.contentType),
+      );
+      if (!isLatestPick()) return;
+      setImage(loaded);
       setQrValues(DEFAULT_QR_VALUES);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      rejectFile("This image couldn't be read. Please choose another file.");
-    };
-    img.src = url;
+    } catch {
+      rejectFile("This PDF couldn't be read. Please choose another file.");
+    }
   }
 
   function handleSubmit(formData: FormData) {

@@ -8,12 +8,16 @@ import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
+import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 
-const qrPlacement = { x: 10, y: 20, size: 100, rotation: 45 };
+const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 
-function image(type = "image/png", content = "png bytes") {
+/** A one-page portrait A4 PDF, which every test design starts from. */
+let a4Pdf: Uint8Array<ArrayBuffer>;
+
+function image(type = "application/pdf", content: BlobPart = a4Pdf) {
   return new Blob([content], { type });
 }
 
@@ -24,6 +28,7 @@ let service: PosterDesignService;
 let campaignId: string;
 
 beforeEach(async () => {
+  a4Pdf ??= await makePdf(1);
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
   campaignService = new CampaignService(sessions, campaigns);
@@ -49,8 +54,10 @@ describe("createPosterDesign", () => {
     expect(PosterDesignId.parse(designId)).toBe(designId);
 
     const stored = await service.getMyPosterDesignImage(designId);
-    expect(stored?.contentType).toBe("image/png");
-    expect(await new Response(stored?.data).text()).toBe("png bytes");
+    expect(stored?.contentType).toBe("application/pdf");
+    expect(
+      new Uint8Array(await new Response(stored?.data).arrayBuffer()),
+    ).toEqual(a4Pdf);
   });
 
   it("keeps the campaign's other designs", async () => {
@@ -77,8 +84,20 @@ describe("createPosterDesign", () => {
       "a NaN QR value",
       { image: image(), qrPlacement: { ...qrPlacement, x: NaN } },
     ],
-    ["a non-image file", { image: image("application/pdf"), qrPlacement }],
-    ["an empty image", { image: image("image/png", ""), qrPlacement }],
+    ["a non-PDF file", { image: image("text/plain", "hello"), qrPlacement }],
+    [
+      "a PNG",
+      { image: image("image/png", "\x89PNG\r\n\x1a\npng"), qrPlacement },
+    ],
+    [
+      "a text file labelled as a PDF",
+      { image: image("application/pdf", "not a pdf"), qrPlacement },
+    ],
+    [
+      "an unreadable PDF",
+      { image: image("application/pdf", "%PDF-1.7 garbage"), qrPlacement },
+    ],
+    ["an empty file", { image: image("application/pdf", ""), qrPlacement }],
   ])("rejects %s before storing anything", async (_case, input) => {
     await expect(service.createPosterDesign(campaignId, input)).rejects.toThrow(
       ValidationError,
@@ -87,6 +106,62 @@ describe("createPosterDesign", () => {
     expect(
       (await campaignService.getMyCampaign(campaignId))?.posterDesigns,
     ).toEqual([]);
+  });
+
+  it("rejects a PDF with more than one page", async () => {
+    await expect(
+      service.createPosterDesign(campaignId, {
+        image: image("application/pdf", await makePdf(2)),
+        qrPlacement,
+      }),
+    ).rejects.toThrow(
+      new ValidationError("The PDF must have exactly one page."),
+    );
+    expect(campaigns.images.size).toBe(0);
+  });
+
+  it("rejects a PDF that isn't portrait A4", async () => {
+    await expect(
+      service.createPosterDesign(campaignId, {
+        image: image("application/pdf", await makePdf(1, [612, 792])),
+        qrPlacement,
+      }),
+    ).rejects.toThrow(
+      new ValidationError("The PDF's page must be portrait A4 (210 x 297 mm)."),
+    );
+    expect(campaigns.images.size).toBe(0);
+  });
+
+  it("rejects a PDF that can't be read", async () => {
+    await expect(
+      service.createPosterDesign(campaignId, {
+        image: image("application/pdf", "%PDF-1.7 garbage"),
+        qrPlacement,
+      }),
+    ).rejects.toThrow(new ValidationError("This PDF can't be read."));
+  });
+
+  it("stores a file's real format, whatever type it was uploaded as", async () => {
+    // So a PDF can't be served inline by uploading it as an image.
+    await service.createPosterDesign(campaignId, {
+      image: image("image/png"),
+      qrPlacement,
+    });
+    const designId = (await campaignService.getMyCampaign(campaignId))!
+      .posterDesigns[0].id;
+    const stored = await service.getMyPosterDesignImage(designId);
+    expect(stored?.contentType).toBe("application/pdf");
+  });
+
+  it("checks a PDF uploaded as an image", async () => {
+    await expect(
+      service.createPosterDesign(campaignId, {
+        image: image("image/png", await makePdf(2)),
+        qrPlacement,
+      }),
+    ).rejects.toThrow(
+      new ValidationError("The PDF must have exactly one page."),
+    );
   });
 
   it("throws NotFoundError for another user's campaign", async () => {

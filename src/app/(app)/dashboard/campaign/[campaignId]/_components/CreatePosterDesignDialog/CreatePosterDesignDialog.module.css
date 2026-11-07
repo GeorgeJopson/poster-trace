@@ -1,6 +1,10 @@
+/* Takes the poster designs grid's two rows, so it's as tall as the cards
+   beside it, with its content centred in the first, where they hold their
+   preview. */
 .newDesignButton {
+  display: grid;
+  grid-template-rows: subgrid;
   width: 176px;
-  height: 249px;
 }
 
 .form {

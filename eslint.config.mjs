@@ -114,7 +114,11 @@ const eslintConfig = defineConfig([
   },
   {
     // Bundled for the browser by the forms.
-    files: ["application/dto/**", "application/validation/**"],
+    files: [
+      "application/dto/**",
+      "application/validation/**",
+      "application/files/**",
+    ],
     rules: layerRule([
       presentation,
       di,

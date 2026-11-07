@@ -49,10 +49,12 @@ export default function NewItemButton({
       }}
       {...props}
     >
-      <span className={styles.text}>{label}</span>
-      <animated.span style={style} className={styles.plus}>
-        +
-      </animated.span>
+      <span className={styles.content}>
+        <span className={styles.text}>{label}</span>
+        <animated.span style={style} className={styles.plus}>
+          +
+        </animated.span>
+      </span>
     </DashedCard>
   );
 }

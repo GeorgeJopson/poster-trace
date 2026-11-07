@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { PosterId } from "@domain/poster/PosterId";
 import { ValidationError } from "@domain/shared/ValidationError";
 import { UserId } from "@domain/user/UserId";
 
@@ -10,6 +11,7 @@ const UUID = "3f2b8c1e-5d4a-4e6f-9a7b-1c2d3e4f5a6b";
 describe.each([
   ["CampaignId", CampaignId],
   ["PosterDesignId", PosterDesignId],
+  ["PosterId", PosterId],
 ])("%s", (_name, Id) => {
   it("generates distinct UUIDs", () => {
     const a = Id.generate();

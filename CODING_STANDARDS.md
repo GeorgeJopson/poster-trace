@@ -16,7 +16,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 - **Browser-safe.** Domain files never import `server-only`, because the value objects' rules also run in forms.
 - **Value objects** are immutable classes with a private constructor and a static factory that validates and throws `ValidationError`. The factory is the only way to check a value. `ValidationError` messages are shown to users, so write them for users.
 - **Ids** are branded strings. `as XxxId` appears only inside that id's own `generate` / `from` / `parse`. Ids that come from URLs go through `parse`, which returns `null` for anything that isn't a UUID.
-- **Entities** have two factories. `create` builds a new entity and generates its id. `restore` rebuilds a stored entity and generates nothing; only repositories call it.
+- **Entities** have two factories. `create` builds a new entity and generates its id. `restore` rebuilds a stored entity and generates nothing; only repositories call it. `Poster`'s `create` is called `generate`, the glossary's word for making posters.
 - **Repositories** take and return entities, never Drizzle rows. They store the ids the domain generated, never read the session, and take an explicit `ownerId` for owner-facing reads (see ADR-0005).
 - **A new aggregate mutation** gets its own `CampaignRepository` method, plus a test against the in-memory fake that fails if `updateDetails` is used instead (see ADR-0007).
 
@@ -24,7 +24,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 - **Owner-facing use cases call `requireUserId` first**, before any validation, id parsing or repository call. A signed-out request must get `NotAuthenticatedError` whatever its input.
 - **Use cases return plain, serialisable DTOs**, never entities. Class instances can't cross from Server to Client Components.
-- **Server-only.** Every `services/` file imports `server-only`. `dto/` (types only) and `validation/` (pure functions) stay browser-safe and never import it.
+- **Server-only.** Every `services/` file imports `server-only`. `dto/` (types only), `validation/` (pure functions) and `files/` (reading uploaded files, shared by services and forms) stay browser-safe and never import it.
 - **Services call the domain factories directly**; the `validation/` functions are for forms only. Any check that needs the database or session belongs in a service and reaches the form through a Server Action.
 - **Constructor injection.** A class never calls `new` on a dependency or imports a module-level singleton (Better Auth's `auth` is the one exception, see ADR-0002).
 
@@ -45,3 +45,4 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 - **Test at the layer boundaries**, in `tests/<layer>/`. Construct the class under test directly with fakes for its constructor arguments. Tests never use `di/`.
 - **Presentation is covered by end-to-end tests** in `tests/e2e/`. Find elements by role and label, not by CSS classes.
+- **Pure helpers in `src/utils/`** with logic worth checking on its own (e.g. `drawPosterPdf`) may also get unit tests in `tests/presentation/`.

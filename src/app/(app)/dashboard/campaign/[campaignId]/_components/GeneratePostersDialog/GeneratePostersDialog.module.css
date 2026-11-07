@@ -1,0 +1,74 @@
+/* The whole card, preview and label, is the button. */
+/* Its preview and label take the poster designs grid's two rows. */
+.card {
+  display: grid;
+  grid-template-rows: subgrid;
+  width: 176px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+}
+
+.preview {
+  display: block;
+  width: 176px;
+  height: 249px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+}
+
+.cardLabel {
+  padding: 4px 8px;
+  border: dashed 4px var(--color-green-800);
+  border-top: none;
+  border-radius: 0 0 16px 16px;
+  font-family: var(--font-bungee), sans-serif;
+  font-size: var(--font-size-important-body);
+  line-height: 1.15;
+  color: var(--color-green-950);
+}
+
+/* Inline-block so useHoverRotation's transform applies. */
+.cardLabelText {
+  display: inline-block;
+}
+
+.form {
+  display: contents;
+}
+
+.description {
+  font-size: var(--font-size-body);
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  align-items: center;
+  font-size: var(--font-size-body);
+}
+
+.label {
+  text-align: left;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 0 10px;
+}
+
+.error {
+  color: oklch(50.5% 0.213 27.518);
+  font-size: var(--font-size-body);
+}
+
+.submitButtonWrapper {
+  align-self: flex-start;
+}

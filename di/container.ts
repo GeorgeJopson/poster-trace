@@ -5,13 +5,16 @@ import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
+import { PosterService } from "@application/services/PosterService";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
+import type { PosterRepository } from "@domain/poster/PosterRepository";
 import type { UserRepository } from "@domain/user/UserRepository";
 import { BetterAuthAccountGateway } from "@infrastructure/auth/BetterAuthAccountGateway";
 import { BetterAuthSessionProvider } from "@infrastructure/auth/BetterAuthSessionProvider";
 import { auth } from "@infrastructure/auth/betterAuth";
 import { getDb } from "@infrastructure/db/client";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
+import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
 import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
 
@@ -47,6 +50,23 @@ function getCampaignRepository() {
   ));
 }
 
+let posterRepository: PosterRepository | undefined;
+function getPosterRepository() {
+  return (posterRepository ??= new DrizzlePosterRepository(getDb()));
+}
+
+/**
+ * Where QR codes point. Printed posters outlive deploy previews, so this is
+ * the production URL in every Netlify context.
+ */
+function getPosterTraceUrl() {
+  const url = process.env.POSTER_TRACE_URL;
+  if (!url) {
+    throw new Error("POSTER_TRACE_URL isn't set (see README.md).");
+  }
+  return url;
+}
+
 let campaignService: CampaignService | undefined;
 export function getCampaignService() {
   return (campaignService ??= new CampaignService(
@@ -60,6 +80,16 @@ export function getPosterDesignService() {
   return (posterDesignService ??= new PosterDesignService(
     getSessionProvider(),
     getCampaignRepository(),
+  ));
+}
+
+let posterService: PosterService | undefined;
+export function getPosterService() {
+  return (posterService ??= new PosterService(
+    getSessionProvider(),
+    getCampaignRepository(),
+    getPosterRepository(),
+    getPosterTraceUrl(),
   ));
 }
 
