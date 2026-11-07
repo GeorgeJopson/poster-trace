@@ -17,6 +17,8 @@ const ROOT_2 = 1.4142;
 
 interface CampaignCardProps {
   campaign: CampaignDto;
+  /** What the previews' QR codes encode (see PosterService.sampleScanUrl). */
+  sampleScanUrl: string;
 }
 
 const wrapperClassByCount: Record<number, string> = {
@@ -25,7 +27,10 @@ const wrapperClassByCount: Record<number, string> = {
   3: styles.posterDesignImageWrapperCount3,
 };
 
-export default function CampaignCard({ campaign }: CampaignCardProps) {
+export default function CampaignCard({
+  campaign,
+  sampleScanUrl,
+}: CampaignCardProps) {
   const posterDesigns = campaign.posterDesigns.slice(0, 3);
 
   const [style, hoverHandlers] = useHoverRotation({ rotation: 10 });
@@ -57,7 +62,7 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
                 width={IMAGE_WIDTH}
                 height={Math.round(IMAGE_WIDTH * ROOT_2)}
                 posterDesign={posterDesign}
-                url={campaign.target}
+                scanUrl={sampleScanUrl}
                 aria-label={campaign.name}
                 className={styles.posterDesignImage}
               />

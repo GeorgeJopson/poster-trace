@@ -17,8 +17,6 @@ type QrSliderFieldProps = {
   name: keyof QrValues;
   label: string;
   value: string;
-  /** Overrides the max from QrPlacement.RANGES, e.g. a limit from the image. */
-  max?: number;
   unit: string;
   disabled?: boolean;
   onChange: (name: keyof QrValues, value: string) => void;
@@ -28,7 +26,6 @@ function QrSliderField({
   name,
   label,
   value,
-  max = QrPlacement.RANGES[name].max,
   unit,
   disabled,
   onChange,
@@ -45,7 +42,7 @@ function QrSliderField({
           name={name}
           type="range"
           min={QrPlacement.RANGES[name].min}
-          max={max}
+          max={QrPlacement.RANGES[name].max}
           step={QrPlacement.RANGES[name].step}
           value={value}
           disabled={disabled}
@@ -62,18 +59,15 @@ function QrSliderField({
 
 type PosterDesignFieldsProps = {
   qrValues: QrValues;
-  /**
-   * Largest allowed QR size, as a percentage of the image's width, so the
-   * code fits the image's height too.
-   */
-  maxQrSize: number;
+  /** The QR code's size can only be set once there's an image to see it on. */
+  hasImage: boolean;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onQrChange: (name: keyof QrValues, value: string) => void;
 };
 
 export default function PosterDesignFields({
   qrValues,
-  maxQrSize,
+  hasImage,
   onFileChange,
   onQrChange,
 }: PosterDesignFieldsProps) {
@@ -110,9 +104,8 @@ export default function PosterDesignFields({
         name="size"
         label="QR size"
         value={qrValues.size}
-        max={maxQrSize}
         unit="%"
-        disabled={maxQrSize === 0}
+        disabled={!hasImage}
         onChange={onQrChange}
       />
       <QrSliderField

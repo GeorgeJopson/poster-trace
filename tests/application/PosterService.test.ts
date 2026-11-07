@@ -107,6 +107,25 @@ describe("generatePosters", () => {
   });
 });
 
+describe("sampleScanUrl", () => {
+  it("is a scan URL for a placeholder poster, so previews show the printed QR code", () => {
+    expect(service.sampleScanUrl()).toBe(
+      `${BASE_URL}/redirect/00000000-0000-0000-0000-000000000000`,
+    );
+  });
+
+  it("is as long as a real poster's scan URL", async () => {
+    // So its QR code has as many modules as the printed one.
+    const [poster] = await service.generatePosters(campaignId, designId, 1);
+    expect(service.sampleScanUrl()).toHaveLength(poster.scanUrl.length);
+  });
+
+  it("needs no one signed in", () => {
+    sessions.signOut();
+    expect(service.sampleScanUrl()).toMatch(/\/redirect\//);
+  });
+});
+
 describe("when signed out", () => {
   it("throws NotAuthenticatedError, whatever the input", async () => {
     sessions.signOut();
