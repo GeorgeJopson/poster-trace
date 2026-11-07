@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 
+import { getPosterService } from "@di/container";
 import CentralColumn from "@/components/CentralColumn";
+import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 import { getCampaign } from "./getCampaign";
 import { CampaignProvider } from "./_components/CampaignContext";
@@ -17,13 +19,16 @@ export default async function CampaignPage({
   if (!campaign) {
     notFound();
   }
+  const sampleScanUrl = await withSignInRedirect(async () =>
+    getPosterService().sampleScanUrl(),
+  );
 
   return (
     <CentralColumn>
       <CampaignProvider
         id={campaign.id}
         name={campaign.name}
-        target={campaign.target}
+        sampleScanUrl={sampleScanUrl}
       >
         <CampaignHeader campaign={campaign} />
         <PosterDesigns posterDesigns={campaign.posterDesigns} />

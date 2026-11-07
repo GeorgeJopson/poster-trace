@@ -11,6 +11,14 @@ import { requireUserId } from "../auth/requireUserId";
 import type { PosterDto } from "../dto/PosterDto";
 import type { SessionProvider } from "../ports/SessionProvider";
 
+/** Stands in for a poster's id in previews: a UUID, like every real one. */
+const SAMPLE_POSTER_ID = "00000000-0000-0000-0000-000000000000";
+
+/** The URL a poster's QR code encodes, which can never change (ADR-0014). */
+function buildScanUrl(baseUrl: string, posterId: string): string {
+  return new URL(`/redirect/${posterId}`, baseUrl).href;
+}
+
 /** The posters of the signed-in user's poster designs. */
 export class PosterService {
   constructor(
@@ -44,7 +52,15 @@ export class PosterService {
     await this.posters.addAll(posters);
     return posters.map((poster) => ({
       id: poster.id,
-      scanUrl: new URL(`/redirect/${poster.id}`, this.baseUrl).href,
+      scanUrl: buildScanUrl(this.baseUrl, poster.id),
     }));
+  }
+
+  /**
+   * A scan URL for no real poster, for previews to encode. It's built like
+   * every poster's, so a preview's QR code matches the printed ones.
+   */
+  sampleScanUrl(): string {
+    return buildScanUrl(this.baseUrl, SAMPLE_POSTER_ID);
   }
 }

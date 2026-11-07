@@ -5,10 +5,12 @@ import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
-import { DEFAULT_TARGET } from "@/utils/drawPoster";
 
 import { createCampaign } from "./actions";
 import styles from "./CreateCampaignDialog.module.css";
+
+/** The target new campaigns start with, for the owner to replace. */
+const DEFAULT_TARGET = "https://www.campaigns.com";
 
 export default function CreateCampaignDialog() {
   return (

@@ -83,6 +83,34 @@ export function drawnXObject(page: PDFPage): DrawnXObject {
   throw new Error("Nothing is drawn on the page");
 }
 
+/**
+ * The points of every path drawn on `page`, in page space, in the order
+ * they're drawn. Only understands the simple content streams pdf-lib writes,
+ * built from `m` and `l`.
+ */
+export function drawnPathPoints(page: PDFPage): [number, number][] {
+  const stack: Matrix[] = [];
+  let ctm = IDENTITY;
+  const operands: string[] = [];
+  const points: [number, number][] = [];
+  for (const token of contentStreamText(page).split(/\s+/).filter(Boolean)) {
+    if (/^[-+.\d]/.test(token) || token.startsWith("/")) {
+      operands.push(token);
+      continue;
+    }
+    if (token === "q") stack.push(ctm);
+    else if (token === "Q") ctm = stack.pop() ?? IDENTITY;
+    else if (token === "cm") {
+      ctm = multiply(operands.slice(-6).map(Number) as Matrix, ctm);
+    } else if (token === "m" || token === "l") {
+      const [x, y] = operands.slice(-2).map(Number);
+      points.push([...apply(ctm, [x, y])]);
+    }
+    operands.length = 0;
+  }
+  return points;
+}
+
 function xObjectBox(page: PDFPage, name: string, ctm: Matrix): DrawnXObject {
   const xObjects = page.node
     .Resources()!

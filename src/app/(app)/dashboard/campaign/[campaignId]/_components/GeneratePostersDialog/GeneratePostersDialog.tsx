@@ -9,14 +9,14 @@ import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import DesignPreview from "@/components/DesignPreview";
 import downloadFile from "@/utils/downloadFile";
-import drawPosterPdf from "@/utils/drawPosterPdf";
+import drawPosterPdf from "@/utils/poster-render/drawPosterPdf";
 import useHoverRotation from "@/utils/useHoverRotation";
 
 import { generatePosters } from "../../actions";
 import {
   useCampaignId,
   useCampaignName,
-  useCampaignTarget,
+  useSampleScanUrl,
 } from "../CampaignContext";
 import { MAX_POSTERS_PER_REQUEST } from "../../limits";
 import fetchDesignImage from "./fetchDesignImage";
@@ -40,7 +40,7 @@ export default function GeneratePostersDialog({
 }: GeneratePostersDialogProps) {
   const campaignId = useCampaignId();
   const campaignName = useCampaignName();
-  const target = useCampaignTarget();
+  const sampleScanUrl = useSampleScanUrl();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -93,7 +93,7 @@ export default function GeneratePostersDialog({
             width={176}
             height={249}
             posterDesign={posterDesign}
-            url={target}
+            scanUrl={sampleScanUrl}
             aria-label={designLabel}
             className={styles.preview}
           />

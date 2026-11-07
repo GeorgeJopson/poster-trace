@@ -6,10 +6,12 @@ import { validatePosterDesignImage } from "@application/validation/validatePoste
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import NewItemButton from "@/components/NewItemButton";
-import loadDesignImage, { type DesignImage } from "@/utils/loadDesignImage";
-import usePosterCanvas from "@/utils/usePosterCanvas";
+import loadDesignImage, {
+  type DesignImage,
+} from "@/utils/poster-render/loadDesignImage";
+import usePosterCanvas from "@/utils/poster-render/usePosterCanvas";
 import { createPosterDesign } from "../../actions";
-import { useCampaignId, useCampaignTarget } from "../CampaignContext";
+import { useCampaignId, useSampleScanUrl } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
 import PosterDesignFields, { type QrValues } from "./PosterDesignFields";
@@ -23,17 +25,13 @@ const DEFAULT_QR_VALUES: QrValues = {
 
 export default function CreatePosterDesignDialog() {
   const campaignId = useCampaignId();
-  const target = useCampaignTarget();
+  const sampleScanUrl = useSampleScanUrl();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [image, setImage] = useState<DesignImage | null>(null);
   const [qrValues, setQrValues] = useState<QrValues>(DEFAULT_QR_VALUES);
   // Counts picked files, so a slow check or load of an earlier file is ignored.
   const filePickCountRef = useRef(0);
-  // As a percentage of the width: the QR code must fit the image's height too.
-  const maxQrSize = image
-    ? Math.min(100, (100 * image.height) / image.width)
-    : 0;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   usePosterCanvas(
     canvasRef,
@@ -44,7 +42,7 @@ export default function CreatePosterDesignDialog() {
       size: parseFloat(qrValues.size) || 0,
       rotation: parseFloat(qrValues.rotation) || 0,
     },
-    target,
+    sampleScanUrl,
   );
 
   // The dialog content (including the file input and canvas) is recreated each
@@ -123,7 +121,7 @@ export default function CreatePosterDesignDialog() {
       <form className={styles.form} action={handleSubmit}>
         <PosterDesignFields
           qrValues={qrValues}
-          maxQrSize={maxQrSize}
+          hasImage={image !== null}
           onFileChange={handleFileChange}
           onQrChange={handleQrChange}
         />

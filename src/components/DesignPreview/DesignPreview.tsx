@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
 import { routeNames } from "@/routeNames";
-import loadDesignImage, { type DesignImage } from "@/utils/loadDesignImage";
-import usePosterCanvas from "@/utils/usePosterCanvas";
+import loadDesignImage, {
+  type DesignImage,
+} from "@/utils/poster-render/loadDesignImage";
+import usePosterCanvas from "@/utils/poster-render/usePosterCanvas";
 
 import styles from "./DesignPreview.module.css";
 
@@ -13,8 +15,8 @@ interface DesignPreviewProps {
   width: number;
   height: number;
   posterDesign: PosterDesignDto;
-  /** The URL the QR code points to. */
-  url: string;
+  /** The scan URL the QR code encodes. */
+  scanUrl: string;
   /** Describes the preview for screen readers, like an image's alt text. */
   "aria-label": string;
   className?: string;
@@ -29,7 +31,7 @@ export default function DesignPreview({
   width,
   height,
   posterDesign,
-  url,
+  scanUrl,
   "aria-label": ariaLabel,
   className,
 }: DesignPreviewProps) {
@@ -38,16 +40,12 @@ export default function DesignPreview({
   const [failed, setFailed] = useState(false);
 
   const designUrl = routeNames.posterDesignImage(posterDesign.id);
-  usePosterCanvas(canvasRef, image, posterDesign.qrPlacement, url, {
-    width,
-    height,
-  });
+  usePosterCanvas(canvasRef, image, posterDesign.qrPlacement, scanUrl);
 
   useEffect(() => {
     let cancelled = false;
-    // Fetched rather than loaded into an <img>, as the image may be a PDF.
-    // A PDF is rendered big enough to stay sharp when cropped to cover the
-    // display size, unless it's more than twice as wide as it is tall.
+    // Fetched rather than loaded into an <img>, as canvases can't draw PDFs.
+    // It's rendered at one pixel per physical screen pixel at `width`.
     fetch(designUrl)
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -55,9 +53,7 @@ export default function DesignPreview({
       })
       .then((blob) =>
         loadDesignImage(blob, {
-          maxWidth: Math.ceil(
-            Math.max(width, height * 2) * window.devicePixelRatio,
-          ),
+          maxWidth: Math.ceil(width * window.devicePixelRatio),
         }),
       )
       .then(
@@ -71,7 +67,7 @@ export default function DesignPreview({
     return () => {
       cancelled = true;
     };
-  }, [designUrl, width, height]);
+  }, [designUrl, width]);
 
   if (failed) {
     return (

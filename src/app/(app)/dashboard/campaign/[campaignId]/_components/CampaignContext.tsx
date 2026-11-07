@@ -6,7 +6,8 @@ type Campaign = {
   // The campaign's UUID, which the forms pass to the actions.
   id: string;
   name: string;
-  target: string;
+  /** What previews' QR codes encode (see PosterService.sampleScanUrl). */
+  sampleScanUrl: string;
 };
 
 const CampaignContext = createContext<Campaign | null>(null);
@@ -14,11 +15,11 @@ const CampaignContext = createContext<Campaign | null>(null);
 export function CampaignProvider({
   id,
   name,
-  target,
+  sampleScanUrl,
   children,
 }: Campaign & { children: React.ReactNode }) {
   return (
-    <CampaignContext.Provider value={{ id, name, target }}>
+    <CampaignContext.Provider value={{ id, name, sampleScanUrl }}>
       {children}
     </CampaignContext.Provider>
   );
@@ -40,6 +41,6 @@ export function useCampaignName() {
   return useCampaign().name;
 }
 
-export function useCampaignTarget() {
-  return useCampaign().target;
+export function useSampleScanUrl() {
+  return useCampaign().sampleScanUrl;
 }
