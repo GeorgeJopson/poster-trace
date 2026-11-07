@@ -13,6 +13,7 @@ import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { PosterId } from "@domain/poster/PosterId";
+import { ScanId } from "@domain/poster/ScanId";
 import {
   QrPlacement,
   type QrPlacementFields,
@@ -237,27 +238,30 @@ async function main() {
   await insertPoster(marathonDesignA);
   const posterD1 = await insertPoster(marathonDesignB);
 
-  await db.insert(scan).values([
-    { posterId: posterA1.id, time: daysAgo(12, 9) },
-    { posterId: posterA1.id, time: daysAgo(9, 18) },
-    { posterId: posterA1.id, time: daysAgo(4, 13) },
-    { posterId: posterA1.id, time: daysAgo(1, 20) },
+  const scans = [
+    { posterId: posterA1.id, scannedAt: daysAgo(12, 9) },
+    { posterId: posterA1.id, scannedAt: daysAgo(9, 18) },
+    { posterId: posterA1.id, scannedAt: daysAgo(4, 13) },
+    { posterId: posterA1.id, scannedAt: daysAgo(1, 20) },
 
-    { posterId: posterA2.id, time: daysAgo(10, 11) },
-    { posterId: posterA2.id, time: daysAgo(3, 17) },
+    { posterId: posterA2.id, scannedAt: daysAgo(10, 11) },
+    { posterId: posterA2.id, scannedAt: daysAgo(3, 17) },
 
-    { posterId: posterB1.id, time: daysAgo(7, 15) },
-    { posterId: posterB1.id, time: daysAgo(2, 21) },
-    { posterId: posterB1.id, time: daysAgo(0, 10) },
+    { posterId: posterB1.id, scannedAt: daysAgo(7, 15) },
+    { posterId: posterB1.id, scannedAt: daysAgo(2, 21) },
+    { posterId: posterB1.id, scannedAt: daysAgo(0, 10) },
 
-    { posterId: posterC1.id, time: daysAgo(14, 8) },
-    { posterId: posterC1.id, time: daysAgo(6, 12) },
+    { posterId: posterC1.id, scannedAt: daysAgo(14, 8) },
+    { posterId: posterC1.id, scannedAt: daysAgo(6, 12) },
 
-    { posterId: posterC2.id, time: daysAgo(5, 19) },
+    { posterId: posterC2.id, scannedAt: daysAgo(5, 19) },
 
-    { posterId: posterD1.id, time: daysAgo(8, 7) },
-    { posterId: posterD1.id, time: daysAgo(1, 16) },
-  ]);
+    { posterId: posterD1.id, scannedAt: daysAgo(8, 7) },
+    { posterId: posterD1.id, scannedAt: daysAgo(1, 16) },
+  ];
+  await db
+    .insert(scan)
+    .values(scans.map((values) => ({ id: ScanId.generate(), ...values })));
 
   console.log(
     `Seed complete. Log in as ${SEED_USER_EMAIL} / ${SEED_USER_PASSWORD}.`,

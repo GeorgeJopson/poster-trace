@@ -108,7 +108,10 @@ export function getPosterService() {
 
 let scanService: ScanService | undefined;
 export function getScanService() {
-  return (scanService ??= new ScanService(getScanTargetLookup()));
+  return (scanService ??= new ScanService(
+    getScanTargetLookup(),
+    getPosterRepository(),
+  ));
 }
 
 let accountService: AccountService | undefined;

@@ -4,7 +4,6 @@ import {
   doublePrecision,
   index,
   integer,
-  serial,
   snakeCase,
   text,
   timestamp,
@@ -159,13 +158,14 @@ export const poster = pgTable(
   (table) => [index().on(table.posterDesignId)],
 );
 
-// Scans aren't modelled in the domain yet, so they keep database-assigned ids.
+// Scans are keyed by domain-generated UUIDs too, and are only ever inserted
+// (see ADR-0015). scanned_at is when the scan happened, so it has no default.
 
 export const scan = pgTable(
   "scan",
   {
-    id: serial().primaryKey(),
-    time: timestamp().notNull().defaultNow(),
+    id: uuid().primaryKey(),
+    scannedAt: timestamp().notNull(),
     posterId: uuid()
       .notNull()
       .references(() => poster.id, { onDelete: "cascade" }),
