@@ -7,7 +7,7 @@ import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { UserId } from "@domain/user/UserId";
 
-import { pngBytes } from "../support/images";
+import { makePdf } from "../support/pdfs";
 import { FakeAccountGateway } from "./fakes/FakeAccountGateway";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
@@ -41,7 +41,7 @@ async function addDesigns(count: number) {
   });
   for (let i = 0; i < count; i++) {
     await designService.createPosterDesign(id, {
-      image: new Blob([pngBytes()], { type: "image/png" }),
+      image: new Blob([await makePdf()], { type: "application/pdf" }),
       qrPlacement: { x: 0, y: 0, size: 10, rotation: 0 },
     });
   }

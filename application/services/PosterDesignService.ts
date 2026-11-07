@@ -28,8 +28,10 @@ export class PosterDesignService {
     // Validated before anything is stored.
     const qrPlacement = QrPlacement.create(input.qrPlacement);
     // Stored as its real format, so the image route serves it as that.
-    const { type, pageCount } = await readPosterDesignImage(input.image);
-    const image = PosterDesignImageUpload.create(input.image, type, pageCount);
+    const image = PosterDesignImageUpload.create(
+      input.image,
+      await readPosterDesignImage(input.image),
+    );
 
     const id = CampaignId.parse(campaignId);
     const campaign = id && (await this.campaigns.findByIdForOwner(id, userId));

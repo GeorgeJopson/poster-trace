@@ -21,7 +21,7 @@ _Avoid_: Destination, redirect URL, link
 ### Designs
 
 **Poster Design**:
-One layout for a campaign's posters: an uploaded image (a PNG, a JPEG or a one-page PDF) with a QR code placed on it. It belongs to exactly one campaign.
+One layout for a campaign's posters: an uploaded one-page, portrait A4 PDF with a QR code placed on it. It belongs to exactly one campaign.
 _Avoid_: Design image, template
 
 **QR Placement**:

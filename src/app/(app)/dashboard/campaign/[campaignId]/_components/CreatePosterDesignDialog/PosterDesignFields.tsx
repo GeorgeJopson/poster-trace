@@ -80,7 +80,7 @@ export default function PosterDesignFields({
   return (
     <div className={styles.fields}>
       <label className={styles.label} htmlFor="posterImage">
-        Poster image
+        Poster design (one-page A4 PDF)
       </label>
       <input
         className={styles.input}

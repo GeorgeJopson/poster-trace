@@ -1,6 +1,5 @@
 import { NotAuthenticatedError } from "@application/errors/NotAuthenticatedError";
 import { getPosterDesignService } from "@di/container";
-import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
 
 // Serves a poster design's image to the user who owns it. Blobs have no
 // access control of their own, so this route is what keeps images private.
@@ -28,9 +27,7 @@ export async function GET(
       // PDFs can carry scripts, so download one opened directly rather than
       // show it in the browser's viewer (see ADR-0010). The app only fetches
       // these files.
-      ...(image.contentType === PosterDesignImageRules.PDF_TYPE && {
-        "Content-Disposition": "attachment",
-      }),
+      "Content-Disposition": "attachment",
     },
   });
 }

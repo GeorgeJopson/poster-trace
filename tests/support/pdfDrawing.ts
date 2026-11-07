@@ -16,12 +16,6 @@ export type DrawnXObject = {
   bottom: number;
   width: number;
   height: number;
-  /**
-   * Where a point of the XObject's own content lands on the page, given as a
-   * share of its width and height from its bottom-left corner (so `(0, 1)` is
-   * its top-left corner as stored).
-   */
-  pointAt(u: number, v: number): readonly [number, number];
 };
 
 const IDENTITY: Matrix = [1, 0, 0, 1, 0, 0];
@@ -116,6 +110,5 @@ function xObjectBox(page: PDFPage, name: string, ctm: Matrix): DrawnXObject {
     bottom,
     width: Math.max(...xs) - left,
     height: Math.max(...ys) - bottom,
-    pointAt,
   };
 }

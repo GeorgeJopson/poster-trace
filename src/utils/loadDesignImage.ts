@@ -1,5 +1,3 @@
-import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
-
 /** A design's image, ready to draw onto a canvas. */
 export type DesignImage = {
   source: CanvasImageSource;
@@ -9,23 +7,15 @@ export type DesignImage = {
 };
 
 /**
- * Loads a design image (a PNG, a JPEG or a one-page PDF) so it can be drawn
- * onto a canvas. Canvases can't draw PDFs, so a PDF's first page is rendered
- * with pdf.js, which is only downloaded when a PDF is loaded. `maxWidth` is
- * the widest a PDF is rendered, in pixels; images keep their own size.
+ * Loads a design (a one-page PDF) so it can be drawn onto a canvas. Canvases
+ * can't draw PDFs, so its page is rendered with pdf.js, which is only
+ * downloaded when a design is loaded. `maxWidth` is the widest it's rendered,
+ * in pixels.
  */
 export default async function loadDesignImage(
   data: Blob,
   { maxWidth = 1600 }: { maxWidth?: number } = {},
 ): Promise<DesignImage> {
-  if (data.type === PosterDesignImageRules.PDF_TYPE) {
-    return renderPdf(data, maxWidth);
-  }
-  const bitmap = await createImageBitmap(data);
-  return { source: bitmap, width: bitmap.width, height: bitmap.height };
-}
-
-async function renderPdf(data: Blob, maxWidth: number): Promise<DesignImage> {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc ||= new URL(
     "pdfjs-dist/build/pdf.worker.min.mjs",

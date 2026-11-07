@@ -1,9 +1,15 @@
 import fs from "node:fs";
 import { PDFDocument } from "pdf-lib";
 
-import { makePdf } from "../support/pdfs";
 import { expect, test } from "./fixtures";
-import { addPosterDesign, createCampaign, signUp } from "./helpers";
+import {
+  addPosterDesign,
+  createCampaign,
+  DESIGN_FILE_LABEL,
+  pdfFile,
+  signUp,
+  type PickedFile,
+} from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await signUp(page);
@@ -12,14 +18,6 @@ test.beforeEach(async ({ page }) => {
     target: "https://example.com/",
   });
 });
-
-async function pdfFile(pageCount: number) {
-  return {
-    name: "design.pdf",
-    mimeType: "application/pdf",
-    buffer: Buffer.from(await makePdf(pageCount)),
-  };
-}
 
 test("generates posters from a design as a PDF, one page each", async ({
   page,
@@ -88,10 +86,10 @@ test.describe("shows why the server won't generate posters", () => {
   }
 });
 
-test("adds a one-page PDF design, previews it and generates posters", async ({
+test("adds an A4 PDF design, previews it and generates posters", async ({
   page,
 }) => {
-  const imageUrl = await addPosterDesign(page, await pdfFile(1));
+  const imageUrl = await addPosterDesign(page);
 
   await expect(page.getByText("Preview unavailable")).toHaveCount(0);
   const image = await page.request.get(imageUrl);
@@ -111,15 +109,45 @@ test("adds a one-page PDF design, previews it and generates posters", async ({
   expect(pdf.getPageCount()).toBe(2);
 });
 
-test("rejects a PDF design with more than one page", async ({ page }) => {
-  await page.getByRole("button", { name: "New Poster Design" }).click();
-  const dialog = page.getByRole("dialog", { name: "Create new poster design" });
-  const input = dialog.getByLabel("Poster image");
-  await input.setInputFiles(await pdfFile(2));
+test.describe("rejects a design that isn't a one-page A4 PDF", () => {
+  const cases: [string, () => Promise<PickedFile>, string][] = [
+    [
+      "a PDF with two pages",
+      () => pdfFile(2),
+      "The PDF must have exactly one page.",
+    ],
+    [
+      "a US Letter PDF",
+      () => pdfFile(1, [612, 792]),
+      "The PDF's page must be portrait A4 (210 x 297 mm).",
+    ],
+    [
+      "a JPEG",
+      async () => ({
+        name: "design.jpg",
+        mimeType: "image/jpeg",
+        // A JPEG's first bytes, which is all the form's format check reads.
+        buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]),
+      }),
+      "Please choose a PDF.",
+    ],
+  ];
+  for (const [name, makeFile, message] of cases) {
+    test(name, async ({ page }) => {
+      await page.getByRole("button", { name: "New Poster Design" }).click();
+      const dialog = page.getByRole("dialog", {
+        name: "Create new poster design",
+      });
+      const input = dialog.getByLabel(DESIGN_FILE_LABEL);
+      await input.setInputFiles(await makeFile());
 
-  await expect
-    .poll(() =>
-      input.evaluate((element: HTMLInputElement) => element.validationMessage),
-    )
-    .toBe("The PDF must have exactly one page.");
+      await expect
+        .poll(() =>
+          input.evaluate(
+            (element: HTMLInputElement) => element.validationMessage,
+          ),
+        )
+        .toBe(message);
+    });
+  }
 });

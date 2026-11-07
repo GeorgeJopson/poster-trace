@@ -8,6 +8,7 @@ import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { UserId } from "@domain/user/UserId";
 
+import { A4_PDF_DETAILS } from "../support/pdfs";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 
 // The fake must behave like the Drizzle repository, or use cases that save
@@ -17,8 +18,8 @@ const ownerId = UserId.from("alice");
 const target = CampaignTarget.create("https://example.com/");
 const placement = QrPlacement.create({ x: 1, y: 2, size: 3, rotation: 4 });
 const upload = PosterDesignImageUpload.create(
-  new Blob(["image"], { type: "image/png" }),
-  "image/png",
+  new Blob(["image"], { type: "application/pdf" }),
+  A4_PDF_DETAILS,
 );
 
 async function storedCampaign(repository: InMemoryCampaignRepository) {

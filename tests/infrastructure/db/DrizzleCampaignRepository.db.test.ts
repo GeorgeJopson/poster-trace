@@ -11,6 +11,7 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 import { UserId } from "@domain/user/UserId";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 
+import { A4_PDF_DETAILS } from "../../support/pdfs";
 import { FakeBlobStore } from "./FakeBlobStore";
 import { clearDatabase, db, insertUser } from "./testDb";
 
@@ -24,11 +25,11 @@ const placement = QrPlacement.create({
   rotation: 45,
 });
 
-function upload(contentType = "image/png") {
+function upload() {
   // The blob's own type differs, to show the validated type is what's stored.
   return PosterDesignImageUpload.create(
     new Blob(["image bytes"], { type: "application/octet-stream" }),
-    contentType,
+    A4_PDF_DETAILS,
   );
 }
 
@@ -135,7 +136,7 @@ describe("addDesign", () => {
   it("stores the design under its id, with its image", async () => {
     const campaign = await addCampaign();
     const design = campaign.addDesign(placement);
-    await repository.addDesign(campaign, design, upload("image/jpeg"));
+    await repository.addDesign(campaign, design, upload());
 
     const loaded = await repository.findByIdForOwner(campaign.id, alice);
     const [stored] = loaded!.getDesigns();
@@ -144,10 +145,10 @@ describe("addDesign", () => {
 
     expect(blobStore.blobs.size).toBe(1);
     const [blob] = blobStore.blobs.values();
-    expect(blob.contentType).toBe("image/jpeg");
+    expect(blob.contentType).toBe("application/pdf");
 
     const image = await repository.findDesignImageForOwner(design.id, alice);
-    expect(image?.contentType).toBe("image/jpeg");
+    expect(image?.contentType).toBe("application/pdf");
     expect(await new Response(image?.data).text()).toBe("image bytes");
   });
 

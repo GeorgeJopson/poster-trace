@@ -1,10 +1,11 @@
 import {
   PosterDesignImageRules,
+  type PageSize,
   type PosterDesignImageType,
 } from "@domain/campaign/design/PosterDesignImageRules";
 import { ValidationError } from "@domain/shared/ValidationError";
 
-import { readPdfPageCount } from "./readPdfPageCount";
+import { readPdfPages } from "./readPdfPages";
 
 /** What `PosterDesignImageRules` checks about a poster design's image. */
 export type PosterDesignImageDetails = {
@@ -13,6 +14,10 @@ export type PosterDesignImageDetails = {
   size: number;
   /** Only read for a PDF. */
   pageCount?: number;
+  /** The first page's CropBox size. Only read for a PDF. */
+  pageSize?: PageSize;
+  /** The first page's /Rotate, in degrees. Only read for a PDF. */
+  pageRotation?: number;
 };
 
 /**
@@ -39,9 +44,9 @@ export async function readPosterDesignImage(
     return details;
   }
 
-  const pageCount = await readPdfPageCount(file);
-  if (pageCount === null) {
+  const pages = await readPdfPages(file);
+  if (pages === null) {
     throw new ValidationError("This PDF can't be read.");
   }
-  return { ...details, pageCount };
+  return { ...details, ...pages };
 }

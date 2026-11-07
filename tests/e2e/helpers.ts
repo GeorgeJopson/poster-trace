@@ -1,13 +1,24 @@
-import path from "node:path";
 import { expect, type BrowserContext, type Page } from "@playwright/test";
 
-export const POSTER_IMAGE = path.join(
-  process.cwd(),
-  "scripts/seed-images/stock-poster-1.jpg",
-);
+import { A4_SIZE, makePdf } from "../support/pdfs";
 
-/** A file to pick in a file input, e.g. a PDF made with tests/support/pdfs. */
+/** A file to pick in a file input. */
 export type PickedFile = { name: string; mimeType: string; buffer: Buffer };
+
+/** A PDF design to pick, portrait A4 unless given another page size. */
+export async function pdfFile(
+  pageCount = 1,
+  pageSize: [number, number] = A4_SIZE,
+): Promise<PickedFile> {
+  return {
+    name: "design.pdf",
+    mimeType: "application/pdf",
+    buffer: Buffer.from(await makePdf(pageCount, pageSize)),
+  };
+}
+
+/** The label of the poster design dialog's file input. */
+export const DESIGN_FILE_LABEL = "Poster design (one-page A4 PDF)";
 
 export type Credentials = { name: string; email: string; password: string };
 
@@ -64,13 +75,12 @@ export async function createCampaign(
  * Adds a poster design to the campaign whose page is open, and returns the
  * URL its image is served from.
  */
-export async function addPosterDesign(
-  page: Page,
-  file: string | PickedFile = POSTER_IMAGE,
-) {
+export async function addPosterDesign(page: Page, file?: PickedFile) {
   await page.getByRole("button", { name: "New Poster Design" }).click();
   const dialog = page.getByRole("dialog", { name: "Create new poster design" });
-  await dialog.getByLabel("Poster image").setInputFiles(file);
+  await dialog
+    .getByLabel(DESIGN_FILE_LABEL)
+    .setInputFiles(file ?? (await pdfFile()));
   // The size slider is enabled once the image has loaded.
   const size = dialog.getByLabel("QR size");
   await expect(size).toBeEnabled();

@@ -1,5 +1,6 @@
 import {
   PosterDesignImageRules,
+  type PageSize,
   type PosterDesignImageType,
 } from "./PosterDesignImageRules";
 
@@ -11,13 +12,20 @@ export class PosterDesignImageUpload {
     readonly contentType: PosterDesignImageType,
   ) {}
 
-  /** `pageCount` is required for a PDF, which must have exactly one page. */
+  /**
+   * `type` is the file's real format; the rest is read from the PDF, which
+   * must be one unrotated portrait A4 page.
+   */
   static create(
     data: Blob,
-    contentType: string | null,
-    pageCount?: number,
+    details: {
+      type: string | null;
+      pageCount?: number;
+      pageSize?: PageSize;
+      pageRotation?: number;
+    },
   ): PosterDesignImageUpload {
-    const file = { type: contentType, size: data.size, pageCount };
+    const file = { ...details, size: data.size };
     PosterDesignImageRules.assertValid(file);
     return new PosterDesignImageUpload(data, file.type);
   }

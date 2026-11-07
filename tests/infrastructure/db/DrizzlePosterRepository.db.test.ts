@@ -11,6 +11,7 @@ import { poster as posterTable } from "@infrastructure/db/schema";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 
+import { A4_PDF_DETAILS } from "../../support/pdfs";
 import { FakeBlobStore } from "./FakeBlobStore";
 import { clearDatabase, db, insertUser } from "./testDb";
 
@@ -35,7 +36,7 @@ beforeEach(async () => {
   await campaigns.addDesign(
     campaign,
     design,
-    PosterDesignImageUpload.create(new Blob(["png"]), "image/png"),
+    PosterDesignImageUpload.create(new Blob(["pdf"]), A4_PDF_DETAILS),
   );
   designId = design.id;
   repository = new DrizzlePosterRepository(db);

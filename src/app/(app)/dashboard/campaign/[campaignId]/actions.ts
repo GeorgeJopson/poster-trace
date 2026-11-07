@@ -32,7 +32,7 @@ export async function createPosterDesign(
   return withSignInRedirect(async () => {
     const image = formData.get("image");
     if (!(image instanceof File)) {
-      throw new Error("A poster image is required");
+      throw new Error("A poster design PDF is required");
     }
 
     // Validated by the service, which rejects NaN, so a missing or

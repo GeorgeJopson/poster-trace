@@ -1,5 +1,7 @@
 # Poster designs accept one-page PDFs; WebP and GIF are dropped
 
+Superseded in part by ADR-0011: only portrait A4 PDFs are accepted now.
+
 A poster design's image can be a PNG, a JPEG or a one-page PDF. Posters are generated as a PDF in the browser with pdf-lib, which can only embed PNG, JPEG and PDF pages. That's why WebP and GIF are no longer accepted. A PDF design is embedded as a vector page (`embedPage`), so it keeps its print quality, and the QR code is drawn on top of it as vector shapes too.
 
 Browsers can't draw a PDF onto a canvas, so previews, including the QR placement editor, render page 1 with `pdfjs-dist`. It's loaded lazily, only when a design is a PDF. The one-page rule lives in the domain (`PosterDesignImageRules`), which is given a page count that the application layer reads with pdf-lib. The form also checks it before uploading.

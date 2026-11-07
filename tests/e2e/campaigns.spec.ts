@@ -94,7 +94,7 @@ test("adds a poster design, whose image loads from the image route", async ({
 
   const image = await page.request.get(imageUrl);
   expect(image.status()).toBe(200);
-  expect(image.headers()["content-type"]).toBe("image/jpeg");
+  expect(image.headers()["content-type"]).toBe("application/pdf");
 
   // Still listed after a reload, and on the dashboard's card.
   await page.reload();

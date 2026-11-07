@@ -93,7 +93,7 @@ export default function CreatePosterDesignDialog() {
       setImage(loaded);
       setQrValues(DEFAULT_QR_VALUES);
     } catch {
-      rejectFile("This image couldn't be read. Please choose another file.");
+      rejectFile("This PDF couldn't be read. Please choose another file.");
     }
   }
 

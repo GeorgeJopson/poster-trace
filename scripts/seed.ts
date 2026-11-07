@@ -7,9 +7,11 @@ import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { hashPassword } from "better-auth/crypto";
 
+import { readPosterDesignImage } from "@application/files/readPosterDesignImage";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
 import { PosterId } from "@domain/poster/PosterId";
 import {
   QrPlacement,
@@ -49,13 +51,21 @@ const db = drizzle({ connection: getLocalConnectionString() });
 const blobStorage = connectToLocalBlobStorage();
 let blobStore: NetlifyBlobStore;
 
-// JPEG copies of public/poster-images, as designs can't be WebP.
+// A4 PDF versions of public/poster-images, as designs must be A4 PDFs.
 const posterImagesDir = path.join(process.cwd(), "scripts/seed-images");
 async function uploadDesignImage(filename: string) {
-  const data = fs.readFileSync(path.join(posterImagesDir, filename));
+  const data = new Blob([
+    fs.readFileSync(path.join(posterImagesDir, filename)),
+  ]);
+  // Checked as an upload is, so a seed file that isn't a valid design fails
+  // here rather than when a page loads it.
+  const image = PosterDesignImageUpload.create(
+    data,
+    await readPosterDesignImage(data),
+  );
   // The store doesn't assign keys, so generate one, as the app does.
   const key = crypto.randomUUID();
-  await blobStore.set(key, new Blob([data]), "image/jpeg");
+  await blobStore.set(key, image.data, image.contentType);
   return key;
 }
 
@@ -73,8 +83,8 @@ async function insertCampaign(userId: string, name: string, target: string) {
   return id;
 }
 
-// The images are portrait, and `size` is a percentage of the image's width,
-// so every QR code fits on its image.
+// The designs are portrait A4, and `size` is a percentage of the design's
+// width, so every QR code fits on its design.
 async function insertDesign(
   campaignId: CampaignId,
   filename: string,
@@ -185,27 +195,27 @@ async function main() {
 
   const summerFestDesignA = await insertDesign(
     summerFest,
-    "stock-poster-1.jpg",
+    "stock-poster-1.pdf",
     { x: 82, y: 85, size: 12, rotation: 0 },
   );
   const summerFestDesignB = await insertDesign(
     summerFest,
-    "stock-poster-2.jpg",
+    "stock-poster-2.pdf",
     { x: 50, y: 85, size: 15, rotation: 5 },
   );
-  const cafeDesign = await insertDesign(cafeOpening, "stock-poster-3.jpg", {
+  const cafeDesign = await insertDesign(cafeOpening, "stock-poster-3.pdf", {
     x: 75,
     y: 80,
     size: 10,
     rotation: 357,
   });
-  const marathonDesignA = await insertDesign(marathon, "stock-poster-4.jpg", {
+  const marathonDesignA = await insertDesign(marathon, "stock-poster-4.pdf", {
     x: 20,
     y: 15,
     size: 18,
     rotation: 0,
   });
-  const marathonDesignB = await insertDesign(marathon, "stock-poster-5.jpg", {
+  const marathonDesignB = await insertDesign(marathon, "stock-poster-5.pdf", {
     x: 85,
     y: 10,
     size: 10,
