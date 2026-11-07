@@ -62,6 +62,32 @@ describe("NetlifyBlobStore.delete", () => {
   });
 });
 
+describe("NetlifyBlobStore.forPosterDesigns", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  async function storeAndDeleteIn(context: string) {
+    vi.stubEnv("NETLIFY_CONTEXT", context);
+    const store = NetlifyBlobStore.forPosterDesigns();
+    await store.set("key", new Blob(["x"]), "application/pdf");
+    await store.delete("key");
+  }
+
+  it("deletes in production", async () => {
+    await storeAndDeleteIn("production");
+    expect(fakeStore.entries.has("key")).toBe(false);
+  });
+
+  it.each(["deploy-preview", "branch-deploy"])(
+    "doesn't delete in %j, which shares production's store",
+    async (context) => {
+      await storeAndDeleteIn(context);
+      expect(fakeStore.entries.has("key")).toBe(true);
+    },
+  );
+});
+
 describe("NetlifyBlobStore.set", () => {
   afterEach(() => {
     vi.useRealTimers();
