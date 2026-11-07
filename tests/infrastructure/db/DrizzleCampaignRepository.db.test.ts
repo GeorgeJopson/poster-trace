@@ -46,17 +46,23 @@ beforeEach(async () => {
 
 async function addCampaign(ownerId = alice, name = "Campaign") {
   const campaign = Campaign.create(ownerId, name, target);
-  await repository.add(campaign);
+  await repository.save(campaign);
   return campaign;
 }
 
 async function addDesign(campaign: Campaign) {
-  const design = campaign.addDesign(placement);
-  await repository.addDesign(campaign, design, upload());
+  const design = campaign.addDesign(placement, upload());
+  await repository.save(campaign);
   return design;
 }
 
-describe("add / findByIdForOwner", () => {
+async function load(campaign: Campaign) {
+  return (await repository.findByIdForOwner(campaign.id, campaign.ownerId))!;
+}
+
+const moved = QrPlacement.create({ x: 1, y: 2, size: 3, rotation: 4 });
+
+describe("save / findByIdForOwner", () => {
   it("stores the campaign under the domain's id", async () => {
     const campaign = await addCampaign();
 
@@ -94,26 +100,97 @@ describe("findAllByOwner", () => {
   });
 });
 
-describe("updateDetails", () => {
-  it("saves the name and target only, never the designs", async () => {
-    const campaign = await addCampaign();
-    const saved = await addDesign(campaign);
+describe("save", () => {
+  it("stores new designs under their ids, with their images, in order", async () => {
+    const campaign = Campaign.create(alice, "Campaign", target);
+    const first = campaign.addDesign(placement, upload());
+    const second = campaign.addDesign(placement, upload());
+    await repository.save(campaign);
 
-    const loaded = (await repository.findByIdForOwner(campaign.id, alice))!;
-    loaded.addDesign(placement);
-    loaded.updateDetails(
-      "Renamed",
-      CampaignTarget.create("https://example.com/new"),
-    );
-    await repository.updateDetails(loaded);
+    const designs = (await load(campaign)).getDesigns();
+    expect(designs.map((d) => d.id)).toEqual([first.id, second.id]);
+    expect({ ...designs[0].qrPlacement }).toEqual({ ...placement });
 
-    const reloaded = await repository.findByIdForOwner(campaign.id, alice);
-    expect(reloaded?.getName()).toBe("Renamed");
-    expect(reloaded?.getTarget().value).toBe("https://example.com/new");
-    expect(reloaded?.getDesigns().map((d) => d.id)).toEqual([saved.id]);
+    expect(blobStore.blobs.size).toBe(2);
+    const [blob] = blobStore.blobs.values();
+    expect(blob.contentType).toBe("application/pdf");
+
+    const image = await repository.findDesignImageForOwner(first.id, alice);
+    expect(image?.contentType).toBe("application/pdf");
+    expect(await new Response(image?.data).text()).toBe("image bytes");
   });
 
-  it("throws NotFoundError if the campaign isn't owned by its ownerId", async () => {
+  it("updates the name, target and stored designs' placements", async () => {
+    const campaign = await addCampaign();
+    const design = await addDesign(campaign);
+
+    const changed = Campaign.restore({
+      id: campaign.id,
+      ownerId: alice,
+      name: "Renamed",
+      target: CampaignTarget.create("https://example.com/new"),
+      designs: [PosterDesign.restore({ id: design.id, qrPlacement: moved })],
+    });
+    await repository.save(changed);
+
+    const reloaded = await load(campaign);
+    expect(reloaded.getName()).toBe("Renamed");
+    expect(reloaded.getTarget().value).toBe("https://example.com/new");
+    const [stored] = reloaded.getDesigns();
+    expect(stored.id).toBe(design.id);
+    expect({ ...stored.qrPlacement }).toEqual({ ...moved });
+    expect(blobStore.blobs.size).toBe(1);
+  });
+
+  it("doesn't keep a second image when the same campaign is saved twice", async () => {
+    const campaign = Campaign.create(alice, "Campaign", target);
+    const design = campaign.addDesign(placement, upload());
+    await repository.save(campaign);
+    const [key] = blobStore.blobs.keys();
+
+    await repository.save(campaign);
+
+    expect([...blobStore.blobs.keys()]).toEqual([key]);
+    expect((await load(campaign)).getDesigns().map((d) => d.id)).toEqual([
+      design.id,
+    ]);
+  });
+
+  it("keeps stored designs that are missing from a stale copy", async () => {
+    const campaign = await addCampaign();
+    const stale = await load(campaign);
+    const added = await addDesign(await load(campaign));
+
+    stale.updateDetails("Renamed", target);
+    await repository.save(stale);
+
+    const reloaded = await load(campaign);
+    expect(reloaded.getName()).toBe("Renamed");
+    expect(reloaded.getDesigns().map((d) => d.id)).toEqual([added.id]);
+  });
+
+  it("deletes the uploaded images if a later upload fails", async () => {
+    const failing = new FakeBlobStore();
+    let uploads = 0;
+    failing.set = async (key, data, contentType) => {
+      if (++uploads === 2) throw new Error("upload failed");
+      failing.blobs.set(key, { data, contentType });
+    };
+    const campaign = Campaign.create(alice, "Campaign", target);
+    campaign.addDesign(placement, upload());
+    campaign.addDesign(placement, upload());
+
+    await expect(
+      new DrizzleCampaignRepository(db, failing).save(campaign),
+    ).rejects.toThrow("upload failed");
+    expect(failing.blobs.size).toBe(0);
+    expect(await repository.findByIdForOwner(campaign.id, alice)).toBeNull();
+  });
+
+  it("throws the save's own error even if deleting its images fails", async () => {
+    blobStore.delete = async () => {
+      throw new Error("delete failed");
+    };
     const campaign = await addCampaign();
     const asBob = Campaign.restore({
       id: campaign.id,
@@ -122,80 +199,63 @@ describe("updateDetails", () => {
       target,
       designs: [],
     });
+    asBob.addDesign(placement, upload());
 
-    await expect(repository.updateDetails(asBob)).rejects.toThrow(
-      NotFoundError,
-    );
-    expect(
-      (await repository.findByIdForOwner(campaign.id, alice))?.getName(),
-    ).toBe("Campaign");
-  });
-});
-
-describe("addDesign", () => {
-  it("stores the design under its id, with its image", async () => {
-    const campaign = await addCampaign();
-    const design = campaign.addDesign(placement);
-    await repository.addDesign(campaign, design, upload());
-
-    const loaded = await repository.findByIdForOwner(campaign.id, alice);
-    const [stored] = loaded!.getDesigns();
-    expect(stored.id).toBe(design.id);
-    expect({ ...stored.qrPlacement }).toEqual({ ...placement });
-
-    expect(blobStore.blobs.size).toBe(1);
-    const [blob] = blobStore.blobs.values();
-    expect(blob.contentType).toBe("application/pdf");
-
-    const image = await repository.findDesignImageForOwner(design.id, alice);
-    expect(image?.contentType).toBe("application/pdf");
-    expect(await new Response(image?.data).text()).toBe("image bytes");
+    await expect(repository.save(asBob)).rejects.toThrow(NotFoundError);
   });
 
-  it("rejects a design that isn't in the campaign", async () => {
-    const campaign = await addCampaign();
-    await expect(
-      repository.addDesign(campaign, PosterDesign.create(placement), upload()),
-    ).rejects.toThrow("isn't one of the campaign's designs");
-    expect(blobStore.blobs.size).toBe(0);
-  });
-
-  it("throws NotFoundError if the campaign isn't owned by its ownerId", async () => {
+  it("throws NotFoundError and writes nothing for another owner's campaign", async () => {
     const campaign = await addCampaign();
     const asBob = Campaign.restore({
       id: campaign.id,
       ownerId: bob,
-      name: "Campaign",
+      name: "Stolen",
       target,
       designs: [],
     });
-    const design = asBob.addDesign(placement);
+    asBob.addDesign(placement, upload());
 
-    await expect(repository.addDesign(asBob, design, upload())).rejects.toThrow(
-      NotFoundError,
-    );
+    await expect(repository.save(asBob)).rejects.toThrow(NotFoundError);
+    const reloaded = await load(campaign);
+    expect(reloaded.getName()).toBe("Campaign");
+    expect(reloaded.getDesigns()).toEqual([]);
     expect(blobStore.blobs.size).toBe(0);
   });
 
-  it("deletes the image if the design can't be inserted", async () => {
+  it.each([
+    [
+      "another campaign's design",
+      (bobsDesignId: PosterDesignId) => bobsDesignId,
+    ],
+    [
+      "a design that isn't stored and has no image",
+      () => PosterDesignId.generate(),
+    ],
+  ])("throws NotFoundError and writes nothing for %s", async (_, designId) => {
+    const bobsDesign = await addDesign(await addCampaign(bob));
     const campaign = await addCampaign();
-    const existing = await addDesign(campaign);
-    // A design with an id that's already taken fails to insert.
-    const duplicate = PosterDesign.restore({
-      id: existing.id,
-      qrPlacement: placement,
-    });
-    const restored = Campaign.restore({
+
+    const attempt = Campaign.restore({
       id: campaign.id,
       ownerId: alice,
-      name: "Campaign",
+      name: "Renamed",
       target,
-      designs: [duplicate],
+      designs: [
+        PosterDesign.restore({
+          id: designId(bobsDesign.id),
+          qrPlacement: moved,
+        }),
+      ],
     });
+    // Also carries a new design, whose image mustn't be left behind.
+    attempt.addDesign(placement, upload());
 
-    await expect(
-      repository.addDesign(restored, duplicate, upload()),
-    ).rejects.toThrow();
+    await expect(repository.save(attempt)).rejects.toThrow(NotFoundError);
+    const reloaded = await load(campaign);
+    expect(reloaded.getName()).toBe("Campaign");
+    expect(reloaded.getDesigns()).toEqual([]);
+    const [bobs] = (await repository.findAllByOwner(bob))[0].getDesigns();
+    expect({ ...bobs.qrPlacement }).toEqual({ ...placement });
     expect(blobStore.blobs.size).toBe(1);
   });
 });

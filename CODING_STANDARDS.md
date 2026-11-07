@@ -18,7 +18,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 - **Ids** are branded strings. `as XxxId` appears only inside that id's own `generate` / `from` / `parse`. Ids that come from URLs go through `parse`, which returns `null` for anything that isn't a UUID.
 - **Entities** have two factories. `create` builds a new entity and generates its id. `restore` rebuilds a stored entity and generates nothing; only repositories call it. `Poster`'s `create` is called `generate`, the glossary's word for making posters.
 - **Repositories** take and return entities, never Drizzle rows. They store the ids the domain generated, never read the session, and take an explicit `ownerId` for owner-facing reads (see ADR-0005).
-- **A new aggregate mutation** gets its own `CampaignRepository` method, plus a test against the in-memory fake that fails if `updateDetails` is used instead (see ADR-0007).
+- **Aggregate changes are persisted with `CampaignRepository.save`**, which writes the whole campaign (see ADR-0012). A new mutation needs no repository method, but the in-memory fake must keep matching the Drizzle repository's `save` rules.
 
 ## Application
 

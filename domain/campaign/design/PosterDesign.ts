@@ -1,4 +1,5 @@
 import { PosterDesignId } from "./PosterDesignId";
+import type { PosterDesignImageUpload } from "./PosterDesignImageUpload";
 import type { QrPlacement } from "./QrPlacement";
 
 export type PosterDesignProps = {
@@ -14,15 +15,30 @@ export type PosterDesignProps = {
 export class PosterDesign {
   readonly id: PosterDesignId;
   readonly qrPlacement: QrPlacement;
+  /**
+   * The image of a design made by `create`, for the repository to store.
+   * A restored design never has one: its image is already stored.
+   */
+  readonly newImage?: PosterDesignImageUpload;
 
-  private constructor({ id, qrPlacement }: PosterDesignProps) {
+  private constructor(
+    { id, qrPlacement }: PosterDesignProps,
+    newImage?: PosterDesignImageUpload,
+  ) {
     this.id = id;
     this.qrPlacement = qrPlacement;
+    this.newImage = newImage;
   }
 
   /** A new design with a generated id. Only `Campaign.addDesign` calls this. */
-  static create(qrPlacement: QrPlacement): PosterDesign {
-    return new PosterDesign({ id: PosterDesignId.generate(), qrPlacement });
+  static create(
+    qrPlacement: QrPlacement,
+    image: PosterDesignImageUpload,
+  ): PosterDesign {
+    return new PosterDesign(
+      { id: PosterDesignId.generate(), qrPlacement },
+      image,
+    );
   }
 
   /** Rebuilds a stored design. Only repositories call this. */

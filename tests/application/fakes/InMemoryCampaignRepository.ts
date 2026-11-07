@@ -29,9 +29,9 @@ type StoredImage = { data: Blob; contentType: string };
 
 /**
  * Behaves like DrizzleCampaignRepository: it stores copies, not the entities
- * it's given, so a change only persists through the method that saves it.
- * `updateDetails` copies only the name and target, and `addDesign` rejects a
- * design that isn't in the campaign.
+ * it's given, so a change only persists once the campaign is saved. `save`
+ * writes all or nothing, keeps stored designs missing from the campaign, and
+ * stores a design's `newImage` only when the design is new.
  */
 export class InMemoryCampaignRepository implements CampaignRepository {
   // In insertion order, like ordering by created_at.
@@ -53,44 +53,41 @@ export class InMemoryCampaignRepository implements CampaignRepository {
     return stored ? toEntity(stored) : null;
   }
 
-  async add(campaign: Campaign): Promise<void> {
-    this.campaigns.push({
+  async save(campaign: Campaign): Promise<void> {
+    const existing = this.campaigns.find((c) => c.id === campaign.id);
+    if (existing && existing.ownerId !== campaign.ownerId) {
+      throw new NotFoundError("Campaign not found");
+    }
+    const stored = existing ?? {
       id: campaign.id,
       ownerId: campaign.ownerId,
       name: campaign.getName(),
       target: campaign.getTarget(),
       designs: [],
-    });
-  }
+    };
+    // Checked before writing anything, so a failed save changes nothing.
+    for (const design of campaign.getDesigns()) {
+      const storedHere = stored.designs.some((d) => d.id === design.id);
+      if (!storedHere && (this.isStored(design.id) || !design.newImage)) {
+        throw new NotFoundError("Poster design not found");
+      }
+    }
 
-  async updateDetails(campaign: Campaign): Promise<void> {
-    const stored = this.findStored(campaign.id, campaign.ownerId);
-    if (!stored) throw new NotFoundError("Campaign not found");
+    if (!existing) this.campaigns.push(stored);
     stored.name = campaign.getName();
     stored.target = campaign.getTarget();
-  }
-
-  async addDesign(
-    campaign: Campaign,
-    design: PosterDesign,
-    image: PosterDesignImageUpload,
-  ): Promise<void> {
-    if (!campaign.getDesigns().includes(design)) {
-      throw new Error("The design isn't one of the campaign's designs");
+    for (const design of campaign.getDesigns()) {
+      const storedDesign = stored.designs.find((d) => d.id === design.id);
+      if (storedDesign) {
+        storedDesign.qrPlacement = design.qrPlacement;
+      } else {
+        stored.designs.push({
+          id: design.id,
+          qrPlacement: design.qrPlacement,
+          imageRef: this.storeImage(design.newImage!),
+        });
+      }
     }
-    const stored = this.findStored(campaign.id, campaign.ownerId);
-    if (!stored) throw new NotFoundError("Campaign not found");
-
-    const imageRef = PosterDesignImageRef.from(crypto.randomUUID());
-    this.images.set(imageRef, {
-      data: image.data,
-      contentType: image.contentType,
-    });
-    stored.designs.push({
-      id: design.id,
-      qrPlacement: design.qrPlacement,
-      imageRef,
-    });
   }
 
   async findDesignImageForOwner(
@@ -127,6 +124,18 @@ export class InMemoryCampaignRepository implements CampaignRepository {
       (campaign) => campaign.ownerId !== ownerId,
     );
     this.campaigns.splice(0, this.campaigns.length, ...kept);
+  }
+
+  private isStored(designId: PosterDesignId) {
+    return this.campaigns.some((campaign) =>
+      campaign.designs.some((design) => design.id === designId),
+    );
+  }
+
+  private storeImage(image: PosterDesignImageUpload) {
+    const ref = PosterDesignImageRef.from(crypto.randomUUID());
+    this.images.set(ref, { data: image.data, contentType: image.contentType });
+    return ref;
   }
 
   private findStored(id: CampaignId, ownerId: UserId) {

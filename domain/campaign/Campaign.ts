@@ -3,6 +3,7 @@ import { CampaignId } from "./CampaignId";
 import type { CampaignTarget } from "./CampaignTarget";
 import { PosterDesign } from "./design/PosterDesign";
 import type { PosterDesignId } from "./design/PosterDesignId";
+import type { PosterDesignImageUpload } from "./design/PosterDesignImageUpload";
 import type { QrPlacement } from "./design/QrPlacement";
 
 export type CampaignProps = {
@@ -76,11 +77,14 @@ export class Campaign {
   }
 
   /**
-   * Adds a new design with a generated id, and returns it so the caller can
-   * save it with its image.
+   * Adds a new design with a generated id. Its image is stored when the
+   * campaign is saved.
    */
-  addDesign(qrPlacement: QrPlacement): PosterDesign {
-    const design = PosterDesign.create(qrPlacement);
+  addDesign(
+    qrPlacement: QrPlacement,
+    image: PosterDesignImageUpload,
+  ): PosterDesign {
+    const design = PosterDesign.create(qrPlacement, image);
     this.designs.push(design);
     return design;
   }

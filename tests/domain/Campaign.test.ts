@@ -5,12 +5,19 @@ import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesign } from "@domain/campaign/design/PosterDesign";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { UserId } from "@domain/user/UserId";
+
+import { A4_PDF_DETAILS } from "../support/pdfs";
 
 const ownerId = UserId.from("owner");
 const target = CampaignTarget.create("https://example.com/");
 const placement = QrPlacement.create({ x: 1, y: 2, size: 3, rotation: 4 });
+const image = PosterDesignImageUpload.create(
+  new Blob(["pdf"], { type: "application/pdf" }),
+  A4_PDF_DETAILS,
+);
 
 describe("Campaign", () => {
   it("creates a campaign with a generated id and no designs", () => {
@@ -44,6 +51,7 @@ describe("Campaign", () => {
     expect(campaign.id).toBe(id);
     expect(campaign.getName()).toBe("Stored");
     expect(campaign.getDesigns()).toEqual([design]);
+    expect(design.newImage).toBeUndefined();
   });
 
   it("updates its name and target", () => {
@@ -56,12 +64,13 @@ describe("Campaign", () => {
 
   it("adds designs with fresh ids, in order", () => {
     const campaign = Campaign.create(ownerId, "Name", target);
-    const first = campaign.addDesign(placement);
-    const second = campaign.addDesign(placement);
+    const first = campaign.addDesign(placement, image);
+    const second = campaign.addDesign(placement, image);
 
     expect(PosterDesignId.parse(first.id)).toBe(first.id);
     expect(first.id).not.toBe(second.id);
     expect(first.qrPlacement).toBe(placement);
+    expect(first.newImage).toBe(image);
     expect(campaign.getDesigns()).toEqual([first, second]);
   });
 
@@ -74,23 +83,23 @@ describe("Campaign", () => {
       target,
       designs,
     });
-    campaign.addDesign(placement);
+    campaign.addDesign(placement, image);
     expect(designs).toEqual([]);
   });
 });
 
 describe("PosterDesign", () => {
   it("creates a design with a generated id", () => {
-    const design = PosterDesign.create(placement);
+    const design = PosterDesign.create(placement, image);
     expect(PosterDesignId.parse(design.id)).toBe(design.id);
     expect(design.qrPlacement).toBe(placement);
-    expect(PosterDesign.create(placement).id).not.toBe(design.id);
+    expect(PosterDesign.create(placement, image).id).not.toBe(design.id);
   });
 
   it("finds one of its designs by id", () => {
     const campaign = Campaign.create(ownerId, "Name", target);
-    campaign.addDesign(placement);
-    const second = campaign.addDesign(placement);
+    campaign.addDesign(placement, image);
+    const second = campaign.addDesign(placement, image);
     expect(campaign.findDesign(second.id)).toBe(second);
     expect(campaign.findDesign(PosterDesignId.generate())).toBeUndefined();
   });

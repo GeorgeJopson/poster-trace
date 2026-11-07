@@ -29,15 +29,11 @@ beforeEach(async () => {
     "Campaign",
     CampaignTarget.create("https://example.com/"),
   );
-  await campaigns.add(campaign);
   const design = campaign.addDesign(
     QrPlacement.create({ x: 10, y: 10, size: 20, rotation: 0 }),
-  );
-  await campaigns.addDesign(
-    campaign,
-    design,
     PosterDesignImageUpload.create(new Blob(["pdf"]), A4_PDF_DETAILS),
   );
+  await campaigns.save(campaign);
   designId = design.id;
   repository = new DrizzlePosterRepository(db);
 });

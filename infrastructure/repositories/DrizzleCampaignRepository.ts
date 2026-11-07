@@ -1,13 +1,11 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import type { Campaign } from "@domain/campaign/Campaign";
 import type { CampaignId } from "@domain/campaign/CampaignId";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
-import type { PosterDesign } from "@domain/campaign/design/PosterDesign";
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import type { PosterDesignImageContent } from "@domain/campaign/design/PosterDesignImageContent";
 import { PosterDesignImageRef } from "@domain/campaign/design/PosterDesignImageRef";
-import type { PosterDesignImageUpload } from "@domain/campaign/design/PosterDesignImageUpload";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import type { UserId } from "@domain/user/UserId";
 
@@ -19,6 +17,10 @@ import { CampaignRowMapper } from "./CampaignRowMapper";
 // Every query is scoped to an owner: designs and images through their
 // campaign. A campaign owned by someone else is treated exactly like one that
 // doesn't exist.
+
+// What a transaction shares with the database, as the two drivers' own
+// transaction types differ.
+type Transaction = Pick<Db, "insert" | "update">;
 
 // Designs are loaded without their image key, which only this class uses.
 const designsInOrder = {
@@ -52,61 +54,28 @@ export class DrizzleCampaignRepository implements CampaignRepository {
     return row ? CampaignRowMapper.toEntity(row) : null;
   }
 
-  async add(campaign: Campaign): Promise<void> {
-    await this.db.insert(campaignTable).values({
-      id: campaign.id,
-      userId: campaign.ownerId,
-      name: campaign.getName(),
-      target: campaign.getTarget().value,
-    });
-  }
-
-  async updateDetails(campaign: Campaign): Promise<void> {
-    const updated = await this.db
-      .update(campaignTable)
-      .set({ name: campaign.getName(), target: campaign.getTarget().value })
-      .where(this.isOwned(campaign))
-      .returning({ id: campaignTable.id });
-    if (updated.length === 0) {
-      throw new NotFoundError("Campaign not found");
-    }
-  }
-
-  async addDesign(
-    campaign: Campaign,
-    design: PosterDesign,
-    image: PosterDesignImageUpload,
-  ): Promise<void> {
-    if (!campaign.getDesigns().includes(design)) {
-      throw new Error("The design isn't one of the campaign's designs");
-    }
-    const [owned] = await this.db
-      .select({ id: campaignTable.id })
-      .from(campaignTable)
-      .where(this.isOwned(campaign));
-    if (!owned) {
-      throw new NotFoundError("Campaign not found");
-    }
-
-    // The blob's own key, not the design id.
-    const designImageKey = crypto.randomUUID();
-    await this.blobStore.set(designImageKey, image.data, image.contentType);
+  async save(campaign: Campaign): Promise<void> {
+    // Images go to the blob store first, as it can't join the transaction.
+    // Each gets its own key, not the design id.
+    const newImageKeys = new Map<PosterDesignId, string>();
+    let unusedKeys: string[];
     try {
-      const { x, y, size, rotation } = design.qrPlacement;
-      await this.db.insert(posterDesign).values({
-        id: design.id,
-        campaignId: campaign.id,
-        designImageKey,
-        x,
-        y,
-        size,
-        rotation,
-      });
+      for (const design of campaign.getDesigns()) {
+        if (!design.newImage) continue;
+        const key = crypto.randomUUID();
+        newImageKeys.set(design.id, key);
+        const { data, contentType } = design.newImage;
+        await this.blobStore.set(key, data, contentType);
+      }
+      unusedKeys = await this.db.transaction((tx) =>
+        this.writeCampaign(tx, campaign, newImageKeys),
+      );
     } catch (error) {
-      // Don't leave an image behind that no design points to.
-      await this.blobStore.delete(designImageKey);
+      // Don't leave images behind that no design points to.
+      await this.deleteUnusedBlobs([...newImageKeys.values()]);
       throw error;
     }
+    await this.deleteUnusedBlobs(unusedKeys);
   }
 
   async findDesignImageForOwner(
@@ -143,10 +112,84 @@ export class DrizzleCampaignRepository implements CampaignRepository {
     await Promise.all(refs.map((ref) => this.blobStore.delete(ref)));
   }
 
-  private isOwned(campaign: Campaign) {
-    return and(
-      eq(campaignTable.id, campaign.id),
-      eq(campaignTable.userId, campaign.ownerId),
-    );
+  /**
+   * Upserts the campaign and its designs. Returns the keys of new images
+   * whose design turned out to be stored already, so nothing uses them.
+   */
+  private async writeCampaign(
+    tx: Transaction,
+    campaign: Campaign,
+    newImageKeys: ReadonlyMap<PosterDesignId, string>,
+  ): Promise<string[]> {
+    const details = {
+      name: campaign.getName(),
+      target: campaign.getTarget().value,
+    };
+    // An id stored under another owner isn't updated, and returns no row.
+    // (After onConflict*, this Drizzle version only types `returning()`.)
+    const [owned] = await tx
+      .insert(campaignTable)
+      .values({ id: campaign.id, userId: campaign.ownerId, ...details })
+      .onConflictDoUpdate({
+        target: campaignTable.id,
+        set: details,
+        setWhere: eq(campaignTable.userId, campaign.ownerId),
+      })
+      .returning();
+    if (!owned) {
+      throw new NotFoundError("Campaign not found");
+    }
+
+    const unusedKeys: string[] = [];
+    for (const design of campaign.getDesigns()) {
+      const { x, y, size, rotation } = design.qrPlacement;
+      const key = newImageKeys.get(design.id);
+      if (key) {
+        const inserted = await tx
+          .insert(posterDesign)
+          .values({
+            id: design.id,
+            campaignId: campaign.id,
+            designImageKey: key,
+            x,
+            y,
+            size,
+            rotation,
+            // now() is fixed for the whole transaction, which would lose the
+            // order of designs added in one save.
+            createdAt: sql`clock_timestamp()`,
+          })
+          .onConflictDoNothing({ target: posterDesign.id })
+          .returning();
+        if (inserted.length > 0) continue;
+        // Already stored, so it keeps its image and only its placement is
+        // updated below.
+        unusedKeys.push(key);
+      }
+      // Only this campaign's designs, and never their image key.
+      const updated = await tx
+        .update(posterDesign)
+        .set({ x, y, size, rotation })
+        .where(
+          and(
+            eq(posterDesign.id, design.id),
+            eq(posterDesign.campaignId, campaign.id),
+          ),
+        )
+        .returning({ id: posterDesign.id });
+      if (updated.length === 0) {
+        throw new NotFoundError("Poster design not found");
+      }
+    }
+    return unusedKeys;
+  }
+
+  /**
+   * Best effort: an image nothing points to is harmless (see ADR-0008), so a
+   * failed delete mustn't hide the save's own error, or fail a save that
+   * committed.
+   */
+  private async deleteUnusedBlobs(keys: string[]) {
+    await Promise.allSettled(keys.map((key) => this.blobStore.delete(key)));
   }
 }
