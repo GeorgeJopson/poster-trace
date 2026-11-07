@@ -1,6 +1,6 @@
 import {
   PosterDesignImageRules,
-  type PageSize,
+  type PosterDesignImageDetails,
   type PosterDesignImageType,
 } from "./PosterDesignImageRules";
 
@@ -18,12 +18,7 @@ export class PosterDesignImageUpload {
    */
   static create(
     data: Blob,
-    details: {
-      type: string | null;
-      pageCount?: number;
-      pageSize?: PageSize;
-      pageRotation?: number;
-    },
+    details: Omit<PosterDesignImageDetails, "size">,
   ): PosterDesignImageUpload {
     const file = { ...details, size: data.size };
     PosterDesignImageRules.assertValid(file);

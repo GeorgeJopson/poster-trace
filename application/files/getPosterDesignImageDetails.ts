@@ -2,23 +2,9 @@ import { PDFDocument } from "pdf-lib";
 
 import {
   PosterDesignImageRules,
-  type PageSize,
-  type PosterDesignImageType,
+  type PosterDesignImageDetails,
 } from "@domain/campaign/design/PosterDesignImageRules";
 import { ValidationError } from "@domain/shared/ValidationError";
-
-/** What `PosterDesignImageRules` checks about a poster design's image. */
-export type PosterDesignImageDetails = {
-  /** The file's real format, or `null` if it isn't an allowed one. */
-  type: PosterDesignImageType | null;
-  size: number;
-  /** Only read for a PDF. */
-  pageCount?: number;
-  /** The first page's CropBox size. Only read for a PDF. */
-  pageSize?: PageSize;
-  /** The first page's /Rotate, in degrees. Only read for a PDF. */
-  pageRotation?: number;
-};
 
 /**
  * Reads what the domain needs to check a poster design's image. The format

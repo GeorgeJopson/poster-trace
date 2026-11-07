@@ -14,6 +14,21 @@ export type PosterDesignImageType =
 /** A page's size in PDF points: its CropBox, the part that's shown. */
 export type PageSize = { width: number; height: number };
 
+/**
+ * What `PosterDesignImageRules` checks about a poster design's image. The
+ * domain can't parse PDFs, so the caller reads these from the file.
+ */
+export type PosterDesignImageDetails = {
+  /** The file's real format, from its first bytes; `null` if it isn't a PDF. */
+  type: string | null;
+  size: number;
+  pageCount?: number;
+  /** The first page's CropBox size. */
+  pageSize?: PageSize;
+  /** The first page's /Rotate, in degrees. */
+  pageRotation?: number;
+};
+
 /** What a poster design's image must be. */
 export class PosterDesignImageRules {
   static readonly MAX_SIZE_BYTES = 5 * 1024 * 1024;
@@ -76,13 +91,7 @@ export class PosterDesignImageRules {
    * The page mustn't be rotated, so a design is always drawn upright as it's
    * stored, with nothing to turn.
    */
-  static assertValid(file: {
-    type: string | null;
-    size: number;
-    pageCount?: number;
-    pageSize?: PageSize;
-    pageRotation?: number;
-  }): asserts file is {
+  static assertValid(file: PosterDesignImageDetails): asserts file is {
     type: PosterDesignImageType;
     size: number;
     pageCount: number;
