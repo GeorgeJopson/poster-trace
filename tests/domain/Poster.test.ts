@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
+import { ScanId } from "@domain/poster/ScanId";
 import { ValidationError } from "@domain/shared/ValidationError";
 
 const designId = PosterDesignId.generate();
@@ -38,5 +39,35 @@ describe("Poster.restore", () => {
     const poster = Poster.restore({ id, designId });
     expect(poster.id).toBe(id);
     expect(poster.designId).toBe(designId);
+  });
+});
+
+describe("Poster.addScan", () => {
+  it("records a scan at the given time with its own id", () => {
+    const poster = Poster.restore({ id: PosterId.generate(), designId });
+    const scannedAt = new Date("2026-11-07T12:00:00Z");
+
+    const scan = poster.addScan(scannedAt);
+
+    expect(scan.scannedAt).toEqual(scannedAt);
+    expect(ScanId.parse(scan.id)).toBe(scan.id);
+    expect(poster.newScans).toEqual([scan]);
+  });
+
+  it("gives every scan its own id", () => {
+    const poster = Poster.restore({ id: PosterId.generate(), designId });
+    const first = poster.addScan(new Date());
+    const second = poster.addScan(new Date());
+
+    expect(first.id).not.toBe(second.id);
+    expect(poster.newScans).toEqual([first, second]);
+  });
+
+  it("starts with no new scans, whether generated or restored", () => {
+    const [generated] = Poster.generate(designId, 1);
+    const restored = Poster.restore({ id: PosterId.generate(), designId });
+
+    expect(generated.newScans).toEqual([]);
+    expect(restored.newScans).toEqual([]);
   });
 });

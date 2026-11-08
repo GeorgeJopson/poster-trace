@@ -34,7 +34,7 @@ _Avoid_: QR position, QR settings
 
 ### Posters and scans
 
-Registrations aren't built yet, and scans aren't recorded yet.
+Registrations aren't built yet.
 
 **Poster**:
 One copy of a poster design with its own QR code, so that scans can be traced back to it. A poster exists from the moment it's generated, as a page of a PDF the user prints and puts up. It is **registered** once the user logs where it has been put up.
@@ -49,7 +49,7 @@ The moment the user logs where a poster has been put up. A poster is **registere
 _Avoid_: Activation, placement
 
 **Scan**:
-One reading of a poster's QR code, recorded at the time it happened.
+One reading of a poster's QR code, recorded at the time it happened. Every scan of a poster counts, whether or not the poster is registered, and repeat scans by the same person count again. A few scans may go unrecorded; the scanner still reaches the target.
 _Avoid_: Visit, hit, click
 
 ### Accounts
