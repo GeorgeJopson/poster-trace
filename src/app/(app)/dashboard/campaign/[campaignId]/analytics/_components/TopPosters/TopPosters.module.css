@@ -1,0 +1,27 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  list-style-position: inside;
+}
+
+.poster {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.posterId {
+  font-family: monospace;
+  color: oklch(45% 0 0);
+}
+
+.scans {
+  font-weight: bold;
+  white-space: nowrap;
+}

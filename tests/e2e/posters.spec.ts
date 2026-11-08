@@ -7,6 +7,7 @@ import {
   addPosterDesign,
   createCampaign,
   DESIGN_FILE_LABEL,
+  generatePosters,
   pdfFile,
   signUp,
   type PickedFile,
@@ -253,43 +254,13 @@ test.describe("rejects a design that isn't a one-page A4 PDF", () => {
 });
 
 test.describe("scanning a poster's QR code", () => {
-  /**
-   * Generates one poster and returns the path of its scan URL. The URL
-   * itself points at production (POSTER_TRACE_URL), so it's read from the
-   * server action's response and requested on this server instead.
-   */
-  async function generatePoster(page: Page) {
-    await addPosterDesign(page);
-    await page
-      .getByRole("button", { name: /Poster design 1.*Generate Posters/ })
-      .click();
-    const dialog = page.getByRole("dialog", { name: "Generate posters" });
-    await dialog.getByLabel("Number of posters").fill("1");
-
-    // The download discards the action's response body, so it's read while
-    // passing the response through.
-    let body = "";
-    await page.route("**/*", async (route) => {
-      if (route.request().method() !== "POST") return route.fallback();
-      const response = await route.fetch();
-      body += await response.text();
-      await route.fulfill({ response });
-    });
-    const download = page.waitForEvent("download");
-    await dialog.getByRole("button", { name: "Generate" }).click();
-    await download;
-
-    const [path] = body.match(/\/redirect\/[0-9a-f-]{36}/) ?? [];
-    expect(path).toBeDefined();
-    return path!;
-  }
-
   // `request` shares no cookies with `page`, so the scanner isn't signed in.
   test("sends the scanner to the campaign's target, uncached", async ({
     page,
     request,
   }) => {
-    const path = await generatePoster(page);
+    await addPosterDesign(page);
+    const [path] = await generatePosters(page, 1);
 
     const response = await request.get(path, { maxRedirects: 0 });
 
