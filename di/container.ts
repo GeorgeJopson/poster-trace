@@ -1,9 +1,11 @@
 import "server-only";
 
 import type { AccountGateway } from "@application/ports/AccountGateway";
+import type { ScanCountLookup } from "@application/ports/ScanCountLookup";
 import type { ScanTargetLookup } from "@application/ports/ScanTargetLookup";
 import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
+import { AnalyticsService } from "@application/services/AnalyticsService";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { PosterService } from "@application/services/PosterService";
@@ -17,6 +19,7 @@ import { auth } from "@infrastructure/auth/betterAuth";
 import { getDb } from "@infrastructure/db/client";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
+import { DrizzleScanCountLookup } from "@infrastructure/repositories/DrizzleScanCountLookup";
 import { DrizzleScanTargetLookup } from "@infrastructure/repositories/DrizzleScanTargetLookup";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
 import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
@@ -58,6 +61,11 @@ function getPosterRepository() {
 let scanTargetLookup: ScanTargetLookup | undefined;
 function getScanTargetLookup() {
   return (scanTargetLookup ??= new DrizzleScanTargetLookup(getDb()));
+}
+
+let scanCountLookup: ScanCountLookup | undefined;
+function getScanCountLookup() {
+  return (scanCountLookup ??= new DrizzleScanCountLookup(getDb()));
 }
 
 /**
@@ -111,6 +119,15 @@ export function getScanService() {
   return (scanService ??= new ScanService(
     getScanTargetLookup(),
     getPosterRepository(),
+  ));
+}
+
+let analyticsService: AnalyticsService | undefined;
+export function getAnalyticsService() {
+  return (analyticsService ??= new AnalyticsService(
+    getSessionProvider(),
+    getCampaignRepository(),
+    getScanCountLookup(),
   ));
 }
 

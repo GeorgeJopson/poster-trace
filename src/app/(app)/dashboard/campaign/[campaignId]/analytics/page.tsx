@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import UnderConstruction from "@/components/UnderConstruction";
+import { getAnalyticsService } from "@di/container";
+import Button from "@/components/Button";
+import CentralColumn from "@/components/CentralColumn";
+import { routeNames } from "@/routeNames";
+import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 import { getCampaign } from "../getCampaign";
+import ScanDistribution from "./_components/ScanDistribution";
+import TopPosters from "./_components/TopPosters";
+import styles from "./Analytics.module.css";
 
 export const metadata: Metadata = {
   title: "Analytics",
@@ -19,6 +26,31 @@ export default async function AnalyticsPage({
   if (!campaign) {
     notFound();
   }
+  const analytics = await withSignInRedirect(() =>
+    getAnalyticsService().getCampaignAnalytics(campaign.id),
+  );
 
-  return <UnderConstruction />;
+  return (
+    <CentralColumn>
+      <div className={styles.wrapper}>
+        {analytics.kind === "noPosters" ? (
+          <div className={styles.empty}>
+            <p>Generate posters to see analytics.</p>
+            <Button
+              variant="filled"
+              fontSize="1rem"
+              href={routeNames.campaign(campaign.id)}
+            >
+              Back to campaign
+            </Button>
+          </div>
+        ) : (
+          <>
+            <ScanDistribution distribution={analytics.scanDistribution} />
+            <TopPosters posters={analytics.topPosters} />
+          </>
+        )}
+      </div>
+    </CentralColumn>
+  );
 }

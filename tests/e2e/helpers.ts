@@ -105,3 +105,35 @@ export async function addPosterDesign(page: Page, file?: PickedFile) {
 export async function expireSession(context: BrowserContext) {
   await context.clearCookies({ name: /session_token/ });
 }
+
+/**
+ * Generates `count` posters of the open campaign's first design, and returns
+ * the paths of their scan URLs. The URLs themselves point at production
+ * (POSTER_TRACE_URL), so they're read from the server action's response and
+ * requested on this server instead.
+ */
+export async function generatePosters(page: Page, count: number) {
+  await page
+    .getByRole("button", { name: /Poster design 1.*Generate Posters/ })
+    .click();
+  const dialog = page.getByRole("dialog", { name: "Generate posters" });
+  await dialog.getByLabel("Number of posters").fill(String(count));
+
+  // The download discards the action's response body, so it's read while
+  // passing the response through.
+  let body = "";
+  await page.route("**/*", async (route) => {
+    if (route.request().method() !== "POST") return route.fallback();
+    const response = await route.fetch();
+    body += await response.text();
+    await route.fulfill({ response });
+  });
+  const download = page.waitForEvent("download");
+  await dialog.getByRole("button", { name: "Generate" }).click();
+  await download;
+  await page.unrouteAll();
+
+  const paths = [...new Set(body.match(/\/redirect\/[0-9a-f-]{36}/g) ?? [])];
+  expect(paths).toHaveLength(count);
+  return paths;
+}
