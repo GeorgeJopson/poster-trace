@@ -14,6 +14,7 @@ import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
+import { InMemoryPosterScanCounts } from "./fakes/InMemoryPosterScanCounts";
 
 const BASE_URL = "https://www.postertrace.app";
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
@@ -39,12 +40,31 @@ async function addCampaignWithDesign() {
   return { campaignId: id, designId: campaign!.posterDesigns[0].id };
 }
 
+function makeService(baseUrl: string) {
+  return new PosterService(
+    sessions,
+    campaigns,
+    posters,
+    new InMemoryPosterScanCounts(posters),
+    baseUrl,
+  );
+}
+
+/** Records `count` scans of the poster, as a scan of its QR code would. */
+async function scan(posterId: string, count = 1) {
+  for (let i = 0; i < count; i++) {
+    const poster = await posters.findById(PosterId.parse(posterId)!);
+    poster!.addScan(new Date());
+    await posters.addNewScans(poster!);
+  }
+}
+
 beforeEach(async () => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
   posters = new InMemoryPosterRepository();
   campaignService = new CampaignService(sessions, campaigns);
-  service = new PosterService(sessions, campaigns, posters, BASE_URL);
+  service = makeService(BASE_URL);
   ({ campaignId, designId } = await addCampaignWithDesign());
 });
 
@@ -63,7 +83,7 @@ describe("generatePosters", () => {
   });
 
   it("builds the URL from a base URL with a trailing slash", async () => {
-    service = new PosterService(sessions, campaigns, posters, `${BASE_URL}/`);
+    service = makeService(`${BASE_URL}/`);
     const [poster] = await service.generatePosters(campaignId, designId, 1);
     expect(poster.scanUrl).toBe(`${BASE_URL}/redirect/${poster.id}`);
   });
@@ -107,6 +127,94 @@ describe("generatePosters", () => {
   });
 });
 
+describe("getMyCampaignScanCounts", () => {
+  it("lists each poster of the campaign's design with its scan count", async () => {
+    const [first, second] = await service.generatePosters(
+      campaignId,
+      designId,
+      2,
+    );
+    await scan(first.id, 3);
+    await scan(second.id, 1);
+
+    expect(await service.getMyCampaignScanCounts(campaignId)).toEqual({
+      scanCount: 4,
+      posterDesigns: [
+        {
+          id: designId,
+          scanCount: 4,
+          posters: [
+            { id: first.id, scanCount: 3 },
+            { id: second.id, scanCount: 1 },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("puts the most-scanned posters first, then orders by id", async () => {
+    const generated = await service.generatePosters(campaignId, designId, 3);
+    const [first, second, last] = generated
+      .map(({ id }) => id)
+      .sort((a, b) => (a < b ? -1 : 1));
+    // The poster with the largest id, so scans must move it to the front.
+    await scan(last, 2);
+
+    const counts = await service.getMyCampaignScanCounts(campaignId);
+    expect(counts!.posterDesigns[0].posters).toEqual([
+      { id: last, scanCount: 2 },
+      { id: first, scanCount: 0 },
+      { id: second, scanCount: 0 },
+    ]);
+  });
+
+  it("lists every design in order, including ones with no posters, and nothing from other campaigns", async () => {
+    await new PosterDesignService(sessions, campaigns).createPosterDesign(
+      campaignId,
+      {
+        image: new Blob([await makePdf()], { type: "application/pdf" }),
+        qrPlacement,
+      },
+    );
+    const secondDesignId = (await campaignService.getMyCampaign(campaignId))!
+      .posterDesigns[1].id;
+    const [poster] = await service.generatePosters(campaignId, designId, 1);
+    await scan(poster.id, 2);
+    const other = await addCampaignWithDesign();
+    const [otherPoster] = await service.generatePosters(
+      other.campaignId,
+      other.designId,
+      1,
+    );
+    await scan(otherPoster.id, 5);
+
+    expect(await service.getMyCampaignScanCounts(campaignId)).toEqual({
+      scanCount: 2,
+      posterDesigns: [
+        {
+          id: designId,
+          scanCount: 2,
+          posters: [{ id: poster.id, scanCount: 2 }],
+        },
+        { id: secondDesignId, scanCount: 0, posters: [] },
+      ],
+    });
+  });
+
+  it("returns null for another user's campaign", async () => {
+    await service.generatePosters(campaignId, designId, 1);
+    sessions.signInAs("bob");
+    expect(await service.getMyCampaignScanCounts(campaignId)).toBeNull();
+  });
+
+  it.each([
+    ["a non-UUID campaign id", () => "1"],
+    ["an unknown campaign id", () => CampaignId.generate()],
+  ])("returns null for %s", async (_case, id) => {
+    expect(await service.getMyCampaignScanCounts(id())).toBeNull();
+  });
+});
+
 describe("sampleScanUrl", () => {
   it("is a scan URL for a placeholder poster, so previews show the printed QR code", () => {
     expect(service.sampleScanUrl()).toBe(
@@ -135,6 +243,9 @@ describe("when signed out", () => {
     await expect(
       service.generatePosters("not-a-uuid", "not-a-uuid", -1),
     ).rejects.toThrow(NotAuthenticatedError);
+    await expect(service.getMyCampaignScanCounts(campaignId)).rejects.toThrow(
+      NotAuthenticatedError,
+    );
     expect(posters.posters).toEqual([]);
   });
 });

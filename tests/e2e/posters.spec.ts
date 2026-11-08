@@ -298,6 +298,30 @@ test.describe("scanning a poster's QR code", () => {
     expect(response.headers()["cache-control"]).toBe("no-store");
   });
 
+  test("counts the scan on the campaign's analytics page", async ({
+    page,
+    request,
+  }) => {
+    const path = await generatePoster(page);
+    const analyticsUrl = `${page.url()}/analytics`;
+    await page.goto(analyticsUrl);
+    const design = page
+      .getByRole("main")
+      .getByRole("region", { name: /Poster design 1/ });
+    await expect(design.getByRole("listitem")).toHaveText([/: 0 scans$/]);
+
+    await request.get(path, { maxRedirects: 0 });
+
+    // The scan is recorded after the redirect, so it can take a moment.
+    await expect(async () => {
+      await page.goto(analyticsUrl);
+      await expect(design.getByRole("listitem")).toHaveText([/: 1 scan$/], {
+        timeout: 0,
+      });
+    }).toPass();
+    await expect(page.getByText("Scans: 1 scan in total")).toBeVisible();
+  });
+
   for (const [name, path] of [
     ["an unknown poster", `/redirect/${crypto.randomUUID()}`],
     ["a malformed poster id", "/redirect/not-a-poster"],

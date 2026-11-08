@@ -116,10 +116,8 @@ test("renders the analytics page and the campaign's navigation", async ({
   });
 
   await page.goto(`${campaignUrl}/analytics`);
-  // The heading's letters are animated one by one, so its accessible name
-  // isn't the plain text; check the paragraph instead.
   await expect(
-    page.getByRole("main").getByText("This page isn't ready yet."),
+    page.getByRole("main").getByText("No poster designs yet."),
   ).toBeVisible();
 
   const campaignNav = mainNav(page).getByRole("region", {

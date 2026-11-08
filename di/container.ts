@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { AccountGateway } from "@application/ports/AccountGateway";
+import type { PosterScanCounts } from "@application/ports/PosterScanCounts";
 import type { ScanTargetLookup } from "@application/ports/ScanTargetLookup";
 import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
@@ -17,6 +18,7 @@ import { auth } from "@infrastructure/auth/betterAuth";
 import { getDb } from "@infrastructure/db/client";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
+import { DrizzlePosterScanCounts } from "@infrastructure/repositories/DrizzlePosterScanCounts";
 import { DrizzleScanTargetLookup } from "@infrastructure/repositories/DrizzleScanTargetLookup";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
 import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
@@ -58,6 +60,11 @@ function getPosterRepository() {
 let scanTargetLookup: ScanTargetLookup | undefined;
 function getScanTargetLookup() {
   return (scanTargetLookup ??= new DrizzleScanTargetLookup(getDb()));
+}
+
+let posterScanCounts: PosterScanCounts | undefined;
+function getPosterScanCounts() {
+  return (posterScanCounts ??= new DrizzlePosterScanCounts(getDb()));
 }
 
 /**
@@ -102,6 +109,7 @@ export function getPosterService() {
     getSessionProvider(),
     getCampaignRepository(),
     getPosterRepository(),
+    getPosterScanCounts(),
     getPosterTraceUrl(),
   ));
 }

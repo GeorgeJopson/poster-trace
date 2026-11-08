@@ -1,0 +1,27 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 0;
+  font-size: var(--font-size-body);
+}
+
+.heading {
+  font-size: var(--font-size-important-body);
+  font-weight: normal;
+}
+
+.design {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.designHeading {
+  font-size: var(--font-size-body);
+  font-weight: bold;
+}
+
+.posters {
+  padding-left: 24px;
+}
