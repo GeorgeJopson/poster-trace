@@ -5,12 +5,10 @@ import styles from "./TopPosters.module.css";
 
 interface TopPostersProps {
   posters: TopPosterDto[];
-  /** The campaign's design ids, in campaign order. */
-  designIds: string[];
 }
 
 /** The campaign's most scanned posters, most first. */
-export default function TopPosters({ posters, designIds }: TopPostersProps) {
+export default function TopPosters({ posters }: TopPostersProps) {
   return (
     <section className={styles.section} aria-labelledby="top-posters-heading">
       <h2 id="top-posters-heading" className={styles.heading}>
@@ -20,10 +18,10 @@ export default function TopPosters({ posters, designIds }: TopPostersProps) {
         <p>No scans yet.</p>
       ) : (
         <ol className={styles.list}>
-          {posters.map(({ posterId, designId, scanCount }) => (
+          {posters.map(({ posterId, designPosition, scanCount }) => (
             <li key={posterId} className={styles.poster}>
               <span>
-                {posterDesignLabel(designIds.indexOf(designId))}{" "}
+                {posterDesignLabel(designPosition)}{" "}
                 <span className={styles.posterId} title={posterId}>
                   #{posterId.slice(0, 8)}
                 </span>

@@ -8,7 +8,6 @@ import { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
 import { NotFoundError } from "@domain/shared/NotFoundError";
-import { ValidationError } from "@domain/shared/ValidationError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
@@ -16,6 +15,7 @@ import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
 import { InMemoryScanCountLookup } from "./fakes/InMemoryScanCountLookup";
 
+const { TOP_POSTER_COUNT } = AnalyticsService;
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 
 let sessions: FakeSessionProvider;
@@ -65,38 +65,47 @@ beforeEach(() => {
   );
 });
 
-describe("getScanDistribution", () => {
-  it("counts a design's posters by scan count, with every count up to the highest", async () => {
-    const { campaignId, designIds } = await addCampaign(1);
-    const [design] = designIds;
-    await addPoster(design, 0);
-    await addPoster(design, 0);
-    await addPoster(design, 2);
-
-    expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scanCount: 0, posterCountByDesign: { [design]: 2 } },
-      { scanCount: 1, posterCountByDesign: { [design]: 0 } },
-      { scanCount: 2, posterCountByDesign: { [design]: 1 } },
-    ]);
+describe("getCampaignAnalytics", () => {
+  it("reports no posters when none of the campaign's designs has any", async () => {
+    const { campaignId } = await addCampaign(2);
+    expect(await service.getCampaignAnalytics(campaignId)).toEqual({
+      kind: "noPosters",
+    });
   });
 
-  it("has every design of the campaign in every row, even one with no posters", async () => {
+  it("counts each design's posters by scan count, in campaign order, with every count up to the highest", async () => {
     const { campaignId, designIds } = await addCampaign(3);
-    const [first, second, third] = designIds;
-    await addPoster(first, 1);
-    await addPoster(second, 0);
+    const [first, second] = designIds;
+    await addPoster(first, 0);
+    await addPoster(first, 0);
+    await addPoster(first, 2);
     await addPoster(second, 1);
 
-    expect(await service.getScanDistribution(campaignId)).toEqual([
-      {
-        scanCount: 0,
-        posterCountByDesign: { [first]: 0, [second]: 1, [third]: 0 },
-      },
-      {
-        scanCount: 1,
-        posterCountByDesign: { [first]: 1, [second]: 1, [third]: 0 },
-      },
-    ]);
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      kind: "posters",
+      scanDistribution: [
+        { position: 0, posterCounts: [2, 0, 1] },
+        { position: 1, posterCounts: [0, 1, 0] },
+        { position: 2, posterCounts: [0, 0, 0] },
+      ],
+    });
+  });
+
+  it("lists the posters with the most scans, most first, with their design's position", async () => {
+    const { campaignId, designIds } = await addCampaign(2);
+    const [first, second] = designIds;
+    const a = await addPoster(first, 1);
+    const b = await addPoster(second, 4);
+    const c = await addPoster(first, 3);
+    await addPoster(second, 0);
+
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      topPosters: [
+        { posterId: b, designPosition: 1, scanCount: 4 },
+        { posterId: c, designPosition: 0, scanCount: 3 },
+        { posterId: a, designPosition: 0, scanCount: 1 },
+      ],
+    });
   });
 
   it("ignores other campaigns' posters", async () => {
@@ -105,95 +114,53 @@ describe("getScanDistribution", () => {
     await addPoster(other.designIds[0], 3);
     await addPoster(designIds[0], 0);
 
-    expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scanCount: 0, posterCountByDesign: { [designIds[0]]: 1 } },
-    ]);
-  });
-
-  it("is empty when the campaign has no posters", async () => {
-    const { campaignId } = await addCampaign(2);
-    expect(await service.getScanDistribution(campaignId)).toEqual([]);
-  });
-});
-
-describe("getTopPosters", () => {
-  it("returns the posters with the most scans, most first", async () => {
-    const { campaignId, designIds } = await addCampaign(2);
-    const [first, second] = designIds;
-    const a = await addPoster(first, 1);
-    const b = await addPoster(second, 4);
-    const c = await addPoster(first, 3);
-    await addPoster(second, 2);
-
-    expect(await service.getTopPosters(campaignId, 2)).toEqual([
-      { posterId: b, designId: second, scanCount: 4 },
-      { posterId: c, designId: first, scanCount: 3 },
-    ]);
-    expect(await service.getTopPosters(campaignId, 4)).toContainEqual({
-      posterId: a,
-      designId: first,
-      scanCount: 1,
+    expect(await service.getCampaignAnalytics(campaignId)).toEqual({
+      kind: "posters",
+      scanDistribution: [{ position: 0, posterCounts: [1] }],
+      topPosters: [],
     });
   });
 
-  it("leaves out posters with no scans, so it can return fewer than asked for", async () => {
+  it(`lists at most ${TOP_POSTER_COUNT} posters, ordering ones with the same scan count by id`, async () => {
     const { campaignId, designIds } = await addCampaign(1);
-    const scanned = await addPoster(designIds[0], 1);
-    await addPoster(designIds[0], 0);
+    const ids: string[] = [];
+    for (let i = 0; i <= TOP_POSTER_COUNT; i++) {
+      ids.push(await addPoster(designIds[0], 2));
+    }
 
-    expect(await service.getTopPosters(campaignId, 5)).toEqual([
-      { posterId: scanned, designId: designIds[0], scanCount: 1 },
-    ]);
-  });
-
-  it("orders posters with the same scan count by id", async () => {
-    const { campaignId, designIds } = await addCampaign(1);
-    const ids = [
-      await addPoster(designIds[0], 2),
-      await addPoster(designIds[0], 2),
-      await addPoster(designIds[0], 2),
-    ];
-
-    const top = await service.getTopPosters(campaignId, 3);
-    expect(top.map(({ posterId }) => posterId)).toEqual(ids.toSorted());
-  });
-
-  it.each([0, -1, 2.5])("rejects a limit of %s", async (limit) => {
-    const { campaignId } = await addCampaign(1);
-    await expect(service.getTopPosters(campaignId, limit)).rejects.toThrow(
-      ValidationError,
+    const analytics = await service.getCampaignAnalytics(campaignId);
+    expect(analytics.kind).toBe("posters");
+    if (analytics.kind !== "posters") return;
+    expect(analytics.topPosters.map(({ posterId }) => posterId)).toEqual(
+      ids.toSorted().slice(0, TOP_POSTER_COUNT),
     );
   });
-});
 
-describe.each([
-  ["getScanDistribution", (id: string) => service.getScanDistribution(id)],
-  ["getTopPosters", (id: string) => service.getTopPosters(id, 5)],
-])("%s", (_name, analyse) => {
   it("throws NotFoundError for another user's campaign", async () => {
     const { campaignId } = await addCampaign(1);
     sessions.signInAs("bob");
-    await expect(analyse(campaignId)).rejects.toThrow(NotFoundError);
+    await expect(service.getCampaignAnalytics(campaignId)).rejects.toThrow(
+      NotFoundError,
+    );
   });
 
   it.each([
     ["a non-UUID campaign id", () => "1"],
     ["an unknown campaign id", () => CampaignId.generate()],
   ])("throws NotFoundError for %s", async (_case, campaignId) => {
-    await expect(analyse(campaignId())).rejects.toThrow(NotFoundError);
+    await expect(service.getCampaignAnalytics(campaignId())).rejects.toThrow(
+      NotFoundError,
+    );
   });
 
   it("throws NotAuthenticatedError when signed out, whatever the input", async () => {
     const { campaignId } = await addCampaign(1);
     sessions.signOut();
-    await expect(analyse(campaignId)).rejects.toThrow(NotAuthenticatedError);
-    await expect(analyse("not-a-uuid")).rejects.toThrow(NotAuthenticatedError);
+    await expect(service.getCampaignAnalytics(campaignId)).rejects.toThrow(
+      NotAuthenticatedError,
+    );
+    await expect(service.getCampaignAnalytics("not-a-uuid")).rejects.toThrow(
+      NotAuthenticatedError,
+    );
   });
-});
-
-it("getTopPosters checks sign-in before the limit", async () => {
-  sessions.signOut();
-  await expect(service.getTopPosters("not-a-uuid", 0)).rejects.toThrow(
-    NotAuthenticatedError,
-  );
 });

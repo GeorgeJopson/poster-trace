@@ -16,9 +16,6 @@ export const metadata: Metadata = {
   title: "Analytics",
 };
 
-/** How many posters the top posters list shows. */
-const TOP_POSTERS_SHOWN = 5;
-
 export default async function AnalyticsPage({
   params,
 }: {
@@ -29,19 +26,14 @@ export default async function AnalyticsPage({
   if (!campaign) {
     notFound();
   }
-  const analytics = getAnalyticsService();
-  const [distribution, topPosters] = await withSignInRedirect(() =>
-    Promise.all([
-      analytics.getScanDistribution(campaign.id),
-      analytics.getTopPosters(campaign.id, TOP_POSTERS_SHOWN),
-    ]),
+  const analytics = await withSignInRedirect(() =>
+    getAnalyticsService().getCampaignAnalytics(campaign.id),
   );
-  const designIds = campaign.posterDesigns.map((design) => design.id);
 
   return (
     <CentralColumn>
       <div className={styles.wrapper}>
-        {distribution.length === 0 ? (
+        {analytics.kind === "noPosters" ? (
           <div className={styles.empty}>
             <p>Generate posters to see analytics.</p>
             <Button
@@ -54,11 +46,8 @@ export default async function AnalyticsPage({
           </div>
         ) : (
           <>
-            <ScanDistribution
-              distribution={distribution}
-              designIds={designIds}
-            />
-            <TopPosters posters={topPosters} designIds={designIds} />
+            <ScanDistribution distribution={analytics.scanDistribution} />
+            <TopPosters posters={analytics.topPosters} />
           </>
         )}
       </div>

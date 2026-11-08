@@ -32,17 +32,18 @@ const SERIES_COLORS = [
 export const MAX_SERIES = SERIES_COLORS.length;
 
 export type BarSeries = {
-  /** The key of each row that holds this series' value. */
-  key: string;
   label: string;
+  /** The height of this series' bar in each group, in `xValues` order. */
+  values: number[];
 };
 
 interface GroupedBarChartProps {
-  /** One row per group of bars, in order along the x-axis. */
-  data: Record<string, number>[];
-  /** The key of each row that holds its x-axis value. */
-  xKey: string;
-  /** The bars of each group, side by side. At most `MAX_SERIES`. */
+  /** The x-axis value of each group of bars, in order along the axis. */
+  xValues: (string | number)[];
+  /**
+   * The bars of each group, side by side. At most `MAX_SERIES`, each with as
+   * many values as there are `xValues`.
+   */
   series: BarSeries[];
   xLabel: string;
   yLabel: string;
@@ -50,10 +51,15 @@ interface GroupedBarChartProps {
   title: string;
 }
 
+/** The key of each row that holds its x-axis value. */
+const X_KEY = "x";
+
+/** The key of each row that holds series `index`'s value. */
+const seriesKey = (index: number) => `series${index}`;
+
 /** A bar chart with a group of side-by-side bars for each x-axis value. */
 export default function GroupedBarChart({
-  data,
-  xKey,
+  xValues,
   series,
   xLabel,
   yLabel,
@@ -62,6 +68,14 @@ export default function GroupedBarChart({
   if (series.length > MAX_SERIES) {
     throw new Error(`A grouped bar chart has at most ${MAX_SERIES} series.`);
   }
+  // Recharts takes one row per group, so the series' columns are turned
+  // into rows here.
+  const data = xValues.map((x, group) => ({
+    [X_KEY]: x,
+    ...Object.fromEntries(
+      series.map(({ values }, index) => [seriesKey(index), values[group]]),
+    ),
+  }));
   return (
     <figure className={styles.wrapper}>
       <ResponsiveContainer width="100%" height="100%">
@@ -74,7 +88,7 @@ export default function GroupedBarChart({
         >
           <CartesianGrid vertical={false} stroke="var(--grid-color)" />
           <XAxis
-            dataKey={xKey}
+            dataKey={X_KEY}
             tickLine={false}
             stroke="var(--axis-color)"
             label={{ value: xLabel, position: "bottom", offset: 4 }}
@@ -97,10 +111,10 @@ export default function GroupedBarChart({
               <span className={styles.legendLabel}>{label}</span>
             )}
           />
-          {series.map(({ key, label }, index) => (
+          {series.map(({ label }, index) => (
             <Bar
-              key={key}
-              dataKey={key}
+              key={index}
+              dataKey={seriesKey(index)}
               name={label}
               fill={SERIES_COLORS[index]}
               radius={[4, 4, 0, 0]}
