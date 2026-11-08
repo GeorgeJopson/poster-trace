@@ -5,6 +5,7 @@ import type { PosterScanCounts } from "@application/ports/PosterScanCounts";
 import type { ScanTargetLookup } from "@application/ports/ScanTargetLookup";
 import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
+import { CampaignAnalyticsService } from "@application/services/CampaignAnalyticsService";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { PosterService } from "@application/services/PosterService";
@@ -109,8 +110,16 @@ export function getPosterService() {
     getSessionProvider(),
     getCampaignRepository(),
     getPosterRepository(),
-    getPosterScanCounts(),
     getPosterTraceUrl(),
+  ));
+}
+
+let campaignAnalyticsService: CampaignAnalyticsService | undefined;
+export function getCampaignAnalyticsService() {
+  return (campaignAnalyticsService ??= new CampaignAnalyticsService(
+    getSessionProvider(),
+    getCampaignRepository(),
+    getPosterScanCounts(),
   ));
 }
 

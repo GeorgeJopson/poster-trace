@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { getPosterService } from "@di/container";
+import { getCampaignAnalyticsService } from "@di/container";
 import CentralColumn from "@/components/CentralColumn";
 import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
@@ -28,7 +28,7 @@ export default async function AnalyticsPage({
 }) {
   const { campaignId } = await params;
   const counts = await withSignInRedirect(() =>
-    getPosterService().getMyCampaignScanCounts(campaignId),
+    getCampaignAnalyticsService().getMyCampaignScanCounts(campaignId),
   );
   if (!counts) {
     notFound();
