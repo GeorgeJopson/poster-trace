@@ -70,11 +70,19 @@ async function uploadDesignImage(filename: string) {
   return key;
 }
 
+// Rows are ordered by created_at, which the database sets. Inserts in quick
+// succession can get the same timestamp, so each insert waits a moment first
+// to keep the seeded order.
+function pause() {
+  return new Promise((resolve) => setTimeout(resolve, 10));
+}
+
 // Ids come from the domain, and values go through its factories, so an invalid
 // seeded value fails here rather than when a page loads it.
 
 async function insertCampaign(userId: string, name: string, target: string) {
   const id = CampaignId.generate();
+  await pause();
   await db.insert(campaign).values({
     id,
     name,
@@ -93,9 +101,11 @@ async function insertDesign(
 ) {
   const id = PosterDesignId.generate();
   const { x, y, size, rotation } = QrPlacement.create(fields);
+  const designImageKey = await uploadDesignImage(filename);
+  await pause();
   await db.insert(posterDesign).values({
     id,
-    designImageKey: await uploadDesignImage(filename),
+    designImageKey,
     x,
     y,
     size,
@@ -223,6 +233,7 @@ async function main() {
   // Generated posters. Registrations (where each was put up) aren't built
   // yet, so the scans below are for posters with no recorded location.
   const insertPoster = async (posterDesignId: PosterDesignId) => {
+    await pause();
     const [row] = await db
       .insert(poster)
       .values({ id: PosterId.generate(), posterDesignId })
