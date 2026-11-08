@@ -31,13 +31,27 @@ test("redirects signed-out users from app pages to log in", async ({
   for (const path of [
     "/dashboard",
     "/account",
-    "/register",
     campaignPath,
     `${campaignPath}/analytics`,
   ]) {
     await page.goto(path);
     await expect(page).toHaveURL("/log-in");
   }
+});
+
+test("lets signed-out users open the register page from the public nav", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("navigation", { name: "Primary" })
+    .getByRole("link", { name: "Register" })
+    .click();
+
+  await expect(page).toHaveURL("/register");
+  await expect(
+    page.getByRole("main").getByRole("heading", { level: 2 }),
+  ).toHaveText("Register a Poster");
 });
 
 test("shows a confirmation after requesting a password reset", async ({

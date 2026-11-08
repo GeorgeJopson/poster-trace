@@ -1,0 +1,33 @@
+.video {
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--color-green-950);
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.label {
+  font-size: var(--font-size-body);
+  font-weight: 700;
+  color: var(--color-green-800);
+}
+
+.text {
+  font-family: monospace;
+  font-size: var(--font-size-body);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.error {
+  color: oklch(50.5% 0.213 27.518);
+  font-size: var(--font-size-body);
+}
