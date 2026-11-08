@@ -74,9 +74,9 @@ describe("getScanDistribution", () => {
     await addPoster(design, 2);
 
     expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scanCount: 0, posters: { [design]: 2 } },
-      { scanCount: 1, posters: { [design]: 0 } },
-      { scanCount: 2, posters: { [design]: 1 } },
+      { scanCount: 0, posterCountByDesign: { [design]: 2 } },
+      { scanCount: 1, posterCountByDesign: { [design]: 0 } },
+      { scanCount: 2, posterCountByDesign: { [design]: 1 } },
     ]);
   });
 
@@ -88,8 +88,14 @@ describe("getScanDistribution", () => {
     await addPoster(second, 1);
 
     expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scanCount: 0, posters: { [first]: 0, [second]: 1, [third]: 0 } },
-      { scanCount: 1, posters: { [first]: 1, [second]: 1, [third]: 0 } },
+      {
+        scanCount: 0,
+        posterCountByDesign: { [first]: 0, [second]: 1, [third]: 0 },
+      },
+      {
+        scanCount: 1,
+        posterCountByDesign: { [first]: 1, [second]: 1, [third]: 0 },
+      },
     ]);
   });
 
@@ -100,7 +106,7 @@ describe("getScanDistribution", () => {
     await addPoster(designIds[0], 0);
 
     expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scanCount: 0, posters: { [designIds[0]]: 1 } },
+      { scanCount: 0, posterCountByDesign: { [designIds[0]]: 1 } },
     ]);
   });
 

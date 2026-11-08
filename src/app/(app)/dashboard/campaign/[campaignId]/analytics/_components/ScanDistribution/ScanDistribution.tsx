@@ -1,4 +1,7 @@
-import type { ScanDistributionRowDto } from "@application/dto/AnalyticsDto";
+import type {
+  DesignId,
+  ScanDistributionBucketDto,
+} from "@application/dto/AnalyticsDto";
 import GroupedBarChart, {
   type BarSeries,
   MAX_SERIES,
@@ -11,9 +14,9 @@ const SCAN_COUNT_KEY = "scanCount";
 const OTHER_KEY = "other";
 
 interface ScanDistributionProps {
-  distribution: ScanDistributionRowDto[];
+  distribution: ScanDistributionBucketDto[];
   /** The campaign's design ids, in campaign order. */
-  designIds: string[];
+  designIds: DesignId[];
 }
 
 /** How many of each design's posters have each scan count. */
@@ -36,11 +39,14 @@ export default function ScanDistribution({
   if (others.length > 0) {
     series.push({ key: OTHER_KEY, label: "Other poster designs" });
   }
-  const data = distribution.map(({ scanCount, posters }) => {
+  const data = distribution.map(({ scanCount, posterCountByDesign }) => {
     const row: Record<string, number> = { [SCAN_COUNT_KEY]: scanCount };
-    for (const id of shown) row[id] = posters[id];
+    for (const id of shown) row[id] = posterCountByDesign[id];
     if (others.length > 0) {
-      row[OTHER_KEY] = others.reduce((sum, id) => sum + posters[id], 0);
+      row[OTHER_KEY] = others.reduce(
+        (sum, id) => sum + posterCountByDesign[id],
+        0,
+      );
     }
     return row;
   });

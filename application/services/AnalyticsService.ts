@@ -7,7 +7,10 @@ import { ValidationError } from "@domain/shared/ValidationError";
 import type { UserId } from "@domain/user/UserId";
 
 import { requireUserId } from "../auth/requireUserId";
-import type { ScanDistributionRowDto, TopPosterDto } from "../dto/AnalyticsDto";
+import type {
+  ScanDistributionBucketDto,
+  TopPosterDto,
+} from "../dto/AnalyticsDto";
 import type { ScanCountLookup } from "../ports/ScanCountLookup";
 import type { SessionProvider } from "../ports/SessionProvider";
 
@@ -25,19 +28,21 @@ export class AnalyticsService {
    */
   async getScanDistribution(
     campaignId: string,
-  ): Promise<ScanDistributionRowDto[]> {
+  ): Promise<ScanDistributionBucketDto[]> {
     const userId = await requireUserId(this.sessions);
     const { designIds, counts } = await this.countScans(campaignId, userId);
     const highest = Math.max(-1, ...counts.map(({ scanCount }) => scanCount));
 
-    const rows = Array.from({ length: highest + 1 }, (_, scanCount) => ({
+    const buckets = Array.from({ length: highest + 1 }, (_, scanCount) => ({
       scanCount,
-      posters: Object.fromEntries(designIds.map((designId) => [designId, 0])),
+      posterCountByDesign: Object.fromEntries(
+        designIds.map((designId) => [designId, 0]),
+      ),
     }));
     for (const { designId, scanCount } of counts) {
-      rows[scanCount].posters[designId]++;
+      buckets[scanCount].posterCountByDesign[designId]++;
     }
-    return rows;
+    return buckets;
   }
 
   /**
