@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 /** How many posters the top posters list shows. */
-const TOP_POSTERS = 5;
+const TOP_POSTERS_SHOWN = 5;
 
 export default async function AnalyticsPage({
   params,
@@ -33,7 +33,7 @@ export default async function AnalyticsPage({
   const [distribution, topPosters] = await withSignInRedirect(() =>
     Promise.all([
       analytics.getScanDistribution(campaign.id),
-      analytics.getTopPosters(campaign.id, TOP_POSTERS),
+      analytics.getTopPosters(campaign.id, TOP_POSTERS_SHOWN),
     ]),
   );
   const designIds = campaign.posterDesigns.map((design) => design.id);

@@ -1,5 +1,6 @@
 import type { PosterDesignDto } from "@application/dto/PosterDesignDto";
 
+import { posterDesignLabel } from "../../posterDesignLabel";
 import CreatePosterDesignDialog from "../CreatePosterDesignDialog/CreatePosterDesignDialog";
 import GeneratePostersDialog from "../GeneratePostersDialog/GeneratePostersDialog";
 import styles from "./PosterDesigns.module.css";
@@ -17,7 +18,7 @@ export default function PosterDesigns({ posterDesigns }: PosterDesignsProps) {
           <GeneratePostersDialog
             key={posterDesign.id}
             posterDesign={posterDesign}
-            designLabel={`Poster design ${index + 1}`}
+            designLabel={posterDesignLabel(index)}
           />
         ))}
         <CreatePosterDesignDialog />

@@ -4,10 +4,10 @@ import GroupedBarChart, {
   MAX_SERIES,
 } from "@/components/GroupedBarChart";
 
-import { designLabel } from "../../designLabel";
-import styles from "../../Analytics.module.css";
+import { posterDesignLabel } from "../../../posterDesignLabel";
+import styles from "./ScanDistribution.module.css";
 
-const SCANS_KEY = "scans";
+const SCAN_COUNT_KEY = "scanCount";
 const OTHER_KEY = "other";
 
 interface ScanDistributionProps {
@@ -29,15 +29,15 @@ export default function ScanDistribution({
       : designIds;
   const others = designIds.slice(shown.length);
 
-  const series: BarSeries[] = shown.map((id) => ({
+  const series: BarSeries[] = shown.map((id, index) => ({
     key: id,
-    label: designLabel(designIds, id),
+    label: posterDesignLabel(index),
   }));
   if (others.length > 0) {
     series.push({ key: OTHER_KEY, label: "Other poster designs" });
   }
-  const data = distribution.map(({ scans, posters }) => {
-    const row: Record<string, number> = { [SCANS_KEY]: scans };
+  const data = distribution.map(({ scanCount, posters }) => {
+    const row: Record<string, number> = { [SCAN_COUNT_KEY]: scanCount };
     for (const id of shown) row[id] = posters[id];
     if (others.length > 0) {
       row[OTHER_KEY] = others.reduce((sum, id) => sum + posters[id], 0);
@@ -56,7 +56,7 @@ export default function ScanDistribution({
       <GroupedBarChart
         title="Number of posters with each number of scans, by poster design"
         data={data}
-        xKey={SCANS_KEY}
+        xKey={SCAN_COUNT_KEY}
         series={series}
         xLabel="Scans"
         yLabel="Posters"

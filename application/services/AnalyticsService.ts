@@ -28,41 +28,47 @@ export class AnalyticsService {
   ): Promise<ScanDistributionRowDto[]> {
     const userId = await requireUserId(this.sessions);
     const { designIds, counts } = await this.countScans(campaignId, userId);
-    const highest = Math.max(-1, ...counts.map(({ scans }) => scans));
+    const highest = Math.max(-1, ...counts.map(({ scanCount }) => scanCount));
 
-    const rows = Array.from({ length: highest + 1 }, (_, scans) => ({
-      scans,
+    const rows = Array.from({ length: highest + 1 }, (_, scanCount) => ({
+      scanCount,
       posters: Object.fromEntries(designIds.map((designId) => [designId, 0])),
     }));
-    for (const { designId, scans } of counts) rows[scans].posters[designId]++;
+    for (const { designId, scanCount } of counts) {
+      rows[scanCount].posters[designId]++;
+    }
     return rows;
   }
 
   /**
-   * Up to `num` of the campaign's posters with the most scans, most first.
+   * Up to `limit` of the campaign's posters with the most scans, most first.
    * Posters with no scans are left out, and posters with the same scan count
    * are ordered by id, so the order is stable.
    */
   async getTopPosters(
     campaignId: string,
-    num: number,
+    limit: number,
   ): Promise<TopPosterDto[]> {
     const userId = await requireUserId(this.sessions);
-    if (!Number.isInteger(num) || num < 1) {
+    if (!Number.isInteger(limit) || limit < 1) {
       throw new ValidationError(
         "The number of posters must be a whole number of at least 1.",
       );
     }
     const { counts } = await this.countScans(campaignId, userId);
     return counts
-      .filter(({ scans }) => scans > 0)
+      .filter(({ scanCount }) => scanCount > 0)
       .sort(
         (a, b) =>
-          b.scans - a.scans ||
+          b.scanCount - a.scanCount ||
           (a.posterId < b.posterId ? -1 : a.posterId > b.posterId ? 1 : 0),
       )
-      .slice(0, num)
-      .map(({ posterId, designId, scans }) => ({ posterId, designId, scans }));
+      .slice(0, limit)
+      .map(({ posterId, designId, scanCount }) => ({
+        posterId,
+        designId,
+        scanCount,
+      }));
   }
 
   /**

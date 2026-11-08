@@ -18,7 +18,7 @@ export class InMemoryScanCountLookup implements ScanCountLookup {
       .map(({ id, designId }) => ({
         posterId: id,
         designId,
-        scans: this.posters.scans.filter(({ posterId }) => posterId === id)
+        scanCount: this.posters.scans.filter(({ posterId }) => posterId === id)
           .length,
       }));
   }

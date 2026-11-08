@@ -5,7 +5,7 @@ import type { PosterId } from "@domain/poster/PosterId";
 export type PosterScanCount = {
   posterId: PosterId;
   designId: PosterDesignId;
-  scans: number;
+  scanCount: number;
 };
 
 /**

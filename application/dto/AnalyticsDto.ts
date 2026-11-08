@@ -3,7 +3,7 @@
  * every design of the campaign, keyed by design id.
  */
 export type ScanDistributionRowDto = {
-  scans: number;
+  scanCount: number;
   posters: Record<string, number>;
 };
 
@@ -11,5 +11,5 @@ export type ScanDistributionRowDto = {
 export type TopPosterDto = {
   posterId: string;
   designId: string;
-  scans: number;
+  scanCount: number;
 };

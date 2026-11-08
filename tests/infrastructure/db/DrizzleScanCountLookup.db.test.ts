@@ -44,11 +44,11 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
   return designs.map((design) => design.id);
 }
 
-/** Stores a poster of the design with `scans` scans. */
-async function addPoster(designId: PosterDesignId, scans: number) {
+/** Stores a poster of the design with `scanCount` scans. */
+async function addPoster(designId: PosterDesignId, scanCount: number) {
   const [poster] = Poster.generate(designId, 1);
   await posters.addAll([poster]);
-  for (let i = 0; i < scans; i++) poster.addScan(new Date());
+  for (let i = 0; i < scanCount; i++) poster.addScan(new Date());
   await posters.addNewScans(poster);
   return poster.id;
 }
@@ -64,9 +64,9 @@ describe("countScansPerPoster", () => {
     expect(counts).toHaveLength(3);
     expect(counts).toEqual(
       expect.arrayContaining([
-        { posterId: a, designId: first, scans: 3 },
-        { posterId: b, designId: first, scans: 0 },
-        { posterId: c, designId: second, scans: 1 },
+        { posterId: a, designId: first, scanCount: 3 },
+        { posterId: b, designId: first, scanCount: 0 },
+        { posterId: c, designId: second, scanCount: 1 },
       ]),
     );
   });
@@ -77,7 +77,7 @@ describe("countScansPerPoster", () => {
     await addPoster(second, 2);
 
     expect(await lookup.countScansPerPoster([first])).toEqual([
-      { posterId: a, designId: first, scans: 1 },
+      { posterId: a, designId: first, scanCount: 1 },
     ]);
   });
 

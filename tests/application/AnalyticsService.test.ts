@@ -44,11 +44,11 @@ async function addCampaign(designCount: number) {
   };
 }
 
-/** Stores a poster of the design and `scans` scans of it. */
-async function addPoster(designId: string, scans: number) {
+/** Stores a poster of the design and `scanCount` scans of it. */
+async function addPoster(designId: string, scanCount: number) {
   const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
   await posters.addAll([poster]);
-  for (let i = 0; i < scans; i++) poster.addScan(new Date());
+  for (let i = 0; i < scanCount; i++) poster.addScan(new Date());
   await posters.addNewScans(poster);
   return poster.id;
 }
@@ -74,9 +74,9 @@ describe("getScanDistribution", () => {
     await addPoster(design, 2);
 
     expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scans: 0, posters: { [design]: 2 } },
-      { scans: 1, posters: { [design]: 0 } },
-      { scans: 2, posters: { [design]: 1 } },
+      { scanCount: 0, posters: { [design]: 2 } },
+      { scanCount: 1, posters: { [design]: 0 } },
+      { scanCount: 2, posters: { [design]: 1 } },
     ]);
   });
 
@@ -88,8 +88,8 @@ describe("getScanDistribution", () => {
     await addPoster(second, 1);
 
     expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scans: 0, posters: { [first]: 0, [second]: 1, [third]: 0 } },
-      { scans: 1, posters: { [first]: 1, [second]: 1, [third]: 0 } },
+      { scanCount: 0, posters: { [first]: 0, [second]: 1, [third]: 0 } },
+      { scanCount: 1, posters: { [first]: 1, [second]: 1, [third]: 0 } },
     ]);
   });
 
@@ -100,7 +100,7 @@ describe("getScanDistribution", () => {
     await addPoster(designIds[0], 0);
 
     expect(await service.getScanDistribution(campaignId)).toEqual([
-      { scans: 0, posters: { [designIds[0]]: 1 } },
+      { scanCount: 0, posters: { [designIds[0]]: 1 } },
     ]);
   });
 
@@ -120,13 +120,13 @@ describe("getTopPosters", () => {
     await addPoster(second, 2);
 
     expect(await service.getTopPosters(campaignId, 2)).toEqual([
-      { posterId: b, designId: second, scans: 4 },
-      { posterId: c, designId: first, scans: 3 },
+      { posterId: b, designId: second, scanCount: 4 },
+      { posterId: c, designId: first, scanCount: 3 },
     ]);
     expect(await service.getTopPosters(campaignId, 4)).toContainEqual({
       posterId: a,
       designId: first,
-      scans: 1,
+      scanCount: 1,
     });
   });
 
@@ -136,7 +136,7 @@ describe("getTopPosters", () => {
     await addPoster(designIds[0], 0);
 
     expect(await service.getTopPosters(campaignId, 5)).toEqual([
-      { posterId: scanned, designId: designIds[0], scans: 1 },
+      { posterId: scanned, designId: designIds[0], scanCount: 1 },
     ]);
   });
 
@@ -152,9 +152,9 @@ describe("getTopPosters", () => {
     expect(top.map(({ posterId }) => posterId)).toEqual(ids.toSorted());
   });
 
-  it.each([0, -1, 2.5])("rejects a number of %s", async (num) => {
+  it.each([0, -1, 2.5])("rejects a limit of %s", async (limit) => {
     const { campaignId } = await addCampaign(1);
-    await expect(service.getTopPosters(campaignId, num)).rejects.toThrow(
+    await expect(service.getTopPosters(campaignId, limit)).rejects.toThrow(
       ValidationError,
     );
   });
@@ -185,7 +185,7 @@ describe.each([
   });
 });
 
-it("getTopPosters checks sign-in before the number", async () => {
+it("getTopPosters checks sign-in before the limit", async () => {
   sessions.signOut();
   await expect(service.getTopPosters("not-a-uuid", 0)).rejects.toThrow(
     NotAuthenticatedError,

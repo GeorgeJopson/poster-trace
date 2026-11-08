@@ -23,7 +23,7 @@ export class DrizzleScanCountLookup implements ScanCountLookup {
       .select({
         posterId: posterTable.id,
         designId: posterTable.posterDesignId,
-        scans: count(scanTable.id),
+        scanCount: count(scanTable.id),
       })
       .from(posterTable)
       .leftJoin(scanTable, eq(scanTable.posterId, posterTable.id))
@@ -32,7 +32,7 @@ export class DrizzleScanCountLookup implements ScanCountLookup {
     return rows.map((row) => ({
       posterId: PosterId.from(row.posterId),
       designId: PosterDesignId.from(row.designId),
-      scans: row.scans,
+      scanCount: row.scanCount,
     }));
   }
 }
