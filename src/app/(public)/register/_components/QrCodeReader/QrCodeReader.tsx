@@ -8,7 +8,9 @@ import Button from "@/components/Button";
 import styles from "./QrCodeReader.module.css";
 
 type ReaderState =
-  { kind: "reading" } | { kind: "read"; text: string } | { kind: "noCamera" };
+  | { kind: "reading" }
+  | { kind: "read"; text: string }
+  | { kind: "cameraUnavailable" };
 
 // Reads one QR code with the device's camera and shows the text it holds.
 // Reading a code here isn't a scan: nothing is recorded and no one is sent
@@ -41,7 +43,7 @@ export default function QrCodeReader() {
         return scanner.start();
       })
       .catch(() => {
-        if (!cancelled) setState({ kind: "noCamera" });
+        if (!cancelled) setState({ kind: "cameraUnavailable" });
       });
 
     return () => {
@@ -50,7 +52,7 @@ export default function QrCodeReader() {
     };
   }, [isReading]);
 
-  if (state.kind === "noCamera") {
+  if (state.kind === "cameraUnavailable") {
     return (
       <p role="alert" className={styles.error}>
         Couldn&apos;t access a camera. Check this device has one and that
