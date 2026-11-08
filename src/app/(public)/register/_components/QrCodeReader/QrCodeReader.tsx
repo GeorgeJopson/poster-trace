@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type QrScanner from "qr-scanner";
+import QrScanner from "qr-scanner";
 
 import Button from "@/components/Button";
 
@@ -25,30 +25,22 @@ export default function QrCodeReader() {
     if (!isReading || !video) return;
 
     let cancelled = false;
-    let scanner: QrScanner | undefined;
+    const scanner = new QrScanner(
+      video,
+      ({ data }) => {
+        scanner.stop();
+        setState({ kind: "read", text: data });
+      },
+      { preferredCamera: "environment", returnDetailedScanResult: true },
+    );
 
-    // Imported here so the library, which needs the browser, never runs on
-    // the server.
-    import("qr-scanner")
-      .then(({ default: QrScannerClass }) => {
-        if (cancelled) return;
-        scanner = new QrScannerClass(
-          video,
-          ({ data }) => {
-            scanner?.stop();
-            setState({ kind: "read", text: data });
-          },
-          { preferredCamera: "environment", returnDetailedScanResult: true },
-        );
-        return scanner.start();
-      })
-      .catch(() => {
-        if (!cancelled) setState({ kind: "cameraUnavailable" });
-      });
+    scanner.start().catch(() => {
+      if (!cancelled) setState({ kind: "cameraUnavailable" });
+    });
 
     return () => {
       cancelled = true;
-      scanner?.destroy();
+      scanner.destroy();
     };
   }, [isReading]);
 
