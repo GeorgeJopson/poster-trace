@@ -8,17 +8,19 @@ import Button from "@/components/Button";
 import styles from "./QrCodeReader.module.css";
 
 type ReaderState =
-  | { kind: "reading" }
-  | { kind: "read"; text: string }
-  | { kind: "cameraUnavailable" };
+  | { state: "reading" }
+  | { state: "read"; text: string }
+  | { state: "cameraUnavailable" };
 
 // Reads one QR code with the device's camera and shows the text it holds.
 // Reading a code here isn't a scan: nothing is recorded and no one is sent
 // to a target.
 export default function QrCodeReader() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [state, setState] = useState<ReaderState>({ kind: "reading" });
-  const isReading = state.kind === "reading";
+  const [readerState, setReaderState] = useState<ReaderState>({
+    state: "reading",
+  });
+  const isReading = readerState.state === "reading";
 
   useEffect(() => {
     const video = videoRef.current;
@@ -29,13 +31,13 @@ export default function QrCodeReader() {
       video,
       ({ data }) => {
         scanner.stop();
-        setState({ kind: "read", text: data });
+        setReaderState({ state: "read", text: data });
       },
       { preferredCamera: "environment", returnDetailedScanResult: true },
     );
 
     scanner.start().catch(() => {
-      if (!cancelled) setState({ kind: "cameraUnavailable" });
+      if (!cancelled) setReaderState({ state: "cameraUnavailable" });
     });
 
     return () => {
@@ -44,7 +46,7 @@ export default function QrCodeReader() {
     };
   }, [isReading]);
 
-  if (state.kind === "cameraUnavailable") {
+  if (readerState.state === "cameraUnavailable") {
     return (
       <p role="alert" className={styles.error}>
         Couldn&apos;t access a camera. Check this device has one and that
@@ -53,15 +55,15 @@ export default function QrCodeReader() {
     );
   }
 
-  if (state.kind === "read") {
+  if (readerState.state === "read") {
     return (
       <div className={styles.result}>
         <p className={styles.label}>QR code contents</p>
-        <output className={styles.text}>{state.text}</output>
+        <output className={styles.text}>{readerState.text}</output>
         <Button
           variant="filled"
           fontSize="1rem"
-          onClick={() => setState({ kind: "reading" })}
+          onClick={() => setReaderState({ state: "reading" })}
         >
           Read another
         </Button>
