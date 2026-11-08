@@ -13,6 +13,11 @@ type PublicNavBarTarget = {
 
 const targets: PublicNavBarTarget[] = [
   {
+    targetUrl: routeNames.register,
+    name: "Register",
+    buttonStyle: "transparent",
+  },
+  {
     targetUrl: routeNames.signIn,
     name: "Log In",
     buttonStyle: "transparent",

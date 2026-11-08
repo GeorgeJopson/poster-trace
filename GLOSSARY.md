@@ -37,7 +37,7 @@ _Avoid_: QR position, QR settings
 Registrations aren't built yet.
 
 **Poster**:
-One copy of a poster design with its own QR code, so that scans can be traced back to it. A poster exists from the moment it's generated, as a page of a PDF the user prints and puts up. It is **registered** once the user logs where it has been put up.
+One copy of a poster design with its own QR code, so that scans can be traced back to it. A poster exists from the moment it's generated, as a page of a PDF the user prints, ready for someone to put up. It is **registered** once someone logs where it has been put up.
 _Avoid_: Using "poster" to mean a poster design
 
 **Generate**:
@@ -45,12 +45,12 @@ To make new posters from a poster design, ready to print.
 _Avoid_: Create, print, issue (when you mean making posters)
 
 **Registration**:
-The moment the user logs where a poster has been put up. A poster is **registered** once its location has been logged, and not before.
+The moment the person who put a poster up logs where it is. That can be anyone holding the poster, not just its campaign's owner, so helpers without an account can put posters up too. A poster is **registered** once its location has been logged, and not before.
 _Avoid_: Activation, placement
 
 **Scan**:
 One reading of a poster's QR code, recorded at the time it happened. Every scan of a poster counts, whether or not the poster is registered, and repeat scans by the same person count again. A few scans may go unrecorded; the scanner still reaches the target.
-_Avoid_: Visit, hit, click
+_Avoid_: Visit, hit, click; "scan" for reading a QR code while registering a poster, since that isn't recorded and doesn't reach the target (say "read")
 
 **Scan count**:
 How many scans of a poster have been recorded. Because a few scans may go unrecorded, it can be slightly lower than the true number.
