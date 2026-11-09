@@ -8,7 +8,8 @@ import type { ReactNode } from "react";
 import styles from "./BaseDialog.module.css";
 
 export interface BaseDialogProps {
-  trigger: ReactNode;
+  /** Opens the dialog. Leave it out for a dialog opened only through `open`. */
+  trigger?: ReactNode;
   children: ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -25,7 +26,7 @@ export default function BaseDialog({
 }: BaseDialogProps & { contentClassName: string }) {
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
-      <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
+      {trigger && <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>}
       <RadixDialog.Portal>
         <RadixDialog.Overlay className={styles.dialogOverlay} />
         <RadixDialog.Content

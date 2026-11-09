@@ -1,52 +1,54 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import QrScanner from "qr-scanner";
-
-import Button from "@/components/Button";
 
 import styles from "./QrCodeReader.module.css";
 
-type ReaderState =
-  | { state: "reading" }
-  | { state: "read"; text: string }
-  | { state: "cameraUnavailable" };
+interface QrCodeReaderProps {
+  /** Turns the camera off, e.g. while a dialog covers the reader. */
+  disabled: boolean;
+  /**
+   * Called with the text of a QR code it reads. The reader stops after each
+   * read, and reads again once it's disabled and re-enabled.
+   */
+  onRead: (text: string) => void;
+}
 
-// Reads one QR code with the device's camera and shows the text it holds.
-// Reading a code here isn't a scan: nothing is recorded and no one is sent
-// to a target.
-export default function QrCodeReader() {
+// Reads QR codes with the device's camera. Reading a code here isn't a scan:
+// nothing is recorded and no one is sent to a target.
+export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [readerState, setReaderState] = useState<ReaderState>({
-    state: "reading",
-  });
-  const isReading = readerState.state === "reading";
+  const [cameraUnavailable, setCameraUnavailable] = useState(false);
+  const handleRead = useEffectEvent(onRead);
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!isReading || !video) return;
+    if (disabled || !video) return;
 
     let cancelled = false;
     const scanner = new QrScanner(
       video,
       ({ data }) => {
+        // A frame being decoded as the reader is disabled can still finish.
+        if (cancelled) return;
         scanner.stop();
-        setReaderState({ state: "read", text: data });
+        handleRead(data);
       },
       { preferredCamera: "environment", returnDetailedScanResult: true },
     );
 
     scanner.start().catch(() => {
-      if (!cancelled) setReaderState({ state: "cameraUnavailable" });
+      if (!cancelled) setCameraUnavailable(true);
     });
 
     return () => {
       cancelled = true;
       scanner.destroy();
     };
-  }, [isReading]);
+  }, [disabled]);
 
-  if (readerState.state === "cameraUnavailable") {
+  if (cameraUnavailable) {
     return (
       <p role="alert" className={styles.error}>
         Couldn&apos;t access a camera. Check this device has one and that
@@ -55,20 +57,8 @@ export default function QrCodeReader() {
     );
   }
 
-  if (readerState.state === "read") {
-    return (
-      <div className={styles.result}>
-        <p className={styles.label}>QR code contents</p>
-        <output className={styles.text}>{readerState.text}</output>
-        <Button
-          variant="filled"
-          fontSize="1rem"
-          onClick={() => setReaderState({ state: "reading" })}
-        >
-          Read another
-        </Button>
-      </div>
-    );
+  if (disabled) {
+    return <div className={styles.video} aria-hidden />;
   }
 
   return (

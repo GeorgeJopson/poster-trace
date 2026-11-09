@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import { PublicNavBarSpacer } from "@/components/PublicNavigation";
 
 import styles from "./Register.module.css";
-import QrCodeReader from "./_components/QrCodeReader";
+import PosterReader from "./_components/PosterReader";
 
 export const metadata: Metadata = {
   title: "Register a Poster",
@@ -22,7 +22,7 @@ export default function RegisterPage() {
           <p className={styles.text}>
             Point your camera at a poster&apos;s QR code.
           </p>
-          <QrCodeReader />
+          <PosterReader />
         </div>
       </CentralColumn>
     </>

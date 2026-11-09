@@ -52,6 +52,10 @@ _Avoid_: Activation, placement
 One reading of a poster's QR code, recorded at the time it happened. Every scan of a poster counts, whether or not the poster is registered, and repeat scans by the same person count again. A few scans may go unrecorded; the scanner still reaches the target.
 _Avoid_: Visit, hit, click; "scan" for reading a QR code while registering a poster, since that isn't recorded and doesn't reach the target (say "read")
 
+**Scan URL**:
+The web address in a poster's QR code. Scanning it sends the scanner to the campaign's target and records a scan. Each poster has its own, and it never changes once the poster is generated.
+_Avoid_: QR link, poster link, redirect URL
+
 **Scan count**:
 How many scans of a poster have been recorded. Because a few scans may go unrecorded, it can be slightly lower than the true number.
 _Avoid_: Hits, views, visits
