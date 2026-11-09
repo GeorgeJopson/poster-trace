@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
+import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { PosterId } from "@domain/poster/PosterId";
 import { ScanId } from "@domain/poster/ScanId";
 import { ValidationError } from "@domain/shared/ValidationError";
@@ -36,7 +37,7 @@ describe("Poster.generate", () => {
 describe("Poster.restore", () => {
   it("keeps the stored values", () => {
     const id = PosterId.generate();
-    const poster = Poster.restore({ id, designId });
+    const poster = Poster.restore({ id, designId, registration: null });
     expect(poster.id).toBe(id);
     expect(poster.designId).toBe(designId);
   });
@@ -44,7 +45,11 @@ describe("Poster.restore", () => {
 
 describe("Poster.addScan", () => {
   it("records a scan at the given time with its own id", () => {
-    const poster = Poster.restore({ id: PosterId.generate(), designId });
+    const poster = Poster.restore({
+      id: PosterId.generate(),
+      designId,
+      registration: null,
+    });
     const scannedAt = new Date("2026-11-07T12:00:00Z");
 
     const scan = poster.addScan(scannedAt);
@@ -55,7 +60,11 @@ describe("Poster.addScan", () => {
   });
 
   it("gives every scan its own id", () => {
-    const poster = Poster.restore({ id: PosterId.generate(), designId });
+    const poster = Poster.restore({
+      id: PosterId.generate(),
+      designId,
+      registration: null,
+    });
     const first = poster.addScan(new Date());
     const second = poster.addScan(new Date());
 
@@ -65,9 +74,25 @@ describe("Poster.addScan", () => {
 
   it("starts with no new scans, whether generated or restored", () => {
     const [generated] = Poster.generate(designId, 1);
-    const restored = Poster.restore({ id: PosterId.generate(), designId });
+    const restored = Poster.restore({
+      id: PosterId.generate(),
+      designId,
+      registration: null,
+    });
 
     expect(generated.newScans).toEqual([]);
     expect(restored.newScans).toEqual([]);
+  });
+});
+
+describe("Poster.register", () => {
+  it("can't register a poster that's already registered", () => {
+    const [poster] = Poster.generate(designId, 1);
+    poster.register("Gentle Swamp", null, new Date("2026-11-09T12:00:00Z"));
+
+    expect(() =>
+      poster.register("Quiet Harbour", null, new Date("2026-11-09T13:00:00Z")),
+    ).toThrow(AlreadyRegisteredError);
+    expect(poster.registration?.posterName).toBe("Gentle Swamp");
   });
 });

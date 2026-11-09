@@ -9,6 +9,7 @@ import { AnalyticsService } from "@application/services/AnalyticsService";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { PosterService } from "@application/services/PosterService";
+import { RegistrationService } from "@application/services/RegistrationService";
 import { ScanService } from "@application/services/ScanService";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
 import type { PosterRepository } from "@domain/poster/PosterRepository";
@@ -118,6 +119,13 @@ let scanService: ScanService | undefined;
 export function getScanService() {
   return (scanService ??= new ScanService(
     getScanTargetLookup(),
+    getPosterRepository(),
+  ));
+}
+
+let registrationService: RegistrationService | undefined;
+export function getRegistrationService() {
+  return (registrationService ??= new RegistrationService(
     getPosterRepository(),
   ));
 }

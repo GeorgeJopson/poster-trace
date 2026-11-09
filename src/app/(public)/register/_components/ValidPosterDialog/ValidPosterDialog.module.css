@@ -3,3 +3,9 @@
   flex-direction: column;
   align-items: flex-start;
 }
+
+.error {
+  color: oklch(50.5% 0.213 27.518);
+  font-size: var(--font-size-body);
+  text-align: left;
+}

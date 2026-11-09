@@ -1,6 +1,8 @@
+import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  check,
   doublePrecision,
   index,
   integer,
@@ -102,7 +104,7 @@ export const passwordResetEmail = pgTable("password_reset_email", {
 });
 
 // Poster tables. Deleting a campaign deletes its designs, their posters and
-// those posters' scans.
+// those posters' scans and registrations.
 
 // Campaigns and designs are keyed by UUIDs the domain generates, so their ids
 // have no default: an insert without one fails rather than getting an id the
@@ -143,8 +145,8 @@ export const posterDesign = pgTable(
 );
 
 // Posters are keyed by domain-generated UUIDs too. A poster's id is in its
-// QR code, so it mustn't be guessable. Where a poster has been put up will
-// live in its own table, as a poster has no location until it's registered.
+// QR code, so it mustn't be guessable. Where a poster has been put up lives in
+// the registration table, as a poster has no location until it's registered.
 
 export const poster = pgTable(
   "poster",
@@ -171,4 +173,31 @@ export const scan = pgTable(
       .references(() => poster.id, { onDelete: "cascade" }),
   },
   (table) => [index().on(table.posterId)],
+);
+
+// A poster's registration, if it has one. Keyed by the poster's id, so a
+// poster has at most one and a second insert fails: the first registration
+// wins (see ADR-0016). registered_at is the server's time, set by the
+// application, so it has no default. The location columns are all set or all
+// null.
+
+export const registration = pgTable(
+  "registration",
+  {
+    posterId: uuid()
+      .primaryKey()
+      .references(() => poster.id, { onDelete: "cascade" }),
+    posterName: text().notNull(),
+    registeredAt: timestamp().notNull(),
+    latitude: doublePrecision(),
+    longitude: doublePrecision(),
+    // In metres.
+    accuracy: doublePrecision(),
+  },
+  (table) => [
+    check(
+      "registration_location_all_or_none",
+      sql`(${table.latitude} IS NULL) = (${table.longitude} IS NULL) AND (${table.latitude} IS NULL) = (${table.accuracy} IS NULL)`,
+    ),
+  ],
 );
