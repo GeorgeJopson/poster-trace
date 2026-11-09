@@ -1,48 +1,4 @@
-const ADJECTIVES = [
-  "Gentle",
-  "Moon-misted",
-  "Opal",
-  "Amber",
-  "Whispering",
-  "Sunlit",
-  "Hidden",
-  "Silver",
-  "Mossy",
-  "Windswept",
-  "Crimson",
-  "Quiet",
-  "Golden",
-  "Frosted",
-  "Wandering",
-  "Velvet",
-  "Starlit",
-  "Misty",
-  "Copper",
-  "Emerald",
-];
-
-const PLACES = [
-  "Swamp",
-  "Hills",
-  "Tower",
-  "Harbour",
-  "Meadow",
-  "Grove",
-  "Valley",
-  "Lighthouse",
-  "Orchard",
-  "Canyon",
-  "Bridge",
-  "Lagoon",
-  "Glade",
-  "Summit",
-  "Marsh",
-  "Cove",
-  "Heath",
-  "Hollow",
-  "Fjord",
-  "Garden",
-];
+import { POSTER_NAME_ADJECTIVES, POSTER_NAME_PLACES } from "./posterNameWords";
 
 function pick<T>(items: readonly T[], random: () => number): T {
   return items[Math.floor(random() * items.length)];
@@ -51,7 +7,7 @@ function pick<T>(items: readonly T[], random: () => number): T {
 // A memorable default poster name, an adjective then a place, such as
 // "Gentle Swamp". `random` returns a number in [0, 1), like Math.random.
 export function randomPosterName(random: () => number = Math.random): string {
-  return `${pick(ADJECTIVES, random)} ${pick(PLACES, random)}`;
+  return `${pick(POSTER_NAME_ADJECTIVES, random)} ${pick(POSTER_NAME_PLACES, random)}`;
 }
 
 // The poster name a registration saves: what was entered, trimmed, or the
