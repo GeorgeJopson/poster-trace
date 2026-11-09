@@ -7,6 +7,10 @@
   background: var(--color-green-950);
 }
 
+.placeholder {
+  background: rgb(128 128 128 / 0.4);
+}
+
 .error {
   color: oklch(50.5% 0.213 27.518);
   font-size: var(--font-size-body);

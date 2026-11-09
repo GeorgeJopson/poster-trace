@@ -58,7 +58,9 @@ export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
   }
 
   if (disabled) {
-    return <div className={styles.video} aria-hidden />;
+    return (
+      <div className={`${styles.video} ${styles.placeholder}`} aria-hidden />
+    );
   }
 
   return (
