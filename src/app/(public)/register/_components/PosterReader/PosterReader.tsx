@@ -27,7 +27,10 @@ export default function PosterReader() {
   return (
     <>
       <QrCodeReader disabled={readResult !== null} onRead={handleRead} />
-      <ValidPosterDialog open={readResult?.kind === "valid"} onClose={close} />
+      <ValidPosterDialog
+        posterId={readResult?.kind === "valid" ? readResult.posterId : null}
+        onClose={close}
+      />
       <InvalidPosterDialog
         open={readResult?.kind === "invalid"}
         onClose={close}
