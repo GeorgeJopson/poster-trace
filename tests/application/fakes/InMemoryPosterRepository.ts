@@ -20,19 +20,15 @@ export class InMemoryPosterRepository implements PosterRepository {
   async findById(id: PosterId): Promise<Poster | null> {
     const stored = this.posters.find((poster) => poster.id === id);
     if (!stored) return null;
-    const registration = this.registrations.find(
+    const storedRegistration = this.registrations.find(
       ({ posterId }) => posterId === id,
     );
-    return Poster.restore({
-      ...stored,
-      registration: registration
-        ? {
-            posterName: registration.posterName,
-            registeredAt: registration.registeredAt,
-            location: registration.location,
-          }
-        : null,
-    });
+    let registration: Registration | null = null;
+    if (storedRegistration) {
+      const { posterName, registeredAt, location } = storedRegistration;
+      registration = { posterName, registeredAt, location };
+    }
+    return Poster.restore({ ...stored, registration });
   }
 
   async addNewScans(poster: Poster): Promise<void> {

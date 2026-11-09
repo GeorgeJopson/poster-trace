@@ -21,6 +21,10 @@ export async function registerPoster(
   location: RegistrationLocationInput | null,
 ): Promise<RegisterPosterResult> {
   return withSignInRedirect(async () => {
+    // A Server Action is a public endpoint, so its arguments can be anything.
+    if (typeof posterId !== "string" || typeof posterName !== "string") {
+      return { error: "This registration couldn't be saved." };
+    }
     try {
       await getRegistrationService().register(posterId, posterName, location);
       return { error: null };

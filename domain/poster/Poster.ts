@@ -84,8 +84,7 @@ export class Poster {
 
   /**
    * Rebuilds a stored poster, with its registration but without its stored
-   * scans. Only repositories
-   * call this.
+   * scans. Only repositories call this.
    */
   static restore(props: PosterProps): Poster {
     return new Poster(props);
