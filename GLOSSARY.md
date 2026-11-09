@@ -45,12 +45,20 @@ To make new posters from a poster design, ready to print.
 _Avoid_: Create, print, issue (when you mean making posters)
 
 **Registration**:
-The moment the person who put a poster up logs where it is. That can be anyone holding the poster, not just its campaign's owner, so helpers without an account can put posters up too. A poster is **registered** once its location has been logged, and not before.
+The moment the person who put a poster up logs it, giving it a poster name and, if they choose, where it is. That can be anyone holding the poster, not just its campaign's owner, so helpers without an account can put posters up too. A poster is **registered** once it has been logged, whether or not a location was given.
 _Avoid_: Activation, placement
+
+**Poster Name**:
+A memorable name given to a poster when it's registered, so people can tell it apart from the campaign's other posters. Whoever registers the poster chooses it. It isn't an identifier, so two posters can share a name.
+_Avoid_: Label, title, nickname
 
 **Scan**:
 One reading of a poster's QR code, recorded at the time it happened. Every scan of a poster counts, whether or not the poster is registered, and repeat scans by the same person count again. A few scans may go unrecorded; the scanner still reaches the target.
 _Avoid_: Visit, hit, click; "scan" for reading a QR code while registering a poster, since that isn't recorded and doesn't reach the target (say "read")
+
+**Scan URL**:
+The web address in a poster's QR code. Scanning it sends the scanner to the campaign's target and records a scan. Each poster has its own, and it never changes once the poster is generated.
+_Avoid_: QR link, poster link, redirect URL
 
 **Scan count**:
 How many scans of a poster have been recorded. Because a few scans may go unrecorded, it can be slightly lower than the true number.

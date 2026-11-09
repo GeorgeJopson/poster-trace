@@ -1,5 +1,6 @@
 import "server-only";
 
+import { ClientScanUrlService } from "@clientApplication/services/ClientScanUrlService";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
@@ -10,14 +11,6 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 import { requireUserId } from "../auth/requireUserId";
 import type { PosterDto } from "../dto/PosterDto";
 import type { SessionProvider } from "../ports/SessionProvider";
-
-/** Stands in for a poster's id in previews: a UUID, like every real one. */
-const SAMPLE_POSTER_ID = "00000000-0000-0000-0000-000000000000";
-
-/** The URL a poster's QR code encodes, which can never change (ADR-0014). */
-function buildScanUrl(baseUrl: string, posterId: string): string {
-  return new URL(`/redirect/${posterId}`, baseUrl).href;
-}
 
 /** The posters of the signed-in user's poster designs. */
 export class PosterService {
@@ -52,7 +45,7 @@ export class PosterService {
     await this.posters.addAll(posters);
     return posters.map((poster) => ({
       id: poster.id,
-      scanUrl: buildScanUrl(this.baseUrl, poster.id),
+      scanUrl: ClientScanUrlService.build(this.baseUrl, poster.id),
     }));
   }
 
@@ -61,6 +54,6 @@ export class PosterService {
    * every poster's, so a preview's QR code matches the printed ones.
    */
   sampleScanUrl(): string {
-    return buildScanUrl(this.baseUrl, SAMPLE_POSTER_ID);
+    return ClientScanUrlService.buildSample(this.baseUrl);
   }
 }

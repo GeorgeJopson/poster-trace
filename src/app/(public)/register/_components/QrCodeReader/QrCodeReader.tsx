@@ -1,52 +1,75 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import QrScanner from "qr-scanner";
-
-import Button from "@/components/Button";
 
 import styles from "./QrCodeReader.module.css";
 
-type ReaderState =
-  | { state: "reading" }
-  | { state: "read"; text: string }
-  | { state: "cameraUnavailable" };
+interface QrCodeReaderProps {
+  /** Turns the camera off, e.g. while a dialog covers the reader. */
+  disabled: boolean;
+  /**
+   * Called with the text of a QR code it reads. The reader stops after each
+   * read, and reads again once it's disabled and re-enabled.
+   */
+  onRead: (text: string) => void;
+}
 
-// Reads one QR code with the device's camera and shows the text it holds.
-// Reading a code here isn't a scan: nothing is recorded and no one is sent
-// to a target.
-export default function QrCodeReader() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [readerState, setReaderState] = useState<ReaderState>({
-    state: "reading",
-  });
-  const isReading = readerState.state === "reading";
+// Reads QR codes with the device's camera. Reading a code here isn't a scan:
+// nothing is recorded and no one is sent to a target.
+export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [cameraUnavailable, setCameraUnavailable] = useState(false);
+  const handleRead = useEffectEvent(onRead);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!isReading || !video) return;
+    const frame = frameRef.current;
+    if (disabled || !frame) return;
+
+    // Each scanner gets its own <video>. A destroyed scanner still clears its
+    // video's stream 300ms later, which would abort the next scanner's play()
+    // if they shared one (e.g. across React's dev double-mount).
+    const video = document.createElement("video");
+    video.className = styles.video;
+    video.setAttribute("aria-label", "Camera view");
+    video.muted = true;
+    video.playsInline = true;
+    frame.append(video);
 
     let cancelled = false;
     const scanner = new QrScanner(
       video,
       ({ data }) => {
+        // A frame being decoded as the reader is disabled can still finish.
+        if (cancelled) return;
         scanner.stop();
-        setReaderState({ state: "read", text: data });
+        handleRead(data);
       },
       { preferredCamera: "environment", returnDetailedScanResult: true },
     );
+    // The scanner reads every frame back from this canvas. A canvas keeps the
+    // options of its first getContext() call, so set them before it does.
+    scanner.$canvas.getContext("2d", {
+      alpha: false,
+      willReadFrequently: true,
+    });
 
     scanner.start().catch(() => {
-      if (!cancelled) setReaderState({ state: "cameraUnavailable" });
+      if (!cancelled) setCameraUnavailable(true);
     });
 
     return () => {
       cancelled = true;
+      // Release the camera now rather than after destroy()'s 300ms delay.
+      void scanner.pause(true);
       scanner.destroy();
+      // The scanner checks its video's styles on the next frame and warns if
+      // it looks hidden, which a detached video does. Remove it after that.
+      requestAnimationFrame(() => video.remove());
     };
-  }, [isReading]);
+  }, [disabled]);
 
-  if (readerState.state === "cameraUnavailable") {
+  if (cameraUnavailable) {
     return (
       <p role="alert" className={styles.error}>
         Couldn&apos;t access a camera. Check this device has one and that
@@ -55,29 +78,5 @@ export default function QrCodeReader() {
     );
   }
 
-  if (readerState.state === "read") {
-    return (
-      <div className={styles.result}>
-        <p className={styles.label}>QR code contents</p>
-        <output className={styles.text}>{readerState.text}</output>
-        <Button
-          variant="filled"
-          fontSize="1rem"
-          onClick={() => setReaderState({ state: "reading" })}
-        >
-          Read another
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <video
-      ref={videoRef}
-      className={styles.video}
-      aria-label="Camera view"
-      muted
-      playsInline
-    />
-  );
+  return <div ref={frameRef} className={styles.frame} />;
 }

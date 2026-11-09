@@ -5,11 +5,14 @@ import nextTypeScript from "eslint-config-next/typescript";
 // Layer dependency rules (see docs/adr/0001-four-layer-ddd-architecture.md):
 //
 //   presentation (src/) ──► application ──► domain ◄── infrastructure
-//            │                                            ▲
+//            │                    │                       ▲
+//            │                    ▼                       │
 //            └──────────► clientApplication ──────────────┘
 //
 // clientApplication is the browser's application layer. It only imports the
-// browser-safe infrastructure in CLIENT_INFRASTRUCTURE.
+// browser-safe infrastructure in CLIENT_INFRASTRUCTURE. application may import
+// clientApplication's pure helpers (e.g. ClientScanUrlService), so code that
+// the server and the browser share lives in one place.
 // di/, scripts/ and tests/ have no import restrictions.
 
 const frameworks = {
