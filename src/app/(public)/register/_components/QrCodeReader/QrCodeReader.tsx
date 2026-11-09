@@ -47,6 +47,12 @@ export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
       },
       { preferredCamera: "environment", returnDetailedScanResult: true },
     );
+    // The scanner reads every frame back from this canvas. A canvas keeps the
+    // options of its first getContext() call, so set them before it does.
+    scanner.$canvas.getContext("2d", {
+      alpha: false,
+      willReadFrequently: true,
+    });
 
     scanner.start().catch(() => {
       if (!cancelled) setCameraUnavailable(true);
@@ -57,7 +63,9 @@ export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
       // Release the camera now rather than after destroy()'s 300ms delay.
       void scanner.pause(true);
       scanner.destroy();
-      video.remove();
+      // The scanner checks its video's styles on the next frame and warns if
+      // it looks hidden, which a detached video does. Remove it after that.
+      requestAnimationFrame(() => video.remove());
     };
   }, [disabled]);
 
