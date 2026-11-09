@@ -45,8 +45,8 @@ To make new posters from a poster design, ready to print.
 _Avoid_: Create, print, issue (when you mean making posters)
 
 **Registration**:
-The moment the person who put a poster up logs it, giving it a poster name and, if they choose, where it is. That can be anyone holding the poster, not just its campaign's owner, so helpers without an account can put posters up too. A poster is **registered** once it has been logged, whether or not a location was given.
-_Avoid_: Activation, placement
+The record that a poster has been put up, made when the person who put it up logs it. It holds the poster's name, when it was logged and, if they chose to give it, where the poster is. That person can be anyone holding the poster, not just its campaign's owner, so helpers without an account can put posters up too. A poster has at most one registration: once it's **registered**, whether or not a location was given, it can't be registered again.
+_Avoid_: Activation, placement; using "registration" for the act of logging a poster (say "registering")
 
 **Poster Name**:
 A memorable name given to a poster when it's registered, so people can tell it apart from the campaign's other posters. Whoever registers the poster chooses it. It isn't an identifier, so two posters can share a name.
