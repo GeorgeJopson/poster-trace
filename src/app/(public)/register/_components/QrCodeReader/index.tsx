@@ -9,9 +9,7 @@ import styles from "./QrCodeReader.module.css";
 // only allowed in a Client Component, hence this wrapper.
 const QrCodeReader = dynamic(() => import("./QrCodeReader"), {
   ssr: false,
-  loading: () => (
-    <div className={`${styles.video} ${styles.placeholder}`} aria-hidden />
-  ),
+  loading: () => <div className={styles.frame} aria-hidden />,
 });
 
 export default QrCodeReader;

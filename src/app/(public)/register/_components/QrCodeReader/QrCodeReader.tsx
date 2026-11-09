@@ -18,13 +18,23 @@ interface QrCodeReaderProps {
 // Reads QR codes with the device's camera. Reading a code here isn't a scan:
 // nothing is recorded and no one is sent to a target.
 export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const [cameraUnavailable, setCameraUnavailable] = useState(false);
   const handleRead = useEffectEvent(onRead);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (disabled || !video) return;
+    const frame = frameRef.current;
+    if (disabled || !frame) return;
+
+    // Each scanner gets its own <video>. A destroyed scanner still clears its
+    // video's stream 300ms later, which would abort the next scanner's play()
+    // if they shared one (e.g. across React's dev double-mount).
+    const video = document.createElement("video");
+    video.className = styles.video;
+    video.setAttribute("aria-label", "Camera view");
+    video.muted = true;
+    video.playsInline = true;
+    frame.append(video);
 
     let cancelled = false;
     const scanner = new QrScanner(
@@ -44,7 +54,10 @@ export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
 
     return () => {
       cancelled = true;
+      // Release the camera now rather than after destroy()'s 300ms delay.
+      void scanner.pause(true);
       scanner.destroy();
+      video.remove();
     };
   }, [disabled]);
 
@@ -57,19 +70,5 @@ export default function QrCodeReader({ disabled, onRead }: QrCodeReaderProps) {
     );
   }
 
-  if (disabled) {
-    return (
-      <div className={`${styles.video} ${styles.placeholder}`} aria-hidden />
-    );
-  }
-
-  return (
-    <video
-      ref={videoRef}
-      className={styles.video}
-      aria-label="Camera view"
-      muted
-      playsInline
-    />
-  );
+  return <div ref={frameRef} className={styles.frame} />;
 }
