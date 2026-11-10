@@ -4,8 +4,10 @@ import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
 import type { PosterRepository } from "@domain/poster/PosterRepository";
 import type { Registration } from "@domain/poster/Registration";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 
 import type { Db } from "../db/client";
 import {
@@ -65,12 +67,17 @@ export class DrizzlePosterRepository implements PosterRepository {
     if (row.registration) {
       const { posterName, registeredAt, latitude, longitude, accuracy } =
         row.registration;
-      // The table's check keeps the location columns all set or all null.
+      // Through the validating factories (ADR-0006). The table's check keeps
+      // the location columns all set or all null.
       const location =
         latitude !== null && longitude !== null && accuracy !== null
-          ? { latitude, longitude, accuracy }
+          ? RegistrationLocation.create({ latitude, longitude, accuracy })
           : null;
-      registration = { posterName, registeredAt, location };
+      registration = {
+        posterName: PosterName.create(posterName),
+        registeredAt,
+        location,
+      };
     }
     return Poster.restore({
       id: PosterId.from(row.id),
@@ -97,7 +104,7 @@ export class DrizzlePosterRepository implements PosterRepository {
     try {
       await this.db.insert(registrationTable).values({
         posterId: poster.id,
-        posterName: registration.posterName,
+        posterName: registration.posterName.value,
         registeredAt: registration.registeredAt,
         latitude: registration.location?.latitude ?? null,
         longitude: registration.location?.longitude ?? null,

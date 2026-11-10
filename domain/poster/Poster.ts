@@ -2,7 +2,9 @@ import type { PosterDesignId } from "../campaign/design/PosterDesignId";
 import { ValidationError } from "../shared/ValidationError";
 import { AlreadyRegisteredError } from "./AlreadyRegisteredError";
 import { PosterId } from "./PosterId";
-import type { Registration, RegistrationLocation } from "./Registration";
+import type { PosterName } from "./PosterName";
+import type { Registration } from "./Registration";
+import type { RegistrationLocation } from "./RegistrationLocation";
 import type { Scan } from "./Scan";
 import { ScanId } from "./ScanId";
 
@@ -58,10 +60,9 @@ export class Poster {
   /**
    * Registers the poster, which can only happen once: the first registration
    * wins, so a registered poster throws `AlreadyRegisteredError` (ADR-0016).
-   * The caller checks the poster name and location.
    */
   register(
-    posterName: string,
+    posterName: PosterName,
     location: RegistrationLocation | null,
     registeredAt: Date,
   ): Registration {

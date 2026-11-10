@@ -1,11 +1,12 @@
 import "server-only";
 
 import { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
 import type { PosterRepository } from "@domain/poster/PosterRepository";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import type { RegistrationLocationInput } from "../dto/inputs";
-import { RegistrationRules } from "../validation/RegistrationRules";
 
 /**
  * Registering posters. Anyone holding a poster can register it, not just its
@@ -34,8 +35,8 @@ export class RegistrationService {
     if (!poster) throw new NotFoundError("Poster not found");
 
     poster.register(
-      RegistrationRules.posterName(posterName),
-      location && RegistrationRules.location(location),
+      PosterName.create(posterName),
+      location && RegistrationLocation.create(location),
       this.now(),
     );
     await this.posters.addRegistration(poster);

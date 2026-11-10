@@ -2,8 +2,10 @@ import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import type { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
 import type { PosterRepository } from "@domain/poster/PosterRepository";
 import type { Registration } from "@domain/poster/Registration";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import type { ScanId } from "@domain/poster/ScanId";
 
 /** Behaves like DrizzlePosterRepository, storing copies of the posters. */
@@ -11,7 +13,13 @@ export class InMemoryPosterRepository implements PosterRepository {
   // In insertion order, like ordering by created_at.
   readonly posters: { id: PosterId; designId: PosterDesignId }[] = [];
   readonly scans: { id: ScanId; posterId: PosterId; scannedAt: Date }[] = [];
-  readonly registrations: (Registration & { posterId: PosterId })[] = [];
+  // Plain values, like the registration table's columns.
+  readonly registrations: {
+    posterId: PosterId;
+    posterName: string;
+    registeredAt: Date;
+    location: { latitude: number; longitude: number; accuracy: number } | null;
+  }[] = [];
 
   async addAll(posters: readonly Poster[]): Promise<void> {
     this.posters.push(...posters.map(({ id, designId }) => ({ id, designId })));
@@ -25,8 +33,13 @@ export class InMemoryPosterRepository implements PosterRepository {
     );
     let registration: Registration | null = null;
     if (storedRegistration) {
+      // Through the validating factories, like DrizzlePosterRepository.
       const { posterName, registeredAt, location } = storedRegistration;
-      registration = { posterName, registeredAt, location };
+      registration = {
+        posterName: PosterName.create(posterName),
+        registeredAt,
+        location: location && RegistrationLocation.create(location),
+      };
     }
     return Poster.restore({ ...stored, registration });
   }
@@ -63,6 +76,16 @@ export class InMemoryPosterRepository implements PosterRepository {
     if (this.registrations.some(({ posterId }) => posterId === poster.id)) {
       throw new AlreadyRegisteredError();
     }
-    this.registrations.push({ posterId: poster.id, ...registration });
+    const { posterName, registeredAt, location } = registration;
+    this.registrations.push({
+      posterId: poster.id,
+      posterName: posterName.value,
+      registeredAt,
+      location: location && {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy: location.accuracy,
+      },
+    });
   }
 }

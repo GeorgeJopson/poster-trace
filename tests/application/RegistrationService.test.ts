@@ -76,8 +76,8 @@ describe("register", () => {
   });
 });
 
-describe("register's poster name", () => {
-  it("is trimmed", async () => {
+describe("register's checks", () => {
+  it("trims the poster name", async () => {
     const poster = await storedPoster();
 
     await service.register(poster.id, "  Gentle Swamp \n", null);
@@ -86,57 +86,13 @@ describe("register's poster name", () => {
   });
 
   it.each([
-    ["1 character", "a"],
-    ["60 characters", "a".repeat(60)],
-    ["60 characters once trimmed", ` ${"a".repeat(60)} `],
-  ])("may be %s", async (_case, posterName) => {
-    const poster = await storedPoster();
-
-    await service.register(poster.id, posterName, null);
-
-    expect(posters.registrations).toHaveLength(1);
-  });
-
-  it.each([
-    ["empty", ""],
-    ["only spaces", "   "],
-    ["over 60 characters", "a".repeat(61)],
-  ])("is rejected when %s", async (_case, posterName) => {
-    const poster = await storedPoster();
-
-    await expect(service.register(poster.id, posterName, null)).rejects.toThrow(
-      ValidationError,
-    );
-    expect(posters.registrations).toEqual([]);
-  });
-});
-
-describe("register's location", () => {
-  it.each([
-    ["the edges of the ranges", { latitude: -90, longitude: 180, accuracy: 0 }],
-    ["the other edges", { latitude: 90, longitude: -180, accuracy: 10_000 }],
-  ])("may be at %s", async (_case, edge) => {
-    const poster = await storedPoster();
-
-    await service.register(poster.id, "Gentle Swamp", edge);
-
-    expect(posters.registrations[0].location).toEqual(edge);
-  });
-
-  it.each([
-    ["latitude below -90", { ...location, latitude: -90.01 }],
-    ["latitude above 90", { ...location, latitude: 90.01 }],
-    ["longitude below -180", { ...location, longitude: -180.01 }],
-    ["longitude above 180", { ...location, longitude: 180.01 }],
-    ["negative accuracy", { ...location, accuracy: -1 }],
-    ["a NaN latitude", { ...location, latitude: NaN }],
-    ["an infinite longitude", { ...location, longitude: -Infinity }],
-    ["an infinite accuracy", { ...location, accuracy: Infinity }],
-  ])("is rejected with %s", async (_case, invalid) => {
+    ["a blank poster name", "   ", null],
+    ["an invalid location", "Gentle Swamp", { ...location, latitude: 91 }],
+  ])("rejects %s and stores nothing", async (_case, posterName, invalid) => {
     const poster = await storedPoster();
 
     await expect(
-      service.register(poster.id, "Gentle Swamp", invalid),
+      service.register(poster.id, posterName, invalid),
     ).rejects.toThrow(ValidationError);
     expect(posters.registrations).toEqual([]);
   });

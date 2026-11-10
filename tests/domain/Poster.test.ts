@@ -4,6 +4,7 @@ import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
 import { ScanId } from "@domain/poster/ScanId";
 import { ValidationError } from "@domain/shared/ValidationError";
 
@@ -88,11 +89,19 @@ describe("Poster.addScan", () => {
 describe("Poster.register", () => {
   it("can't register a poster that's already registered", () => {
     const [poster] = Poster.generate(designId, 1);
-    poster.register("Gentle Swamp", null, new Date("2026-11-09T12:00:00Z"));
+    poster.register(
+      PosterName.create("Gentle Swamp"),
+      null,
+      new Date("2026-11-09T12:00:00Z"),
+    );
 
     expect(() =>
-      poster.register("Quiet Harbour", null, new Date("2026-11-09T13:00:00Z")),
+      poster.register(
+        PosterName.create("Quiet Harbour"),
+        null,
+        new Date("2026-11-09T13:00:00Z"),
+      ),
     ).toThrow(AlreadyRegisteredError);
-    expect(poster.registration?.posterName).toBe("Gentle Swamp");
+    expect(poster.registration?.posterName.value).toBe("Gentle Swamp");
   });
 });

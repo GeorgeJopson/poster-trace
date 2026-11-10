@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 
-import { RegistrationRules } from "@application/validation/RegistrationRules";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 import { SubmitButton, TextInput } from "@/components/Form";
@@ -82,7 +81,6 @@ function RegistrationForm({
         label="Poster name"
         name="posterName"
         required={false}
-        maxLength={RegistrationRules.POSTER_NAME_MAX_LENGTH}
         placeholder={defaultPosterName}
         helperText="Give it a memorable name to help you remember which poster this is."
         value={posterName}

@@ -7,6 +7,8 @@ import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { UserId } from "@domain/user/UserId";
 import {
@@ -46,7 +48,9 @@ beforeEach(async () => {
 });
 
 const registeredAt = new Date("2026-11-09T12:34:56.789Z");
-const location = { latitude: 51.501, longitude: -0.142, accuracy: 12.5 };
+const locationValues = { latitude: 51.501, longitude: -0.142, accuracy: 12.5 };
+const location = RegistrationLocation.create(locationValues);
+const gentleSwamp = PosterName.create("Gentle Swamp");
 
 // The repository can't list posters or read scans back, so these check the
 // rows directly.
@@ -120,11 +124,11 @@ describe("findById", () => {
   it("loads the poster's registration", async () => {
     const [poster] = Poster.generate(designId, 1);
     await repository.addAll([poster]);
-    poster.register("Gentle Swamp", location, registeredAt);
+    poster.register(gentleSwamp, location, registeredAt);
     await repository.addRegistration(poster);
 
     expect((await repository.findById(poster.id))?.registration).toEqual({
-      posterName: "Gentle Swamp",
+      posterName: gentleSwamp,
       registeredAt,
       location,
     });
@@ -133,7 +137,7 @@ describe("findById", () => {
   it("loads a registration without a location", async () => {
     const [poster] = Poster.generate(designId, 1);
     await repository.addAll([poster]);
-    poster.register("Gentle Swamp", null, registeredAt);
+    poster.register(gentleSwamp, null, registeredAt);
     await repository.addRegistration(poster);
 
     expect(
@@ -223,7 +227,7 @@ describe("addRegistration", () => {
   it("stores the poster's registration", async () => {
     const [poster] = Poster.generate(designId, 1);
     await repository.addAll([poster]);
-    poster.register("Gentle Swamp", location, registeredAt);
+    poster.register(gentleSwamp, location, registeredAt);
 
     await repository.addRegistration(poster);
 
@@ -232,7 +236,7 @@ describe("addRegistration", () => {
         posterId: poster.id,
         posterName: "Gentle Swamp",
         registeredAt,
-        ...location,
+        ...locationValues,
       },
     ]);
   });
@@ -243,8 +247,8 @@ describe("addRegistration", () => {
     // Two people load the unregistered poster at the same moment.
     const first = (await repository.findById(poster.id))!;
     const second = (await repository.findById(poster.id))!;
-    first.register("Gentle Swamp", location, registeredAt);
-    second.register("Quiet Harbour", null, registeredAt);
+    first.register(gentleSwamp, location, registeredAt);
+    second.register(PosterName.create("Quiet Harbour"), null, registeredAt);
     await repository.addRegistration(first);
 
     await expect(repository.addRegistration(second)).rejects.toThrow(
@@ -257,7 +261,7 @@ describe("addRegistration", () => {
 
   it("fails for a poster that isn't stored", async () => {
     const [poster] = Poster.generate(designId, 1);
-    poster.register("Gentle Swamp", null, registeredAt);
+    poster.register(gentleSwamp, null, registeredAt);
 
     const error = await repository.addRegistration(poster).catch((e) => e);
 
@@ -268,7 +272,7 @@ describe("addRegistration", () => {
   it("is deleted with the poster's campaign", async () => {
     const [poster] = Poster.generate(designId, 1);
     await repository.addAll([poster]);
-    poster.register("Gentle Swamp", location, registeredAt);
+    poster.register(gentleSwamp, location, registeredAt);
     await repository.addRegistration(poster);
 
     await db.delete(campaignTable);
