@@ -109,6 +109,8 @@ body {
   --color-yellow-900: oklch(42.1% 0.095 57.708);
   --color-yellow-950: oklch(28.6% 0.066 53.813);
 
+  --color-error: oklch(50.5% 0.213 27.518);
+
   /* One shadow ramp for every background; only the shadow's colour changes.
      Override --shadow-color on an element (or :root) to re-tint it. */
   --shadow-color: 0deg 0% 63%;

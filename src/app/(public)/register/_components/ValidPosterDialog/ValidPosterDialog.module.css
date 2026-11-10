@@ -5,7 +5,7 @@
 }
 
 .error {
-  color: oklch(50.5% 0.213 27.518);
+  color: var(--color-error);
   font-size: var(--font-size-body);
   text-align: left;
 }
