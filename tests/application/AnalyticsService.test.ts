@@ -7,6 +7,7 @@ import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
+import { Scan } from "@domain/scan/Scan";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import { makePdf } from "../support/pdfs";
@@ -14,6 +15,7 @@ import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
 import { InMemoryScanCountLookup } from "./fakes/InMemoryScanCountLookup";
+import { InMemoryScanRepository } from "./fakes/InMemoryScanRepository";
 
 const { TOP_POSTER_COUNT } = AnalyticsService;
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
@@ -21,6 +23,7 @@ const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
 let posters: InMemoryPosterRepository;
+let scans: InMemoryScanRepository;
 let campaignService: CampaignService;
 let service: AnalyticsService;
 
@@ -48,8 +51,9 @@ async function addCampaign(designCount: number) {
 async function addPoster(designId: string, scanCount: number) {
   const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
   await posters.addAll([poster]);
-  for (let i = 0; i < scanCount; i++) poster.addScan(new Date());
-  await posters.addNewScans(poster);
+  for (let i = 0; i < scanCount; i++) {
+    await scans.add(Scan.record(poster.id, new Date()));
+  }
   return poster.id;
 }
 
@@ -57,11 +61,12 @@ beforeEach(() => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
   posters = new InMemoryPosterRepository();
+  scans = new InMemoryScanRepository(posters);
   campaignService = new CampaignService(sessions, campaigns);
   service = new AnalyticsService(
     sessions,
     campaigns,
-    new InMemoryScanCountLookup(posters),
+    new InMemoryScanCountLookup(posters, scans),
   );
 });
 

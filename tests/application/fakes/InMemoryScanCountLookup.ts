@@ -5,10 +5,14 @@ import type {
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 
 import type { InMemoryPosterRepository } from "./InMemoryPosterRepository";
+import type { InMemoryScanRepository } from "./InMemoryScanRepository";
 
-/** Behaves like DrizzleScanCountLookup, over a poster repository's contents. */
+/** Behaves like DrizzleScanCountLookup, over the repositories' contents. */
 export class InMemoryScanCountLookup implements ScanCountLookup {
-  constructor(private readonly posters: InMemoryPosterRepository) {}
+  constructor(
+    private readonly posters: InMemoryPosterRepository,
+    private readonly scans: InMemoryScanRepository,
+  ) {}
 
   async countScansPerPoster(
     designIds: readonly PosterDesignId[],
@@ -18,7 +22,7 @@ export class InMemoryScanCountLookup implements ScanCountLookup {
       .map(({ id, designId }) => ({
         posterId: id,
         designId,
-        scanCount: this.posters.scans.filter(({ posterId }) => posterId === id)
+        scanCount: this.scans.scans.filter(({ posterId }) => posterId === id)
           .length,
       }));
   }

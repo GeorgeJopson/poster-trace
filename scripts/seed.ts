@@ -13,7 +13,7 @@ import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { PosterId } from "@domain/poster/PosterId";
-import { ScanId } from "@domain/poster/ScanId";
+import { ScanId } from "@domain/scan/ScanId";
 import {
   QrPlacement,
   type QrPlacementFields,

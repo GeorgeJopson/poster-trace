@@ -6,10 +6,12 @@ import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { Poster } from "@domain/poster/Poster";
+import { Scan } from "@domain/scan/Scan";
 import { UserId } from "@domain/user/UserId";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 import { DrizzleScanCountLookup } from "@infrastructure/repositories/DrizzleScanCountLookup";
+import { DrizzleScanRepository } from "@infrastructure/repositories/DrizzleScanRepository";
 
 import { A4_PDF_DETAILS } from "../../support/pdfs";
 import { FakeBlobStore } from "./FakeBlobStore";
@@ -18,12 +20,14 @@ import { clearDatabase, db, insertUser } from "./testDb";
 const alice = UserId.from("alice");
 
 let posters: DrizzlePosterRepository;
+let scans: DrizzleScanRepository;
 let lookup: DrizzleScanCountLookup;
 
 beforeEach(async () => {
   await clearDatabase();
   await insertUser(alice);
   posters = new DrizzlePosterRepository(db);
+  scans = new DrizzleScanRepository(db);
   lookup = new DrizzleScanCountLookup(db);
 });
 
@@ -48,8 +52,9 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
 async function addPoster(designId: PosterDesignId, scanCount: number) {
   const [poster] = Poster.generate(designId, 1);
   await posters.addAll([poster]);
-  for (let i = 0; i < scanCount; i++) poster.addScan(new Date());
-  await posters.addNewScans(poster);
+  for (let i = 0; i < scanCount; i++) {
+    await scans.add(Scan.record(poster.id, new Date()));
+  }
   return poster.id;
 }
 

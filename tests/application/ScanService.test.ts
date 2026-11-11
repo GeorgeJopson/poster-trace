@@ -7,16 +7,19 @@ import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
 
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
+import { InMemoryScanRepository } from "./fakes/InMemoryScanRepository";
 import { InMemoryScanTargetLookup } from "./fakes/InMemoryScanTargetLookup";
 
 let lookup: InMemoryScanTargetLookup;
 let posters: InMemoryPosterRepository;
+let scans: InMemoryScanRepository;
 let service: ScanService;
 
 beforeEach(() => {
   lookup = new InMemoryScanTargetLookup();
   posters = new InMemoryPosterRepository();
-  service = new ScanService(lookup, posters);
+  scans = new InMemoryScanRepository(posters);
+  service = new ScanService(lookup, scans);
 });
 
 afterEach(() => {
@@ -54,7 +57,7 @@ describe("recordScan", () => {
 
     await service.recordScan(poster.id, scannedAt);
 
-    expect(posters.scans).toEqual([
+    expect(scans.scans).toEqual([
       { id: expect.any(String), posterId: poster.id, scannedAt },
     ]);
   });
@@ -65,7 +68,7 @@ describe("recordScan", () => {
     await service.recordScan(poster.id, scannedAt);
     await service.recordScan(poster.id, scannedAt);
 
-    expect(posters.scans).toHaveLength(2);
+    expect(scans.scans).toHaveLength(2);
   });
 
   it.each([
@@ -73,13 +76,13 @@ describe("recordScan", () => {
     ["a non-UUID poster id", () => "not-a-uuid"],
   ])("records nothing for %s", async (_case, posterId) => {
     await service.recordScan(posterId(), scannedAt);
-    expect(posters.scans).toEqual([]);
+    expect(scans.scans).toEqual([]);
   });
 
   it("logs a scan it couldn't record instead of throwing", async () => {
     const poster = await storedPoster();
     const failure = new Error("database is down");
-    vi.spyOn(posters, "addNewScans").mockRejectedValue(failure);
+    vi.spyOn(scans, "add").mockRejectedValue(failure);
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(
