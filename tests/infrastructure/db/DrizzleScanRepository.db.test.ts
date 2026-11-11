@@ -20,7 +20,7 @@ beforeEach(async () => {
   await clearDatabase();
   await insertUser(alice);
   const [poster] = Poster.generate(await insertDesign(alice), 1);
-  await new DrizzlePosterRepository(db).addAll([poster]);
+  await new DrizzlePosterRepository(db).save(poster);
   posterId = poster.id;
   repository = new DrizzleScanRepository(db);
 });

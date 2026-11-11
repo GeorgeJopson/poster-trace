@@ -40,7 +40,7 @@ async function addPosters(target: string, count = 1) {
   );
   await campaigns.save(campaign);
   const posters = Poster.generate(design.id, count);
-  await new DrizzlePosterRepository(db).addAll(posters);
+  await new DrizzlePosterRepository(db).save(posters);
   return { campaign, posters };
 }
 

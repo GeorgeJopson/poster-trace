@@ -177,10 +177,10 @@ export const scan = pgTable(
 );
 
 // A poster's registration, if it has one. Keyed by the poster's id, so a
-// poster has at most one and a second insert fails: the first registration
-// wins (see ADR-0016). registered_at is the server's time, set by the
-// application, so it has no default. The location columns are all set or all
-// null.
+// poster has at most one and a second insert writes nothing: the first
+// registration wins (see ADR-0016 and ADR-0018). registered_at is the
+// server's time, set by the application, so it has no default. The location
+// columns are all set or all null.
 
 export const registration = pgTable(
   "registration",

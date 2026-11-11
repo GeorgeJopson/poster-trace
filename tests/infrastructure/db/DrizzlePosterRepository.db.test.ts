@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
@@ -40,10 +39,10 @@ async function storedPosters() {
     .from(posterTable);
 }
 
-describe("addAll", () => {
+describe("save", () => {
   it("stores the posters under the domain's ids", async () => {
     const posters = Poster.generate(designId, 3);
-    await repository.addAll(posters);
+    await repository.save(posters);
 
     expect(await storedPosters()).toEqual(
       expect.arrayContaining(posters.map(({ id }) => ({ id, designId }))),
@@ -54,17 +53,17 @@ describe("addAll", () => {
   it("stores none of the posters if one can't be stored", async () => {
     const [valid] = Poster.generate(designId, 1);
     const [orphan] = Poster.generate(PosterDesignId.generate(), 1);
-    await expect(repository.addAll([valid, orphan])).rejects.toThrow();
+    await expect(repository.save([valid, orphan])).rejects.toThrow();
     expect(await storedPosters()).toEqual([]);
   });
 
   it("does nothing for no posters", async () => {
-    await repository.addAll([]);
+    await repository.save([]);
     expect(await storedPosters()).toEqual([]);
   });
 
   it("is deleted with its owner", async () => {
-    await repository.addAll(Poster.generate(designId, 2));
+    await repository.save(Poster.generate(designId, 2));
     await clearDatabase();
     expect(await storedPosters()).toEqual([]);
   });
@@ -73,7 +72,7 @@ describe("addAll", () => {
 describe("findById", () => {
   it("finds a stored poster", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
+    await repository.save(poster);
 
     const found = await repository.findById(poster.id);
 
@@ -83,9 +82,9 @@ describe("findById", () => {
 
   it("loads the poster's registration", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
+    await repository.save(poster);
     poster.register(gentleSwamp, location, registeredAt);
-    await repository.addRegistration(poster);
+    await repository.save(poster);
 
     expect((await repository.findById(poster.id))?.registration).toEqual({
       posterName: gentleSwamp,
@@ -96,9 +95,9 @@ describe("findById", () => {
 
   it("loads a registration without a location", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
+    await repository.save(poster);
     poster.register(gentleSwamp, null, registeredAt);
-    await repository.addRegistration(poster);
+    await repository.save(poster);
 
     expect(
       (await repository.findById(poster.id))?.registration?.location,
@@ -107,7 +106,7 @@ describe("findById", () => {
 
   it("gives an unregistered poster no registration", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
+    await repository.save(poster);
 
     expect((await repository.findById(poster.id))?.registration).toBeNull();
   });
@@ -117,17 +116,17 @@ describe("findById", () => {
   });
 });
 
-describe("addRegistration", () => {
+describe("save with a registration", () => {
   async function storedRegistrations() {
     return db.select().from(registrationTable);
   }
 
   it("stores the poster's registration", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
+    await repository.save(poster);
     poster.register(gentleSwamp, location, registeredAt);
 
-    await repository.addRegistration(poster);
+    await repository.save(poster);
 
     expect(await storedRegistrations()).toEqual([
       {
@@ -139,39 +138,68 @@ describe("addRegistration", () => {
     ]);
   });
 
-  it("throws AlreadyRegisteredError when the poster's already registered", async () => {
+  it("never overwrites a stored registration", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
-    // Two people load the unregistered poster at the same moment.
+    await repository.save(poster);
+    // Two people load the unregistered poster at the same moment. The race
+    // is accepted: the second save stores nothing (ADR-0018).
     const first = (await repository.findById(poster.id))!;
     const second = (await repository.findById(poster.id))!;
     first.register(gentleSwamp, location, registeredAt);
     second.register(PosterName.create("Quiet Harbour"), null, registeredAt);
-    await repository.addRegistration(first);
+    await repository.save(first);
 
-    await expect(repository.addRegistration(second)).rejects.toThrow(
-      AlreadyRegisteredError,
-    );
+    await repository.save(second);
+
     expect(await storedRegistrations()).toEqual([
       expect.objectContaining({ posterName: "Gentle Swamp" }),
     ]);
   });
 
-  it("fails for a poster that isn't stored", async () => {
+  it("stores a new poster with its registration", async () => {
     const [poster] = Poster.generate(designId, 1);
     poster.register(gentleSwamp, null, registeredAt);
 
-    const error = await repository.addRegistration(poster).catch((e) => e);
+    await repository.save(poster);
 
-    expect(error).toBeInstanceOf(Error);
-    expect(error).not.toBeInstanceOf(AlreadyRegisteredError);
+    expect(await storedPosters()).toEqual([{ id: poster.id, designId }]);
+    expect(await storedRegistrations()).toEqual([
+      expect.objectContaining({ posterId: poster.id, latitude: null }),
+    ]);
+  });
+
+  it("stores the registrations of many posters", async () => {
+    const posters = Poster.generate(designId, 2);
+    posters[0].register(gentleSwamp, location, registeredAt);
+    posters[1].register(PosterName.create("Quiet Harbour"), null, registeredAt);
+
+    await repository.save(posters);
+
+    expect(await storedRegistrations()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ posterId: posters[0].id }),
+        expect.objectContaining({ posterId: posters[1].id }),
+      ]),
+    );
+    expect(await storedRegistrations()).toHaveLength(2);
+  });
+
+  it("can save the same poster again", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    poster.register(gentleSwamp, location, registeredAt);
+    await repository.save(poster);
+
+    await repository.save(poster);
+
+    expect(await storedPosters()).toHaveLength(1);
+    expect(await storedRegistrations()).toHaveLength(1);
   });
 
   it("is deleted with the poster's campaign", async () => {
     const [poster] = Poster.generate(designId, 1);
-    await repository.addAll([poster]);
+    await repository.save(poster);
     poster.register(gentleSwamp, location, registeredAt);
-    await repository.addRegistration(poster);
+    await repository.save(poster);
 
     await db.delete(campaignTable);
 

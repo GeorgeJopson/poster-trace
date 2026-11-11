@@ -22,8 +22,10 @@ export class RegistrationService {
   /**
    * Registers the poster, timed by the server's clock. The poster name is
    * trimmed. Throws `NotFoundError` if there's no such poster,
-   * `AlreadyRegisteredError` if it's already registered (ADR-0016) and
-   * `ValidationError` for an invalid poster name or location.
+   * `AlreadyRegisteredError` if it was already registered when loaded
+   * (ADR-0016) and `ValidationError` for an invalid poster name or location.
+   * If someone else registers it at the same moment, theirs is kept and this
+   * still succeeds (ADR-0018).
    */
   async register(
     posterId: string,
@@ -39,6 +41,6 @@ export class RegistrationService {
       location && RegistrationLocation.create(location),
       this.now(),
     );
-    await this.posters.addRegistration(poster);
+    await this.posters.save(poster);
   }
 }

@@ -51,7 +51,7 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
 /** Stores a poster of the design with `scanCount` scans. */
 async function addPoster(designId: PosterDesignId, scanCount: number) {
   const [poster] = Poster.generate(designId, 1);
-  await posters.addAll([poster]);
+  await posters.save(poster);
   for (let i = 0; i < scanCount; i++) {
     await scans.add(Scan.create(poster.id, new Date()));
   }

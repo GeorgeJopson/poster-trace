@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
@@ -10,7 +9,6 @@ import type { Registration } from "@domain/poster/Registration";
 import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 
 import type { Db } from "../db/client";
-import { hasPgCode, UNIQUE_VIOLATION } from "../db/pgErrors";
 import {
   poster as posterTable,
   registration as registrationTable,
@@ -19,15 +17,45 @@ import {
 export class DrizzlePosterRepository implements PosterRepository {
   constructor(private readonly db: Db) {}
 
-  async addAll(posters: readonly Poster[]): Promise<void> {
+  save(poster: Poster): Promise<void>;
+  save(posters: readonly Poster[]): Promise<void>;
+  async save(posterOrPosters: Poster | readonly Poster[]): Promise<void> {
+    const posters =
+      posterOrPosters instanceof Poster ? [posterOrPosters] : posterOrPosters;
     if (posters.length === 0) return;
-    // One INSERT, so it's all or nothing.
-    await this.db.insert(posterTable).values(
-      posters.map((poster) => ({
-        id: poster.id,
-        posterDesignId: poster.designId,
-      })),
+    const registrations = posters.flatMap(({ id, registration }) =>
+      registration
+        ? [
+            {
+              posterId: id,
+              posterName: registration.posterName.value,
+              registeredAt: registration.registeredAt,
+              latitude: registration.location?.latitude ?? null,
+              longitude: registration.location?.longitude ?? null,
+              accuracy: registration.location?.accuracy ?? null,
+            },
+          ]
+        : [],
     );
+    await this.db.transaction(async (tx) => {
+      // Nothing on a stored poster's row changes.
+      await tx
+        .insert(posterTable)
+        .values(
+          posters.map((poster) => ({
+            id: poster.id,
+            posterDesignId: poster.designId,
+          })),
+        )
+        .onConflictDoNothing({ target: posterTable.id });
+      if (registrations.length === 0) return;
+      // The first stored registration wins and is never overwritten, even by
+      // someone who registered the poster at the same moment (ADR-0018).
+      await tx
+        .insert(registrationTable)
+        .values(registrations)
+        .onConflictDoNothing({ target: registrationTable.posterId });
+    });
   }
 
   async findById(id: PosterId): Promise<Poster | null> {
@@ -68,27 +96,5 @@ export class DrizzlePosterRepository implements PosterRepository {
       designId: PosterDesignId.from(row.designId),
       registration,
     });
-  }
-
-  async addRegistration(poster: Poster): Promise<void> {
-    const { registration } = poster;
-    if (!registration) return;
-    try {
-      await this.db.insert(registrationTable).values({
-        posterId: poster.id,
-        posterName: registration.posterName.value,
-        registeredAt: registration.registeredAt,
-        latitude: registration.location?.latitude ?? null,
-        longitude: registration.location?.longitude ?? null,
-        accuracy: registration.location?.accuracy ?? null,
-      });
-    } catch (error) {
-      // The table is keyed by poster id, so this is someone else's
-      // registration of the poster, stored since it was loaded (ADR-0016).
-      if (hasPgCode(error, UNIQUE_VIOLATION)) {
-        throw new AlreadyRegisteredError();
-      }
-      throw error;
-    }
   }
 }

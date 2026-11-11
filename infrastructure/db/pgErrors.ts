@@ -1,6 +1,3 @@
-/** Postgres's error code for a unique or primary key violation. */
-export const UNIQUE_VIOLATION = "23505";
-
 /** Postgres's error code for a foreign key violation. */
 export const FOREIGN_KEY_VIOLATION = "23503";
 
