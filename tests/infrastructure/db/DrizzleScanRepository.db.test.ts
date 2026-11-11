@@ -38,7 +38,7 @@ async function storedScans() {
 
 describe("add", () => {
   it("stores the scan under the domain's id, at its time", async () => {
-    const scan = Scan.record(posterId, scannedAt);
+    const scan = Scan.create(posterId, scannedAt);
 
     await repository.add(scan);
 
@@ -46,21 +46,21 @@ describe("add", () => {
   });
 
   it("keeps the scans already stored", async () => {
-    await repository.add(Scan.record(posterId, scannedAt));
-    await repository.add(Scan.record(posterId, scannedAt));
+    await repository.add(Scan.create(posterId, scannedAt));
+    await repository.add(Scan.create(posterId, scannedAt));
 
     expect(await storedScans()).toHaveLength(2);
   });
 
   it("stores nothing, without throwing, for a poster that isn't stored", async () => {
     await expect(
-      repository.add(Scan.record(PosterId.generate(), scannedAt)),
+      repository.add(Scan.create(PosterId.generate(), scannedAt)),
     ).resolves.toBeUndefined();
     expect(await storedScans()).toEqual([]);
   });
 
   it("fails for a scan that's already stored", async () => {
-    const scan = Scan.record(posterId, scannedAt);
+    const scan = Scan.create(posterId, scannedAt);
     await repository.add(scan);
 
     await expect(repository.add(scan)).rejects.toThrow();
@@ -68,7 +68,7 @@ describe("add", () => {
   });
 
   it("is deleted with the poster's owner", async () => {
-    await repository.add(Scan.record(posterId, scannedAt));
+    await repository.add(Scan.create(posterId, scannedAt));
 
     await clearDatabase();
 

@@ -24,7 +24,7 @@ export class Scan {
   }
 
   /** A new scan of the poster that happened at `scannedAt`. */
-  static record(posterId: PosterId, scannedAt: Date): Scan {
+  static create(posterId: PosterId, scannedAt: Date): Scan {
     return new Scan({ id: ScanId.generate(), posterId, scannedAt });
   }
 }

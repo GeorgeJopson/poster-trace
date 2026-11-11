@@ -52,7 +52,7 @@ async function addPoster(designId: string, scanCount: number) {
   const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
   await posters.addAll([poster]);
   for (let i = 0; i < scanCount; i++) {
-    await scans.add(Scan.record(poster.id, new Date()));
+    await scans.add(Scan.create(poster.id, new Date()));
   }
   return poster.id;
 }

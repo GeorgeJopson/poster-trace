@@ -1,6 +1,6 @@
 # Scan is its own aggregate, referencing its poster by id
 
-This supersedes ADR-0015's decisions that a loaded Poster holds its new scans and that `PosterRepository.addNewScans` stores them, and amends ADR-0009: a poster's lifecycle is now only its registration. A `Scan` is an aggregate of its own (`domain/scan/`) that holds only the `PosterId` of the poster it was read from. `ScanService.recordScan` creates it with `Scan.record(posterId, scannedAt)` and stores it with `ScanRepository.add(scan)`, without loading the poster.
+This supersedes ADR-0015's decisions that a loaded Poster holds its new scans and that `PosterRepository.addNewScans` stores them, and amends ADR-0009: a poster's lifecycle is now only its registration. A `Scan` is an aggregate of its own (`domain/scan/`) that holds only the `PosterId` of the poster it was read from. `ScanService.recordScan` creates it with `Scan.create(posterId, scannedAt)` and stores it with `ScanRepository.add(scan)`, without loading the poster.
 
 Recording a scan used to load the poster (a select joined to its registration) only to append to it. Nothing about the poster's state decides whether a scan is recorded: every scan counts, registered or not, so the Poster aggregate had no invariant to protect and the load was pure cost on every scan.
 
