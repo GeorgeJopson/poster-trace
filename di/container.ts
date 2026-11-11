@@ -13,6 +13,7 @@ import { RegistrationService } from "@application/services/RegistrationService";
 import { ScanService } from "@application/services/ScanService";
 import type { CampaignRepository } from "@domain/campaign/CampaignRepository";
 import type { PosterRepository } from "@domain/poster/PosterRepository";
+import type { ScanRepository } from "@domain/scan/ScanRepository";
 import type { UserRepository } from "@domain/user/UserRepository";
 import { BetterAuthAccountGateway } from "@infrastructure/auth/BetterAuthAccountGateway";
 import { BetterAuthSessionProvider } from "@infrastructure/auth/BetterAuthSessionProvider";
@@ -21,6 +22,7 @@ import { getDb } from "@infrastructure/db/client";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 import { DrizzleScanCountLookup } from "@infrastructure/repositories/DrizzleScanCountLookup";
+import { DrizzleScanRepository } from "@infrastructure/repositories/DrizzleScanRepository";
 import { DrizzleScanTargetLookup } from "@infrastructure/repositories/DrizzleScanTargetLookup";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
 import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
@@ -57,6 +59,11 @@ function getCampaignRepository() {
 let posterRepository: PosterRepository | undefined;
 function getPosterRepository() {
   return (posterRepository ??= new DrizzlePosterRepository(getDb()));
+}
+
+let scanRepository: ScanRepository | undefined;
+function getScanRepository() {
+  return (scanRepository ??= new DrizzleScanRepository(getDb()));
 }
 
 let scanTargetLookup: ScanTargetLookup | undefined;
@@ -119,7 +126,7 @@ let scanService: ScanService | undefined;
 export function getScanService() {
   return (scanService ??= new ScanService(
     getScanTargetLookup(),
-    getPosterRepository(),
+    getScanRepository(),
   ));
 }
 

@@ -161,7 +161,8 @@ export const poster = pgTable(
 );
 
 // Scans are keyed by domain-generated UUIDs too, and are only ever inserted
-// (see ADR-0015). scanned_at is when the scan happened, so it has no default.
+// (see ADR-0015 and ADR-0017). scanned_at is when the scan happened, so it
+// has no default.
 
 export const scan = pgTable(
   "scan",

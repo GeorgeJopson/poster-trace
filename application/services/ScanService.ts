@@ -1,7 +1,8 @@
 import "server-only";
 
 import { PosterId } from "@domain/poster/PosterId";
-import type { PosterRepository } from "@domain/poster/PosterRepository";
+import { Scan } from "@domain/scan/Scan";
+import type { ScanRepository } from "@domain/scan/ScanRepository";
 
 import type { ScanTargetLookup } from "../ports/ScanTargetLookup";
 
@@ -12,7 +13,7 @@ import type { ScanTargetLookup } from "../ports/ScanTargetLookup";
 export class ScanService {
   constructor(
     private readonly targets: ScanTargetLookup,
-    private readonly posters: PosterRepository,
+    private readonly scans: ScanRepository,
   ) {}
 
   /**
@@ -28,16 +29,15 @@ export class ScanService {
   /**
    * Records a scan of the poster that happened at `scannedAt`. It runs after
    * the scanner has been redirected, so it never throws: a scan that can't be
-   * recorded is logged and lost (see ADR-0015). Nothing is recorded if
-   * there's no such poster, e.g. because it was deleted since the redirect.
+   * recorded is logged and lost (see ADR-0015). The poster isn't loaded
+   * (see ADR-0017), and nothing is recorded if there's no such poster, e.g.
+   * because it was deleted since the redirect.
    */
   async recordScan(posterId: string, scannedAt: Date): Promise<void> {
     try {
       const id = PosterId.parse(posterId);
-      const poster = id && (await this.posters.findById(id));
-      if (!poster) return;
-      poster.addScan(scannedAt);
-      await this.posters.addNewScans(poster);
+      if (!id) return;
+      await this.scans.add(Scan.create(id, scannedAt));
     } catch (error) {
       console.error(`Couldn't record a scan of poster ${posterId}`, error);
     }
