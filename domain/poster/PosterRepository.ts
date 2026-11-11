@@ -9,7 +9,10 @@ export interface PosterRepository {
   /** Stores posters made by `Poster.generate`, all or none. */
   addAll(posters: readonly Poster[]): Promise<void>;
 
-  /** The poster, without its stored scans, or `null` if there's no such poster. */
+  /**
+   * The poster with its registration but without its stored scans, or `null`
+   * if there's no such poster.
+   */
   findById(id: PosterId): Promise<Poster | null>;
 
   /**
@@ -18,4 +21,11 @@ export interface PosterRepository {
    * the poster keeps its new scans, so a second call fails on their ids.
    */
   addNewScans(poster: Poster): Promise<void>;
+
+  /**
+   * Stores the poster's registration. It only ever inserts (see ADR-0016): if
+   * the poster already has a stored registration, e.g. because someone else
+   * registered it at the same moment, it throws `AlreadyRegisteredError`.
+   */
+  addRegistration(poster: Poster): Promise<void>;
 }

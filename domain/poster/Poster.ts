@@ -1,12 +1,17 @@
 import type { PosterDesignId } from "../campaign/design/PosterDesignId";
 import { ValidationError } from "../shared/ValidationError";
+import { AlreadyRegisteredError } from "./AlreadyRegisteredError";
 import { PosterId } from "./PosterId";
+import type { PosterName } from "./PosterName";
+import type { Registration } from "./Registration";
+import type { RegistrationLocation } from "./RegistrationLocation";
 import type { Scan } from "./Scan";
 import { ScanId } from "./ScanId";
 
 export type PosterProps = {
   id: PosterId;
   designId: PosterDesignId;
+  registration: Registration | null;
 };
 
 /**
@@ -15,16 +20,19 @@ export type PosterProps = {
  * id only (see ADR-0009).
  *
  * It holds only the scans added since it was generated or loaded, never its
- * stored ones, so recording a scan doesn't load them all (see ADR-0015).
+ * stored ones, so recording a scan doesn't load them all (see ADR-0015). It
+ * holds its registration, if it has one, as there's at most one (ADR-0016).
  */
 export class Poster {
   readonly id: PosterId;
   readonly designId: PosterDesignId;
+  private _registration: Registration | null;
   private readonly addedScans: Scan[] = [];
 
-  private constructor({ id, designId }: PosterProps) {
+  private constructor({ id, designId, registration }: PosterProps) {
     this.id = id;
     this.designId = designId;
+    this._registration = registration;
   }
 
   /**
@@ -39,8 +47,28 @@ export class Poster {
     }
     return Array.from(
       { length: count },
-      () => new Poster({ id: PosterId.generate(), designId }),
+      () =>
+        new Poster({ id: PosterId.generate(), designId, registration: null }),
     );
+  }
+
+  /** The poster's registration, or `null` if it hasn't been registered. */
+  get registration(): Registration | null {
+    return this._registration;
+  }
+
+  /**
+   * Registers the poster, which can only happen once: the first registration
+   * wins, so a registered poster throws `AlreadyRegisteredError` (ADR-0016).
+   */
+  register(
+    posterName: PosterName,
+    location: RegistrationLocation | null,
+    registeredAt: Date,
+  ): Registration {
+    if (this._registration) throw new AlreadyRegisteredError();
+    this._registration = { posterName, registeredAt, location };
+    return this._registration;
   }
 
   /** Scans added since the poster was generated or loaded, oldest first. */
@@ -56,8 +84,8 @@ export class Poster {
   }
 
   /**
-   * Rebuilds a stored poster, without its stored scans. Only repositories
-   * call this.
+   * Rebuilds a stored poster, with its registration but without its stored
+   * scans. Only repositories call this.
    */
   static restore(props: PosterProps): Poster {
     return new Poster(props);

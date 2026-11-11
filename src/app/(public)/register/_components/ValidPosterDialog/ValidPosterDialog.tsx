@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
-import { TextInput } from "@/components/Form";
+import { SubmitButton, TextInput } from "@/components/Form";
 import { randomPosterName, resolvePosterName } from "@/utils/posterName";
 import type { PosterId } from "@domain/poster/PosterId";
 
+import { registerPoster } from "../../actions";
 import LocationInput, { type CapturedLocation } from "../LocationInput";
 import styles from "./ValidPosterDialog.module.css";
-
-const POSTER_NAME_MAX_LENGTH = 60;
 
 interface ValidPosterDialogProps {
   // The poster that was read, while the dialog is open.
@@ -19,8 +18,8 @@ interface ValidPosterDialogProps {
   onClose: () => void;
 }
 
-// Opens when the reader reads one of this site's scan URLs. Registrations
-// aren't saved yet, so submitting logs the registration and closes the dialog.
+// Opens when the reader reads one of this site's scan URLs. Submitting saves
+// the poster's registration and closes the dialog, or shows why it couldn't.
 export default function ValidPosterDialog({
   posterId,
   onClose,
@@ -54,18 +53,27 @@ function RegistrationForm({
   const [posterName, setPosterName] = useState("");
   // Shown as the field's placeholder and saved when no name is entered.
   const [defaultPosterName] = useState(randomPosterName);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   return (
     <form
       className={styles.form}
       onSubmit={(event) => {
         event.preventDefault();
-        console.log({
-          posterId,
-          location,
-          posterName: resolvePosterName(posterName, defaultPosterName),
+        setError(null);
+        startTransition(async () => {
+          const result = await registerPoster(
+            posterId,
+            resolvePosterName(posterName, defaultPosterName),
+            location,
+          );
+          if (result.error !== null) {
+            setError(result.error);
+          } else {
+            onSubmitted();
+          }
         });
-        onSubmitted();
       }}
     >
       <LocationInput value={location} onChange={setLocation} />
@@ -73,15 +81,19 @@ function RegistrationForm({
         label="Poster name"
         name="posterName"
         required={false}
-        maxLength={POSTER_NAME_MAX_LENGTH}
         placeholder={defaultPosterName}
         helperText="Give it a memorable name to help you remember which poster this is."
         value={posterName}
         onChange={(event) => setPosterName(event.target.value)}
       />
-      <Button variant="filled" fontSize="1.25rem" type="submit">
+      {error && (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
+      )}
+      <SubmitButton isPending={isPending} isPendingText="Registering…">
         Submit
-      </Button>
+      </SubmitButton>
     </form>
   );
 }

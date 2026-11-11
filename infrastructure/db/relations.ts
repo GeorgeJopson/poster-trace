@@ -45,10 +45,21 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
     scans: r.many.scan(),
+    registration: r.one.registration({
+      from: r.poster.id,
+      to: r.registration.posterId,
+    }),
   },
   scan: {
     poster: r.one.poster({
       from: r.scan.posterId,
+      to: r.poster.id,
+      optional: false,
+    }),
+  },
+  registration: {
+    poster: r.one.poster({
+      from: r.registration.posterId,
       to: r.poster.id,
       optional: false,
     }),

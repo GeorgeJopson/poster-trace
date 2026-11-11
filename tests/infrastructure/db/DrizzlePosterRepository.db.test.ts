@@ -4,12 +4,17 @@ import { Campaign } from "@domain/campaign/Campaign";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
+import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { UserId } from "@domain/user/UserId";
 import {
+  campaign as campaignTable,
   poster as posterTable,
+  registration as registrationTable,
   scan as scanTable,
 } from "@infrastructure/db/schema";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
@@ -41,6 +46,11 @@ beforeEach(async () => {
   designId = design.id;
   repository = new DrizzlePosterRepository(db);
 });
+
+const registeredAt = new Date("2026-11-09T12:34:56.789Z");
+const locationValues = { latitude: 51.501, longitude: -0.142, accuracy: 12.5 };
+const location = RegistrationLocation.create(locationValues);
+const gentleSwamp = PosterName.create("Gentle Swamp");
 
 // The repository can't list posters or read scans back, so these check the
 // rows directly.
@@ -111,6 +121,37 @@ describe("findById", () => {
     expect((await repository.findById(poster.id))?.newScans).toEqual([]);
   });
 
+  it("loads the poster's registration", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    await repository.addAll([poster]);
+    poster.register(gentleSwamp, location, registeredAt);
+    await repository.addRegistration(poster);
+
+    expect((await repository.findById(poster.id))?.registration).toEqual({
+      posterName: gentleSwamp,
+      registeredAt,
+      location,
+    });
+  });
+
+  it("loads a registration without a location", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    await repository.addAll([poster]);
+    poster.register(gentleSwamp, null, registeredAt);
+    await repository.addRegistration(poster);
+
+    expect(
+      (await repository.findById(poster.id))?.registration?.location,
+    ).toBeNull();
+  });
+
+  it("gives an unregistered poster no registration", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    await repository.addAll([poster]);
+
+    expect((await repository.findById(poster.id))?.registration).toBeNull();
+  });
+
   it("returns null for an unknown poster", async () => {
     expect(await repository.findById(PosterId.generate())).toBeNull();
   });
@@ -175,5 +216,67 @@ describe("addNewScans", () => {
     await clearDatabase();
 
     expect(await storedScans()).toEqual([]);
+  });
+});
+
+describe("addRegistration", () => {
+  async function storedRegistrations() {
+    return db.select().from(registrationTable);
+  }
+
+  it("stores the poster's registration", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    await repository.addAll([poster]);
+    poster.register(gentleSwamp, location, registeredAt);
+
+    await repository.addRegistration(poster);
+
+    expect(await storedRegistrations()).toEqual([
+      {
+        posterId: poster.id,
+        posterName: "Gentle Swamp",
+        registeredAt,
+        ...locationValues,
+      },
+    ]);
+  });
+
+  it("throws AlreadyRegisteredError when the poster's already registered", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    await repository.addAll([poster]);
+    // Two people load the unregistered poster at the same moment.
+    const first = (await repository.findById(poster.id))!;
+    const second = (await repository.findById(poster.id))!;
+    first.register(gentleSwamp, location, registeredAt);
+    second.register(PosterName.create("Quiet Harbour"), null, registeredAt);
+    await repository.addRegistration(first);
+
+    await expect(repository.addRegistration(second)).rejects.toThrow(
+      AlreadyRegisteredError,
+    );
+    expect(await storedRegistrations()).toEqual([
+      expect.objectContaining({ posterName: "Gentle Swamp" }),
+    ]);
+  });
+
+  it("fails for a poster that isn't stored", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    poster.register(gentleSwamp, null, registeredAt);
+
+    const error = await repository.addRegistration(poster).catch((e) => e);
+
+    expect(error).toBeInstanceOf(Error);
+    expect(error).not.toBeInstanceOf(AlreadyRegisteredError);
+  });
+
+  it("is deleted with the poster's campaign", async () => {
+    const [poster] = Poster.generate(designId, 1);
+    await repository.addAll([poster]);
+    poster.register(gentleSwamp, location, registeredAt);
+    await repository.addRegistration(poster);
+
+    await db.delete(campaignTable);
+
+    expect(await storedRegistrations()).toEqual([]);
   });
 });

@@ -34,8 +34,6 @@ _Avoid_: QR position, QR settings
 
 ### Posters and scans
 
-Registrations aren't built yet.
-
 **Poster**:
 One copy of a poster design with its own QR code, so that scans can be traced back to it. A poster exists from the moment it's generated, as a page of a PDF the user prints, ready for someone to put up. It is **registered** once someone logs where it has been put up.
 _Avoid_: Using "poster" to mean a poster design
