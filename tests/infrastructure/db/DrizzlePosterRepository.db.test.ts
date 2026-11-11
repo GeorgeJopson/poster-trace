@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { Campaign } from "@domain/campaign/Campaign";
-import { CampaignTarget } from "@domain/campaign/CampaignTarget";
-import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
-import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
@@ -16,12 +12,9 @@ import {
   poster as posterTable,
   registration as registrationTable,
 } from "@infrastructure/db/schema";
-import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 
-import { A4_PDF_DETAILS } from "../../support/pdfs";
-import { FakeBlobStore } from "./FakeBlobStore";
-import { clearDatabase, db, insertUser } from "./testDb";
+import { clearDatabase, db, insertDesign, insertUser } from "./testDb";
 
 const alice = UserId.from("alice");
 
@@ -31,18 +24,7 @@ let designId: PosterDesignId;
 beforeEach(async () => {
   await clearDatabase();
   await insertUser(alice);
-  const campaigns = new DrizzleCampaignRepository(db, new FakeBlobStore());
-  const campaign = Campaign.create(
-    alice,
-    "Campaign",
-    CampaignTarget.create("https://example.com/"),
-  );
-  const design = campaign.addDesign(
-    QrPlacement.create({ x: 10, y: 10, size: 20, rotation: 0 }),
-    PosterDesignImage.create(new Blob(["pdf"]), A4_PDF_DETAILS),
-  );
-  await campaigns.save(campaign);
-  designId = design.id;
+  designId = await insertDesign(alice);
   repository = new DrizzlePosterRepository(db);
 });
 

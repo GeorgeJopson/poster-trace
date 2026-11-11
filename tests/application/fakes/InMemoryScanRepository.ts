@@ -7,7 +7,7 @@ import type { InMemoryPosterRepository } from "./InMemoryPosterRepository";
 
 /** Behaves like DrizzleScanRepository, storing the scans' values. */
 export class InMemoryScanRepository implements ScanRepository {
-  readonly scans: { id: ScanId; posterId: PosterId; scannedAt: Date }[] = [];
+  readonly stored: { id: ScanId; posterId: PosterId; scannedAt: Date }[] = [];
 
   /** `posters` stands in for the scan table's foreign key. */
   constructor(private readonly posters: InMemoryPosterRepository) {}
@@ -15,11 +15,11 @@ export class InMemoryScanRepository implements ScanRepository {
   async add({ id, posterId, scannedAt }: Scan): Promise<void> {
     // A scan of a poster that isn't stored is skipped, like the foreign key
     // violation DrizzleScanRepository ignores.
-    if (!this.posters.posters.some((poster) => poster.id === posterId)) return;
+    if (!this.posters.has(posterId)) return;
     // Only inserts, so a duplicate id fails like the primary key would.
-    if (this.scans.some((scan) => scan.id === id)) {
+    if (this.stored.some((scan) => scan.id === id)) {
       throw new Error(`Duplicate scan ${id}`);
     }
-    this.scans.push({ id, posterId, scannedAt });
+    this.stored.push({ id, posterId, scannedAt });
   }
 }

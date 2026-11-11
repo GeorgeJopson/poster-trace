@@ -57,7 +57,7 @@ describe("recordScan", () => {
 
     await service.recordScan(poster.id, scannedAt);
 
-    expect(scans.scans).toEqual([
+    expect(scans.stored).toEqual([
       { id: expect.any(String), posterId: poster.id, scannedAt },
     ]);
   });
@@ -68,7 +68,7 @@ describe("recordScan", () => {
     await service.recordScan(poster.id, scannedAt);
     await service.recordScan(poster.id, scannedAt);
 
-    expect(scans.scans).toHaveLength(2);
+    expect(scans.stored).toHaveLength(2);
   });
 
   it.each([
@@ -76,7 +76,7 @@ describe("recordScan", () => {
     ["a non-UUID poster id", () => "not-a-uuid"],
   ])("records nothing for %s", async (_case, posterId) => {
     await service.recordScan(posterId(), scannedAt);
-    expect(scans.scans).toEqual([]);
+    expect(scans.stored).toEqual([]);
   });
 
   it("logs a scan it couldn't record instead of throwing", async () => {

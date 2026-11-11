@@ -19,6 +19,11 @@ export class InMemoryPosterRepository implements PosterRepository {
     location: { latitude: number; longitude: number; accuracy: number } | null;
   }[] = [];
 
+  /** Whether the poster is stored, like the tables' foreign keys check. */
+  has(id: PosterId): boolean {
+    return this.posters.some((poster) => poster.id === id);
+  }
+
   async addAll(posters: readonly Poster[]): Promise<void> {
     this.posters.push(...posters.map(({ id, designId }) => ({ id, designId })));
   }
@@ -45,7 +50,7 @@ export class InMemoryPosterRepository implements PosterRepository {
   async addRegistration(poster: Poster): Promise<void> {
     const { registration } = poster;
     if (!registration) return;
-    if (!this.posters.some(({ id }) => id === poster.id)) {
+    if (!this.has(poster.id)) {
       // Like the registration table's foreign key.
       throw new Error(`No poster ${poster.id}`);
     }
