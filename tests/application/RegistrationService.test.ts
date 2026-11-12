@@ -5,6 +5,7 @@ import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
+import { PosterName } from "@domain/poster/PosterName";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
@@ -62,6 +63,26 @@ describe("register", () => {
     ).rejects.toThrow(AlreadyRegisteredError);
     expect(posters.registrations).toEqual([
       expect.objectContaining({ posterName: "Gentle Swamp", location }),
+    ]);
+  });
+
+  it("rejects a registration made at the same moment as someone else's", async () => {
+    const poster = await storedPoster();
+    // Someone else registers it between this one's load and save.
+    const findById = posters.findById.bind(posters);
+    posters.findById = async (id) => {
+      const loaded = await findById(id);
+      const theirs = (await findById(id))!;
+      theirs.register(PosterName.create("Gentle Swamp"), null, now);
+      await posters.save(theirs);
+      return loaded;
+    };
+
+    await expect(
+      service.register(poster.id, "Quiet Harbour", null),
+    ).rejects.toThrow(AlreadyRegisteredError);
+    expect(posters.registrations).toEqual([
+      expect.objectContaining({ posterName: "Gentle Swamp" }),
     ]);
   });
 

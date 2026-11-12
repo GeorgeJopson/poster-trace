@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
@@ -49,12 +50,41 @@ export class DrizzlePosterRepository implements PosterRepository {
         )
         .onConflictDoNothing({ target: posterTable.id });
       if (registrations.length === 0) return;
-      // The first stored registration wins and is never overwritten, even by
-      // someone who registered the poster at the same moment (ADR-0018).
-      await tx
-        .insert(registrationTable)
-        .values(registrations)
-        .onConflictDoNothing({ target: registrationTable.posterId });
+      // The first stored registration wins and is never overwritten
+      // (ADR-0016). A conflict is either this registration saved again,
+      // which is fine, or someone else's stored since the poster was loaded,
+      // which throws and rolls the whole save back (ADR-0018).
+      // (After onConflict*, this Drizzle version only types `returning()`.)
+      const inserted = new Set(
+        (
+          await tx
+            .insert(registrationTable)
+            .values(registrations)
+            .onConflictDoNothing({ target: registrationTable.posterId })
+            .returning()
+        ).map(({ posterId }) => posterId),
+      );
+      const skipped = registrations.filter(
+        ({ posterId }) => !inserted.has(posterId),
+      );
+      if (skipped.length === 0) return;
+      const stored = await tx
+        .select()
+        .from(registrationTable)
+        .where(
+          inArray(
+            registrationTable.posterId,
+            skipped.map(({ posterId }) => posterId),
+          ),
+        );
+      for (const ours of skipped) {
+        const theirs = stored.find(
+          ({ posterId }) => posterId === ours.posterId,
+        );
+        if (!theirs || !isSameRegistration(ours, theirs)) {
+          throw new AlreadyRegisteredError();
+        }
+      }
     });
   }
 
@@ -97,4 +127,17 @@ export class DrizzlePosterRepository implements PosterRepository {
       registration,
     });
   }
+}
+
+type RegistrationRow = typeof registrationTable.$inferSelect;
+
+/** Whether two registration rows hold the same registration. */
+function isSameRegistration(a: RegistrationRow, b: RegistrationRow): boolean {
+  return (
+    a.posterName === b.posterName &&
+    a.registeredAt.getTime() === b.registeredAt.getTime() &&
+    a.latitude === b.latitude &&
+    a.longitude === b.longitude &&
+    a.accuracy === b.accuracy
+  );
 }

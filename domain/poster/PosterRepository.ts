@@ -7,10 +7,13 @@ import type { PosterId } from "./PosterId";
  */
 export interface PosterRepository {
   /**
-   * Stores the poster, or the posters all or none, with any registration. A
-   * stored poster's registration is never overwritten, so if someone else
-   * registered it since it was loaded, theirs is kept and nothing is written
-   * (ADR-0018).
+   * Stores the poster, or the posters all or none, with any registration.
+   * It only ever inserts: nothing already stored is updated, so a mutation
+   * that changes a stored poster or registration needs `save` to grow an
+   * update path first (ADR-0018). Saving a stored registration again is
+   * fine, but if someone else registered the poster since it was loaded,
+   * theirs is kept, nothing is written and it throws `AlreadyRegisteredError`
+   * (ADR-0016).
    */
   save(poster: Poster): Promise<void>;
   save(posters: readonly Poster[]): Promise<void>;

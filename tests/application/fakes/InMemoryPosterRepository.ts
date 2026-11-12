@@ -1,4 +1,5 @@
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import type { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
@@ -28,13 +29,16 @@ export class InMemoryPosterRepository implements PosterRepository {
   async save(posterOrPosters: Poster | readonly Poster[]): Promise<void> {
     const posters =
       posterOrPosters instanceof Poster ? [posterOrPosters] : posterOrPosters;
+    // Checked before anything is written, so it's all or none like the
+    // Drizzle repository's transaction.
+    const newPosters: InMemoryPosterRepository["posters"] = [];
+    const newRegistrations: InMemoryPosterRepository["registrations"] = [];
     for (const { id, designId, registration } of posters) {
-      // Nothing is written over a stored poster or registration, like the
-      // Drizzle repository's ON CONFLICT DO NOTHING (ADR-0018).
-      if (!this.has(id)) this.posters.push({ id, designId });
-      if (!registration || this.isRegistered(id)) continue;
+      // Nothing is written over a stored poster or registration (ADR-0018).
+      if (!this.has(id)) newPosters.push({ id, designId });
+      if (!registration) continue;
       const { posterName, registeredAt, location } = registration;
-      this.registrations.push({
+      const row = {
         posterId: id,
         posterName: posterName.value,
         registeredAt,
@@ -43,12 +47,17 @@ export class InMemoryPosterRepository implements PosterRepository {
           longitude: location.longitude,
           accuracy: location.accuracy,
         },
-      });
+      };
+      const stored = this.registrations.find(({ posterId }) => posterId === id);
+      if (!stored) newRegistrations.push(row);
+      // Saving the same registration again is fine; someone else's stored
+      // since the poster was loaded is a conflict (ADR-0018).
+      else if (!isSameRegistration(stored, row)) {
+        throw new AlreadyRegisteredError();
+      }
     }
-  }
-
-  private isRegistered(id: PosterId): boolean {
-    return this.registrations.some(({ posterId }) => posterId === id);
+    this.posters.push(...newPosters);
+    this.registrations.push(...newRegistrations);
   }
 
   async findById(id: PosterId): Promise<Poster | null> {
@@ -69,4 +78,16 @@ export class InMemoryPosterRepository implements PosterRepository {
     }
     return Poster.restore({ ...stored, registration });
   }
+}
+
+type RegistrationRow = InMemoryPosterRepository["registrations"][number];
+
+function isSameRegistration(a: RegistrationRow, b: RegistrationRow): boolean {
+  return (
+    a.posterName === b.posterName &&
+    a.registeredAt.getTime() === b.registeredAt.getTime() &&
+    a.location?.latitude === b.location?.latitude &&
+    a.location?.longitude === b.location?.longitude &&
+    a.location?.accuracy === b.location?.accuracy
+  );
 }

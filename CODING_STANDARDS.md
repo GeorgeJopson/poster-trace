@@ -18,7 +18,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 - **Ids** are branded strings. `as XxxId` appears only inside that id's own `generate` / `from` / `parse`. Ids that come from URLs go through `parse`, which returns `null` for anything that isn't a UUID.
 - **Entities** have two factories. `create` builds a new entity and generates its id. `restore` rebuilds a stored entity and generates nothing; only repositories call it. `Poster`'s `create` is called `generate`, the glossary's word for making posters. `Scan` has no `restore`, as scans are never loaded (see ADR-0017).
 - **Repositories** take and return entities, never Drizzle rows. They store the ids the domain generated, never read the session, and take an explicit `ownerId` for owner-facing reads (see ADR-0005).
-- **Aggregate changes are persisted with the repository's `save`**, which writes the whole aggregate (see ADR-0012 and ADR-0018). A new mutation needs no repository method, but the in-memory fakes must keep matching the Drizzle repositories' `save` rules. The exception is the insert-only `ScanRepository.add` (see ADR-0015 and ADR-0017).
+- **Aggregate changes are persisted with the repository's `save`**, which writes the whole aggregate (see ADR-0012 and ADR-0018). A new mutation needs no repository method, but the in-memory fakes must keep matching the Drizzle repositories' `save` rules. `PosterRepository.save` only inserts and never updates a stored row (see ADR-0018), so a mutation that changes a stored poster or registration must add an update path to it first. The exception is the insert-only `ScanRepository.add` (see ADR-0015 and ADR-0017).
 
 ## Application
 

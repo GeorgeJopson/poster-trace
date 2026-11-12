@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
@@ -138,22 +139,36 @@ describe("save with a registration", () => {
     ]);
   });
 
-  it("never overwrites a stored registration", async () => {
+  it("throws AlreadyRegisteredError and keeps the first registration when someone else registered first", async () => {
     const [poster] = Poster.generate(designId, 1);
     await repository.save(poster);
-    // Two people load the unregistered poster at the same moment. The race
-    // is accepted: the second save stores nothing (ADR-0018).
+    // Two people load the unregistered poster at the same moment.
     const first = (await repository.findById(poster.id))!;
     const second = (await repository.findById(poster.id))!;
     first.register(gentleSwamp, location, registeredAt);
     second.register(PosterName.create("Quiet Harbour"), null, registeredAt);
     await repository.save(first);
 
-    await repository.save(second);
-
+    await expect(repository.save(second)).rejects.toThrow(
+      AlreadyRegisteredError,
+    );
     expect(await storedRegistrations()).toEqual([
       expect.objectContaining({ posterName: "Gentle Swamp" }),
     ]);
+  });
+
+  it("stores none of the posters if one was registered by someone else", async () => {
+    const [registered, fresh] = Poster.generate(designId, 2);
+    await repository.save(registered);
+    const stale = (await repository.findById(registered.id))!;
+    registered.register(gentleSwamp, location, registeredAt);
+    await repository.save(registered);
+    stale.register(PosterName.create("Quiet Harbour"), null, registeredAt);
+
+    await expect(repository.save([fresh, stale])).rejects.toThrow(
+      AlreadyRegisteredError,
+    );
+    expect(await storedPosters()).toEqual([{ id: registered.id, designId }]);
   });
 
   it("stores a new poster with its registration", async () => {
