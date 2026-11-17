@@ -75,11 +75,22 @@ function RegistrationForm({
         event.preventDefault();
         setError(null);
         startTransition(async () => {
-          const result = await registerPoster(
-            posterId,
-            resolvePosterName(posterName, defaultPosterName),
-            location,
-          );
+          let result: Awaited<ReturnType<typeof registerPoster>>;
+          try {
+            result = await registerPoster(
+              posterId,
+              resolvePosterName(posterName, defaultPosterName),
+              location,
+            );
+          } catch {
+            // The request failed (e.g. the connection dropped). Submitting
+            // again is safe: if it was saved after all, the poster is now
+            // registered and the "already registered" dialog says so.
+            setError(
+              "Poster Trace couldn't be reached. Check your connection and submit again.",
+            );
+            return;
+          }
           if (result.outcome === "saved") {
             onSubmitted();
           } else if (result.outcome === "invalid") {
