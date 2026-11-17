@@ -3,8 +3,6 @@
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 
-import styles from "./CheckFailedDialog.module.css";
-
 interface CheckFailedDialogProps {
   open: boolean;
   // Checks the same poster with the server again.
@@ -25,7 +23,7 @@ export default function CheckFailedDialog({
       onOpenChange={(nextOpen) => !nextOpen && onClose()}
       title="Couldn't check the poster"
     >
-      <p className={styles.text}>
+      <p>
         Poster Trace couldn&apos;t be reached to check this poster. Check your
         connection and try again.
       </p>

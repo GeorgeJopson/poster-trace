@@ -4,8 +4,6 @@ import type { PosterCheckDto } from "@application/dto/PosterCheckDto";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 
-import styles from "./CantRegisterDialog.module.css";
-
 /**
  * Why a poster that was read can't be registered: it isn't a Poster Trace QR
  * code at all, or the server's check says it can't be.
@@ -52,7 +50,7 @@ export default function CantRegisterDialog({
       onOpenChange={(nextOpen) => !nextOpen && onClose()}
       title={message?.title ?? ""}
     >
-      {message && <p className={styles.text}>{message.text}</p>}
+      {message && <p>{message.text}</p>}
       <Button variant="filled" fontSize="1.25rem" onClick={onClose}>
         Read a different poster
       </Button>

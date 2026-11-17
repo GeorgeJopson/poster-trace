@@ -22,11 +22,11 @@ export default function DeleteAccountDialog() {
       }
     >
       <form className={styles.form} action={formAction}>
-        <p className={styles.text}>
+        <p>
           This permanently deletes your account, along with all of your
           campaigns, poster designs and their images.
         </p>
-        <p className={styles.text}>
+        <p>
           <strong>Note:</strong> log out and back in again before deleting your
           account, to re-validate your connection.
         </p>

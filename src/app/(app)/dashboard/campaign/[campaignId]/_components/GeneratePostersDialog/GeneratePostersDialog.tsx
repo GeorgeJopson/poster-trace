@@ -106,7 +106,7 @@ export default function GeneratePostersDialog({
       }
     >
       <form className={styles.form} action={handleSubmit}>
-        <p className={styles.description}>
+        <p>
           Each poster gets its own QR code, so you can see which one was
           scanned. They download as a PDF, one A4 page per poster.
         </p>

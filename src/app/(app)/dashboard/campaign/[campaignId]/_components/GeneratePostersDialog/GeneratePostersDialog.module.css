@@ -40,16 +40,11 @@
   display: contents;
 }
 
-.description {
-  font-size: var(--font-size-body);
-}
-
 .fields {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 8px;
   align-items: center;
-  font-size: var(--font-size-body);
 }
 
 .label {
@@ -66,7 +61,6 @@
 
 .error {
   color: oklch(50.5% 0.213 27.518);
-  font-size: var(--font-size-body);
 }
 
 .submitButtonWrapper {
