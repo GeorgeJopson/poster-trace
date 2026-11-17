@@ -22,7 +22,7 @@ let service: AccountService;
 beforeEach(() => {
   sessions = new FakeSessionProvider("alice");
   users = new InMemoryUserRepository();
-  users.add("alice", "Alice", "alice@example.com");
+  users.create("alice", "Alice", "alice@example.com");
   campaigns = new InMemoryCampaignRepository();
   // Deleting the user cascades to their campaigns and designs.
   gateway = new FakeAccountGateway(() =>
