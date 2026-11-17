@@ -11,9 +11,9 @@ import type { PosterId } from "@domain/poster/PosterId";
 import { registerPoster } from "../../actions";
 import type { CantRegisterReason } from "../CantRegisterDialog";
 import LocationInput, { type CapturedLocation } from "../LocationInput";
-import styles from "./ValidPosterDialog.module.css";
+import styles from "./RegisterPosterDialog.module.css";
 
-interface ValidPosterDialogProps {
+interface RegisterPosterDialogProps {
   // The poster that was read, while the dialog is open.
   posterId: PosterId | null;
   onClose: () => void;
@@ -25,16 +25,16 @@ interface ValidPosterDialogProps {
 // Opens when the reader reads an unregistered poster. Submitting saves the
 // poster's registration and closes the dialog. An error the helper can fix is
 // shown on the form; otherwise the dialog hands over to CantRegisterDialog.
-export default function ValidPosterDialog({
+export default function RegisterPosterDialog({
   posterId,
   onClose,
   onCantRegister,
-}: ValidPosterDialogProps) {
+}: RegisterPosterDialogProps) {
   return (
     <CentralDialog
       open={posterId !== null}
       onOpenChange={(nextOpen) => !nextOpen && onClose()}
-      title="Valid poster"
+      title="Register this poster"
     >
       {/* The dialog's content unmounts on close, so each read starts a fresh
           form with a new random name. */}
@@ -46,7 +46,7 @@ export default function ValidPosterDialog({
         />
       ) : null}
       <Button variant="outline" fontSize="1rem" onClick={onClose}>
-        Register a different poster
+        Read a different poster
       </Button>
     </CentralDialog>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import type { PosterCheckDto } from "@application/dto/PosterDto";
+import type { PosterCheckDto } from "@application/dto/PosterCheckDto";
 import Button from "@/components/Button";
 import CentralDialog from "@/components/CentralDialog";
 

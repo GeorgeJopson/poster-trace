@@ -7,7 +7,7 @@ import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import type { RegistrationLocationInput } from "../dto/inputs";
-import type { PosterCheckDto } from "../dto/PosterDto";
+import type { PosterCheckDto } from "../dto/PosterCheckDto";
 
 /**
  * Registering posters. Anyone holding a poster can register it, not just its

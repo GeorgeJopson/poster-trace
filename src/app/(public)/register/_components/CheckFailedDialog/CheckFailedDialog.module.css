@@ -1,0 +1,4 @@
+.text {
+  margin: 0;
+  font-size: var(--font-size-body);
+}

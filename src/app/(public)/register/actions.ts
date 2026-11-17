@@ -1,7 +1,7 @@
 "use server";
 
 import type { RegistrationLocationInput } from "@application/dto/inputs";
-import type { PosterCheckDto } from "@application/dto/PosterDto";
+import type { PosterCheckDto } from "@application/dto/PosterCheckDto";
 import { getRegistrationService } from "@di/container";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { NotFoundError } from "@domain/shared/NotFoundError";
