@@ -50,9 +50,9 @@ async function addCampaign(designCount: number) {
 /** Stores a poster of the design and `scanCount` scans of it. */
 async function addPoster(designId: string, scanCount: number) {
   const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
-  await posters.addAll([poster]);
+  await posters.createAll([poster]);
   for (let i = 0; i < scanCount; i++) {
-    await scans.add(Scan.create(poster.id, new Date()));
+    await scans.create(Scan.create(poster.id, new Date()));
   }
   return poster.id;
 }

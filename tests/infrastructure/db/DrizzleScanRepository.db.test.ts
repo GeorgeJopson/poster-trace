@@ -20,7 +20,7 @@ beforeEach(async () => {
   await clearDatabase();
   await insertUser(alice);
   const [poster] = Poster.generate(await insertDesign(alice), 1);
-  await new DrizzlePosterRepository(db).addAll([poster]);
+  await new DrizzlePosterRepository(db).createAll([poster]);
   posterId = poster.id;
   repository = new DrizzleScanRepository(db);
 });
@@ -36,39 +36,39 @@ async function storedScans() {
     .from(scanTable);
 }
 
-describe("add", () => {
+describe("create", () => {
   it("stores the scan under the domain's id, at its time", async () => {
     const scan = Scan.create(posterId, scannedAt);
 
-    await repository.add(scan);
+    await repository.create(scan);
 
     expect(await storedScans()).toEqual([{ id: scan.id, posterId, scannedAt }]);
   });
 
   it("keeps the scans already stored", async () => {
-    await repository.add(Scan.create(posterId, scannedAt));
-    await repository.add(Scan.create(posterId, scannedAt));
+    await repository.create(Scan.create(posterId, scannedAt));
+    await repository.create(Scan.create(posterId, scannedAt));
 
     expect(await storedScans()).toHaveLength(2);
   });
 
   it("stores nothing, without throwing, for a poster that isn't stored", async () => {
     await expect(
-      repository.add(Scan.create(PosterId.generate(), scannedAt)),
+      repository.create(Scan.create(PosterId.generate(), scannedAt)),
     ).resolves.toBeUndefined();
     expect(await storedScans()).toEqual([]);
   });
 
   it("fails for a scan that's already stored", async () => {
     const scan = Scan.create(posterId, scannedAt);
-    await repository.add(scan);
+    await repository.create(scan);
 
-    await expect(repository.add(scan)).rejects.toThrow();
+    await expect(repository.create(scan)).rejects.toThrow();
     expect(await storedScans()).toHaveLength(1);
   });
 
   it("is deleted with the poster's owner", async () => {
-    await repository.add(Scan.create(posterId, scannedAt));
+    await repository.create(Scan.create(posterId, scannedAt));
 
     await clearDatabase();
 

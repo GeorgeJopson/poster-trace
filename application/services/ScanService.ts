@@ -37,7 +37,7 @@ export class ScanService {
     try {
       const id = PosterId.parse(posterId);
       if (!id) return;
-      await this.scans.add(Scan.create(id, scannedAt));
+      await this.scans.create(Scan.create(id, scannedAt));
     } catch (error) {
       console.error(`Couldn't record a scan of poster ${posterId}`, error);
     }

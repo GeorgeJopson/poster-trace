@@ -37,6 +37,6 @@ export async function insertDesign(owner: UserId): Promise<PosterDesignId> {
     QrPlacement.create({ x: 10, y: 10, size: 20, rotation: 0 }),
     PosterDesignImage.create(new Blob(["pdf"]), A4_PDF_DETAILS),
   );
-  await new DrizzleCampaignRepository(db, new FakeBlobStore()).save(campaign);
+  await new DrizzleCampaignRepository(db, new FakeBlobStore()).create(campaign);
   return design.id;
 }

@@ -81,7 +81,7 @@ export class Campaign {
 
   /**
    * Adds a new design with a generated id. Its image is stored when the
-   * campaign is saved.
+   * campaign is stored.
    */
   addDesign(qrPlacement: QrPlacement, image: PosterDesignImage): PosterDesign {
     const design = PosterDesign.create(qrPlacement, image);

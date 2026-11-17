@@ -1,5 +1,7 @@
 # Orphaned design images are deleted by a daily job
 
+Renamed by ADR-0018: `save` is now `create` and `update`, which both upload images by the rules below.
+
 This supersedes ADR-0008's consequence that orphaned images are accepted with no clean-up job, and ADR-0012's decisions that new blobs are written before the transaction and deleted if it fails. A Netlify scheduled function (`netlify/functions/delete-orphaned-design-images.mts`) runs `OrphanedDesignImageCleanup` once a day. It deletes every blob in the poster design store that no `poster_design` row points to, and it's the only thing that deletes images. Deleting an account, and later a campaign or a design, only deletes rows. Nothing has to collect image keys first, so the domain never sees them.
 
 ## Decisions

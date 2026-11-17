@@ -6,12 +6,12 @@ import type { BlobStore } from "./BlobStore";
 
 /**
  * Deletes poster design images that no design points to: those of deleted
- * designs, campaigns and accounts, and uploads from saves that failed. It's
+ * designs, campaigns and accounts, and uploads from writes that failed. It's
  * the only thing that deletes images (ADR-0013), and runs once a day.
  *
- * An image is only deleted once it's a day old, because `save` uploads a new
- * design's image before its row is committed. Images stored before upload
- * times were kept count as old.
+ * An image is only deleted once it's a day old, because `create` and
+ * `update` upload a new design's image before its row is committed. Images
+ * stored before upload times were kept count as old.
  */
 export class OrphanedDesignImageCleanup {
   static readonly GRACE_PERIOD_MS = 24 * 60 * 60 * 1000;

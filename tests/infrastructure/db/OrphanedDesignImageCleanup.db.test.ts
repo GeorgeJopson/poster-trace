@@ -30,7 +30,7 @@ beforeEach(async () => {
   cleanup = new OrphanedDesignImageCleanup(db, blobStore, () => now);
 });
 
-/** Saves a campaign with one design, whose image is stored now. */
+/** Stores a campaign with one design, whose image is stored now. */
 async function addDesign() {
   const campaign = Campaign.create(
     alice,
@@ -41,7 +41,7 @@ async function addDesign() {
     QrPlacement.create({ x: 0, y: 0, size: 10, rotation: 0 }),
     PosterDesignImage.create(new Blob(["pdf"]), A4_PDF_DETAILS),
   );
-  await repository.save(campaign);
+  await repository.create(campaign);
   return campaign;
 }
 
@@ -69,7 +69,7 @@ describe("OrphanedDesignImageCleanup.run", () => {
     expect([...blobStore.blobs.keys()]).toEqual([key]);
   });
 
-  it("keeps orphans less than a day old, which a save may be about to use", async () => {
+  it("keeps orphans less than a day old, which a write may be about to use", async () => {
     await addOrphan("recent");
     now = after(23);
 

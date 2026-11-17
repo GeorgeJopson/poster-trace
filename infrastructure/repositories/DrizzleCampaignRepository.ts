@@ -19,7 +19,7 @@ import { CampaignRowMapper } from "./CampaignRowMapper";
 // doesn't exist.
 
 // Images are written and never deleted here: a blob nothing points to, such
-// as one from a save that failed, is deleted by the daily clean-up job
+// as one from a write that failed, is deleted by the daily clean-up job
 // (ADR-0013).
 
 // What a transaction shares with the database, as the two drivers' own
@@ -67,8 +67,35 @@ export class DrizzleCampaignRepository implements CampaignRepository {
     return row ? CampaignRowMapper.toEntity(row, this.imageLoaderFor) : null;
   }
 
-  async save(campaign: Campaign): Promise<void> {
-    await this.db.transaction((tx) => this.writeCampaign(tx, campaign));
+  async create(campaign: Campaign): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      // A duplicate id breaks the primary key and throws.
+      await tx.insert(campaignTable).values({
+        id: campaign.id,
+        userId: campaign.ownerId,
+        ...this.detailsOf(campaign),
+      });
+      await this.writeDesigns(tx, campaign);
+    });
+  }
+
+  async update(campaign: Campaign): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      const updated = await tx
+        .update(campaignTable)
+        .set(this.detailsOf(campaign))
+        .where(
+          and(
+            eq(campaignTable.id, campaign.id),
+            eq(campaignTable.userId, campaign.ownerId),
+          ),
+        )
+        .returning({ id: campaignTable.id });
+      if (updated.length === 0) {
+        throw new NotFoundError("Campaign not found");
+      }
+      await this.writeDesigns(tx, campaign);
+    });
   }
 
   async findDesignImageForOwner(
@@ -88,34 +115,19 @@ export class DrizzleCampaignRepository implements CampaignRepository {
     return blob && { data: blob.data, contentType: blob.contentType };
   }
 
+  private detailsOf(campaign: Campaign) {
+    return { name: campaign.getName(), target: campaign.getTarget().value };
+  }
+
   /**
-   * Upserts the campaign and its designs. Each design that's inserted has
-   * its image uploaded under a new key before the transaction commits, as
-   * the blob store can't join it.
+   * Inserts the campaign's new designs and updates its stored ones'
+   * placements. Each design that's inserted has its image uploaded under a
+   * new key before the transaction commits, as the blob store can't join it.
    */
-  private async writeCampaign(
+  private async writeDesigns(
     tx: Transaction,
     campaign: Campaign,
   ): Promise<void> {
-    const details = {
-      name: campaign.getName(),
-      target: campaign.getTarget().value,
-    };
-    // An id stored under another owner isn't updated, and returns no row.
-    // (After onConflict*, this Drizzle version only types `returning()`.)
-    const [owned] = await tx
-      .insert(campaignTable)
-      .values({ id: campaign.id, userId: campaign.ownerId, ...details })
-      .onConflictDoUpdate({
-        target: campaignTable.id,
-        set: details,
-        setWhere: eq(campaignTable.userId, campaign.ownerId),
-      })
-      .returning();
-    if (!owned) {
-      throw new NotFoundError("Campaign not found");
-    }
-
     for (const design of campaign.getDesigns()) {
       const { x, y, size, rotation } = design.qrPlacement;
       // Each image gets its own key, not the design id.
@@ -131,7 +143,7 @@ export class DrizzleCampaignRepository implements CampaignRepository {
           size,
           rotation,
           // now() is fixed for the whole transaction, which would lose the
-          // order of designs added in one save.
+          // order of designs added in one write.
           createdAt: sql`clock_timestamp()`,
         })
         .onConflictDoNothing({ target: posterDesign.id })

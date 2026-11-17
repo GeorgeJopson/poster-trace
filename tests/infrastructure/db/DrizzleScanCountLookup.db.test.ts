@@ -44,16 +44,16 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
       PosterDesignImage.create(new Blob(["pdf"]), A4_PDF_DETAILS),
     ),
   );
-  await new DrizzleCampaignRepository(db, new FakeBlobStore()).save(campaign);
+  await new DrizzleCampaignRepository(db, new FakeBlobStore()).create(campaign);
   return designs.map((design) => design.id);
 }
 
 /** Stores a poster of the design with `scanCount` scans. */
 async function addPoster(designId: PosterDesignId, scanCount: number) {
   const [poster] = Poster.generate(designId, 1);
-  await posters.addAll([poster]);
+  await posters.createAll([poster]);
   for (let i = 0; i < scanCount; i++) {
-    await scans.add(Scan.create(poster.id, new Date()));
+    await scans.create(Scan.create(poster.id, new Date()));
   }
   return poster.id;
 }

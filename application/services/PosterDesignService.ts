@@ -39,7 +39,7 @@ export class PosterDesignService {
       throw new NotFoundError("Campaign not found");
     }
     campaign.addDesign(qrPlacement, image);
-    await this.campaigns.save(campaign);
+    await this.campaigns.update(campaign);
   }
 
   /** `null` if the design doesn't exist or isn't the user's. */

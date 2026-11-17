@@ -8,5 +8,5 @@ export interface ScanRepository {
    * it was deleted since the redirect, nothing is stored and it doesn't
    * throw (see ADR-0017).
    */
-  add(scan: Scan): Promise<void>;
+  create(scan: Scan): Promise<void>;
 }

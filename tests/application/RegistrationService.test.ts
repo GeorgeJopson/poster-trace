@@ -23,7 +23,7 @@ beforeEach(() => {
 
 async function storedPoster() {
   const [poster] = Poster.generate(PosterDesignId.generate(), 1);
-  await posters.addAll([poster]);
+  await posters.createAll([poster]);
   return poster;
 }
 

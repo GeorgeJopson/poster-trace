@@ -7,7 +7,7 @@ import type { PosterId } from "./PosterId";
  */
 export interface PosterRepository {
   /** Stores posters made by `Poster.generate`, all or none. */
-  addAll(posters: readonly Poster[]): Promise<void>;
+  createAll(posters: readonly Poster[]): Promise<void>;
 
   /** The poster with its registration, or `null` if there's no such poster. */
   findById(id: PosterId): Promise<Poster | null>;
@@ -17,5 +17,5 @@ export interface PosterRepository {
    * the poster already has a stored registration, e.g. because someone else
    * registered it at the same moment, it throws `AlreadyRegisteredError`.
    */
-  addRegistration(poster: Poster): Promise<void>;
+  createRegistration(poster: Poster): Promise<void>;
 }

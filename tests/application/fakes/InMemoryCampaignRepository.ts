@@ -28,10 +28,10 @@ type StoredImage = { data: Blob; contentType: string };
 
 /**
  * Behaves like DrizzleCampaignRepository: it stores copies, not the entities
- * it's given, so a change only persists once the campaign is saved. `save`
- * writes all or nothing, keeps stored designs missing from the campaign, and
- * stores a design's `image` only when the design is new. Like the real one,
- * it never deletes images.
+ * it's given, so a change only persists once the campaign is stored with
+ * `create` or `update`. Both write all or nothing, keep stored designs
+ * missing from the campaign, and store a design's `image` only when the
+ * design is new. Like the real one, it never deletes images.
  */
 export class InMemoryCampaignRepository implements CampaignRepository {
   // In insertion order, like ordering by created_at.
@@ -52,43 +52,24 @@ export class InMemoryCampaignRepository implements CampaignRepository {
     return stored ? this.toEntity(stored) : null;
   }
 
-  async save(campaign: Campaign): Promise<void> {
-    const existing = this.campaigns.find((c) => c.id === campaign.id);
-    if (existing && existing.ownerId !== campaign.ownerId) {
-      throw new NotFoundError("Campaign not found");
+  async create(campaign: Campaign): Promise<void> {
+    if (this.campaigns.some((c) => c.id === campaign.id)) {
+      throw new Error("Campaign already stored");
     }
-    const stored = existing ?? {
+    const stored: StoredCampaign = {
       id: campaign.id,
       ownerId: campaign.ownerId,
       name: campaign.getName(),
       target: campaign.getTarget(),
       designs: [],
     };
-    // Checked before writing anything, so a failed save changes nothing.
-    const newImages = new Map<PosterDesignId, PosterDesignImage>();
-    for (const design of campaign.getDesigns()) {
-      if (stored.designs.some((d) => d.id === design.id)) continue;
-      const image =
-        !this.isStored(design.id) && (await design.image().catch(() => null));
-      if (!image) throw new NotFoundError("Poster design not found");
-      newImages.set(design.id, image);
-    }
+    await this.write(stored, campaign, () => this.campaigns.push(stored));
+  }
 
-    if (!existing) this.campaigns.push(stored);
-    stored.name = campaign.getName();
-    stored.target = campaign.getTarget();
-    for (const design of campaign.getDesigns()) {
-      const storedDesign = stored.designs.find((d) => d.id === design.id);
-      if (storedDesign) {
-        storedDesign.qrPlacement = design.qrPlacement;
-      } else {
-        stored.designs.push({
-          id: design.id,
-          qrPlacement: design.qrPlacement,
-          imageKey: this.storeImage(newImages.get(design.id)!),
-        });
-      }
-    }
+  async update(campaign: Campaign): Promise<void> {
+    const stored = this.findStored(campaign.id, campaign.ownerId);
+    if (!stored) throw new NotFoundError("Campaign not found");
+    await this.write(stored, campaign);
   }
 
   async findDesignImageForOwner(
@@ -110,6 +91,42 @@ export class InMemoryCampaignRepository implements CampaignRepository {
       (campaign) => campaign.ownerId !== ownerId,
     );
     this.campaigns.splice(0, this.campaigns.length, ...kept);
+  }
+
+  /**
+   * Writes the campaign over `stored`. `insert` adds a new `stored` to the
+   * list, once nothing can fail.
+   */
+  private async write(
+    stored: StoredCampaign,
+    campaign: Campaign,
+    insert: () => void = () => {},
+  ) {
+    // Checked before writing anything, so a failed write changes nothing.
+    const newImages = new Map<PosterDesignId, PosterDesignImage>();
+    for (const design of campaign.getDesigns()) {
+      if (stored.designs.some((d) => d.id === design.id)) continue;
+      const image =
+        !this.isStored(design.id) && (await design.image().catch(() => null));
+      if (!image) throw new NotFoundError("Poster design not found");
+      newImages.set(design.id, image);
+    }
+
+    insert();
+    stored.name = campaign.getName();
+    stored.target = campaign.getTarget();
+    for (const design of campaign.getDesigns()) {
+      const storedDesign = stored.designs.find((d) => d.id === design.id);
+      if (storedDesign) {
+        storedDesign.qrPlacement = design.qrPlacement;
+      } else {
+        stored.designs.push({
+          id: design.id,
+          qrPlacement: design.qrPlacement,
+          imageKey: this.storeImage(newImages.get(design.id)!),
+        });
+      }
+    }
   }
 
   private isStored(designId: PosterDesignId) {

@@ -24,7 +24,7 @@ export class InMemoryPosterRepository implements PosterRepository {
     return this.posters.some((poster) => poster.id === id);
   }
 
-  async addAll(posters: readonly Poster[]): Promise<void> {
+  async createAll(posters: readonly Poster[]): Promise<void> {
     this.posters.push(...posters.map(({ id, designId }) => ({ id, designId })));
   }
 
@@ -47,7 +47,7 @@ export class InMemoryPosterRepository implements PosterRepository {
     return Poster.restore({ ...stored, registration });
   }
 
-  async addRegistration(poster: Poster): Promise<void> {
+  async createRegistration(poster: Poster): Promise<void> {
     const { registration } = poster;
     if (!registration) return;
     if (!this.has(poster.id)) {

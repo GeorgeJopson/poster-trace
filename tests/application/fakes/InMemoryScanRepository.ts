@@ -12,7 +12,7 @@ export class InMemoryScanRepository implements ScanRepository {
   /** `posters` stands in for the scan table's foreign key. */
   constructor(private readonly posters: InMemoryPosterRepository) {}
 
-  async add({ id, posterId, scannedAt }: Scan): Promise<void> {
+  async create({ id, posterId, scannedAt }: Scan): Promise<void> {
     // A scan of a poster that isn't stored is skipped, like the foreign key
     // violation DrizzleScanRepository ignores.
     if (!this.posters.has(posterId)) return;

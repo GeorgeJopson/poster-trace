@@ -8,7 +8,7 @@ import { scan as scanTable } from "../db/schema";
 export class DrizzleScanRepository implements ScanRepository {
   constructor(private readonly db: Db) {}
 
-  async add(scan: Scan): Promise<void> {
+  async create(scan: Scan): Promise<void> {
     // Every scan runs this, so it's a single insert with no check that the
     // poster exists first (see ADR-0017).
     try {

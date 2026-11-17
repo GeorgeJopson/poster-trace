@@ -19,7 +19,7 @@ import {
 export class DrizzlePosterRepository implements PosterRepository {
   constructor(private readonly db: Db) {}
 
-  async addAll(posters: readonly Poster[]): Promise<void> {
+  async createAll(posters: readonly Poster[]): Promise<void> {
     if (posters.length === 0) return;
     // One INSERT, so it's all or nothing.
     await this.db.insert(posterTable).values(
@@ -70,7 +70,7 @@ export class DrizzlePosterRepository implements PosterRepository {
     });
   }
 
-  async addRegistration(poster: Poster): Promise<void> {
+  async createRegistration(poster: Poster): Promise<void> {
     const { registration } = poster;
     if (!registration) return;
     try {

@@ -38,7 +38,7 @@ export class CampaignService {
     const userId = await requireUserId(this.sessions);
     const target = CampaignTarget.create(input.target);
     const campaign = Campaign.create(userId, input.name, target);
-    await this.campaigns.save(campaign);
+    await this.campaigns.create(campaign);
     return CampaignDtoMapper.toDto(campaign);
   }
 
@@ -53,6 +53,6 @@ export class CampaignService {
     }
     campaign.setName(input.name);
     campaign.setTarget(target);
-    await this.campaigns.save(campaign);
+    await this.campaigns.update(campaign);
   }
 }

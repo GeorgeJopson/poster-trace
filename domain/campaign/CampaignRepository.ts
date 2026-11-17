@@ -17,15 +17,24 @@ export interface CampaignRepository {
   findByIdForOwner(id: CampaignId, ownerId: UserId): Promise<Campaign | null>;
 
   /**
-   * Stores the whole campaign, all or nothing: inserts it if it's new, or
-   * updates its name and target. Designs that aren't stored yet are stored
-   * with their `image()`; stored designs get their QR placement updated, and
-   * keep their image, which never changes. A stored design that's missing
-   * from the campaign is kept, never deleted. Throws `NotFoundError` if the
-   * campaign or one of its designs is stored under someone else, or a design
-   * that isn't stored has no image.
+   * Stores a new campaign with its designs and their `image()`, all or
+   * nothing. Throws if the campaign is already stored, under any owner.
+   * Throws `NotFoundError` if one of its designs is stored under another
+   * campaign, or a design that isn't stored has no image.
    */
-  save(campaign: Campaign): Promise<void>;
+  create(campaign: Campaign): Promise<void>;
+
+  /**
+   * Stores the whole of a stored campaign, all or nothing: its name and
+   * target, and its designs. Designs that aren't stored yet are stored with
+   * their `image()`; stored designs get their QR placement updated, and keep
+   * their image, which never changes. A stored design that's missing from the
+   * campaign is kept, never deleted. Throws `NotFoundError` if the campaign
+   * isn't stored or is stored under someone else, if one of its designs is
+   * stored under another campaign, or if a design that isn't stored has no
+   * image.
+   */
+  update(campaign: Campaign): Promise<void>;
 
   /**
    * The design's image as a stream, for serving it, or `null` if it's

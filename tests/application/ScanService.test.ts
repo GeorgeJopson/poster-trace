@@ -48,7 +48,7 @@ describe("recordScan", () => {
 
   async function storedPoster() {
     const [poster] = Poster.generate(PosterDesignId.generate(), 1);
-    await posters.addAll([poster]);
+    await posters.createAll([poster]);
     return poster;
   }
 
@@ -82,7 +82,7 @@ describe("recordScan", () => {
   it("logs a scan it couldn't record instead of throwing", async () => {
     const poster = await storedPoster();
     const failure = new Error("database is down");
-    vi.spyOn(scans, "add").mockRejectedValue(failure);
+    vi.spyOn(scans, "create").mockRejectedValue(failure);
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(

@@ -2,6 +2,8 @@
 
 Partly superseded by ADR-0013: `save` now uploads images inside the transaction, only for designs it inserts, and never deletes them. Designs carry an `image` instead of a `newImage`.
 
+Partly superseded by ADR-0018: `save` is split into `create` and `update`, so new or existing is no longer decided by an upsert. Both write the whole aggregate by the rules below.
+
 This supersedes ADR-0007. `CampaignRepository` now has a single `save(campaign)` in place of `add`, `updateDetails` and `addDesign`. One method per kind of change meant every new aggregate mutation needed its own repository method, matched exactly in the in-memory fake, and a mutation saved through the wrong method was silently lost. `save` writes whatever the aggregate holds, so new mutations need no repository changes.
 
 ## Decisions

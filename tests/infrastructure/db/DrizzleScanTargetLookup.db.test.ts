@@ -38,9 +38,9 @@ async function addPosters(target: string, count = 1) {
     QrPlacement.create({ x: 10, y: 10, size: 20, rotation: 0 }),
     PosterDesignImage.create(new Blob(["pdf"]), A4_PDF_DETAILS),
   );
-  await campaigns.save(campaign);
+  await campaigns.create(campaign);
   const posters = Poster.generate(design.id, count);
-  await new DrizzlePosterRepository(db).addAll(posters);
+  await new DrizzlePosterRepository(db).createAll(posters);
   return { campaign, posters };
 }
 
@@ -58,7 +58,7 @@ describe("findTarget", () => {
   it("finds the campaign's current target after it changes", async () => {
     const { campaign, posters } = await addPosters("https://example.com/");
     campaign.setTarget(CampaignTarget.create("https://example.com/new"));
-    await campaigns.save(campaign);
+    await campaigns.update(campaign);
 
     const target = await lookup.findTarget(posters[0].id);
     expect(target?.value).toBe("https://example.com/new");
