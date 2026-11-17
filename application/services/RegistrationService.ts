@@ -7,6 +7,7 @@ import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import type { RegistrationLocationInput } from "../dto/inputs";
+import type { PosterCheckDto } from "../dto/PosterDto";
 
 /**
  * Registering posters. Anyone holding a poster can register it, not just its
@@ -18,6 +19,18 @@ export class RegistrationService {
     /** The server's clock, which registrations are timed by. */
     private readonly now: () => Date = () => new Date(),
   ) {}
+
+  /**
+   * Whether Poster Trace recognises the poster and, if so, whether it's
+   * registered. A malformed poster id is `"unknown"`. It reveals nothing about
+   * the registration, as anyone can call it (#40, user story 14).
+   */
+  async checkPoster(posterId: string): Promise<PosterCheckDto> {
+    const id = PosterId.parse(posterId);
+    const poster = id && (await this.posters.findById(id));
+    if (!poster) return "unknown";
+    return poster.registration ? "registered" : "unregistered";
+  }
 
   /**
    * Registers the poster, timed by the server's clock. The poster name is
