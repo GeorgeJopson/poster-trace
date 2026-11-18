@@ -1,5 +1,4 @@
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { Poster } from "@domain/poster/Poster";
 import type { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
@@ -24,8 +23,32 @@ export class InMemoryPosterRepository implements PosterRepository {
     return this.posters.some((poster) => poster.id === id);
   }
 
-  async addAll(posters: readonly Poster[]): Promise<void> {
-    this.posters.push(...posters.map(({ id, designId }) => ({ id, designId })));
+  async save(posters: Poster | readonly Poster[]): Promise<void> {
+    const all = posters instanceof Poster ? [posters] : posters;
+    for (const { id, designId, registration } of all) {
+      const stored = this.posters.find((poster) => poster.id === id);
+      if (stored) stored.designId = designId;
+      else this.posters.push({ id, designId });
+
+      // Never deleted, and the last one saved wins, like the upsert.
+      if (!registration) continue;
+      const { posterName, registeredAt, location } = registration;
+      const row = {
+        posterId: id,
+        posterName: posterName.value,
+        registeredAt,
+        location: location && {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy,
+        },
+      };
+      const index = this.registrations.findIndex(
+        ({ posterId }) => posterId === id,
+      );
+      if (index === -1) this.registrations.push(row);
+      else this.registrations[index] = row;
+    }
   }
 
   async findById(id: PosterId): Promise<Poster | null> {
@@ -45,30 +68,5 @@ export class InMemoryPosterRepository implements PosterRepository {
       };
     }
     return Poster.restore({ ...stored, registration });
-  }
-
-  async addRegistration(poster: Poster): Promise<void> {
-    const { registration } = poster;
-    if (!registration) return;
-    if (!this.has(poster.id)) {
-      // Like the registration table's foreign key.
-      throw new Error(`No poster ${poster.id}`);
-    }
-    // Keyed by poster id, so a second registration fails like the primary
-    // key would.
-    if (this.registrations.some(({ posterId }) => posterId === poster.id)) {
-      throw new AlreadyRegisteredError();
-    }
-    const { posterName, registeredAt, location } = registration;
-    this.registrations.push({
-      posterId: poster.id,
-      posterName: posterName.value,
-      registeredAt,
-      location: location && {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        accuracy: location.accuracy,
-      },
-    });
   }
 }

@@ -56,6 +56,7 @@ export class Poster {
   /**
    * Registers the poster, which can only happen once: the first registration
    * wins, so a registered poster throws `AlreadyRegisteredError` (ADR-0016).
+   * This is the only check: the repository doesn't make one (ADR-0018).
    */
   register(
     posterName: PosterName,

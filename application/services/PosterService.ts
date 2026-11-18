@@ -42,7 +42,7 @@ export class PosterService {
     }
 
     const posters = Poster.generate(design.id, count);
-    await this.posters.addAll(posters);
+    await this.posters.save(posters);
     return posters.map((poster) => ({
       id: poster.id,
       scanUrl: ClientScanUrlService.build(this.baseUrl, poster.id),
