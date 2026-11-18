@@ -1,45 +1,61 @@
 "use server";
 
 import type { RegistrationLocationInput } from "@application/dto/inputs";
+import type { PosterCheckDto } from "@application/dto/PosterCheckDto";
 import { getRegistrationService } from "@di/container";
 import { AlreadyRegisteredError } from "@domain/poster/AlreadyRegisteredError";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
-/**
- * Why the poster couldn't be registered, or `null` if it was. Returned rather
- * than thrown, because Next.js hides a thrown error's message in production.
- */
-export type RegisterPosterResult = { error: string } | { error: null };
+// Public: anyone holding a poster can register it, so neither action ever
+// needs a session. They still go through withSignInRedirect, like every action.
 
-// Public: anyone holding a poster can register it, so this never needs a
-// session. It still goes through withSignInRedirect, like every action.
+/** Whether the poster that was read is unknown, registered or unregistered. */
+export async function checkPoster(posterId: string): Promise<PosterCheckDto> {
+  return withSignInRedirect(async () => {
+    // A Server Action is a public endpoint, so its arguments can be anything.
+    if (typeof posterId !== "string") return "unknown";
+    return getRegistrationService().checkPoster(posterId);
+  });
+}
+
+/**
+ * How registering went. `"invalid"` carries an error the helper can fix by
+ * submitting again. `"registered"` and `"unknown"` mean the poster itself
+ * can't be registered (someone registered it, or it stopped existing, after it
+ * was read), so the page shows that poster check's dialog instead. Returned
+ * rather than thrown, because Next.js hides a thrown error's message in
+ * production.
+ */
+export type RegisterPosterResult =
+  | { outcome: "saved" }
+  | { outcome: "invalid"; error: string }
+  | { outcome: Exclude<PosterCheckDto, "unregistered"> };
+
 export async function registerPoster(
   posterId: string,
   posterName: string,
   location: RegistrationLocationInput | null,
 ): Promise<RegisterPosterResult> {
   return withSignInRedirect(async () => {
-    // A Server Action is a public endpoint, so its arguments can be anything.
     if (typeof posterId !== "string" || typeof posterName !== "string") {
-      return { error: "This registration couldn't be saved." };
+      return {
+        outcome: "invalid",
+        error: "This registration couldn't be saved.",
+      };
     }
     try {
       await getRegistrationService().register(posterId, posterName, location);
-      return { error: null };
+      return { outcome: "saved" };
     } catch (error) {
-      if (
-        error instanceof ValidationError ||
-        error instanceof AlreadyRegisteredError
-      ) {
-        return { error: error.message };
+      if (error instanceof ValidationError) {
+        return { outcome: "invalid", error: error.message };
       }
-      if (error instanceof NotFoundError) {
-        return {
-          error: "Poster Trace doesn't recognise this poster.",
-        };
+      if (error instanceof AlreadyRegisteredError) {
+        return { outcome: "registered" };
       }
+      if (error instanceof NotFoundError) return { outcome: "unknown" };
       throw error;
     }
   });

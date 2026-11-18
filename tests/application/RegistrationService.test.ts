@@ -97,3 +97,25 @@ describe("register's checks", () => {
     expect(posters.registrations).toEqual([]);
   });
 });
+
+describe("checkPoster", () => {
+  it("says a stored poster nobody has registered is unregistered", async () => {
+    const poster = await storedPoster();
+
+    expect(await service.checkPoster(poster.id)).toBe("unregistered");
+  });
+
+  it("says a poster someone has registered is registered", async () => {
+    const poster = await storedPoster();
+    await service.register(poster.id, "Gentle Swamp", location);
+
+    expect(await service.checkPoster(poster.id)).toBe("registered");
+  });
+
+  it.each([
+    ["an unknown poster id", () => PosterId.generate()],
+    ["a non-UUID poster id", () => "not-a-uuid"],
+  ])("says %s is unknown", async (_case, posterId) => {
+    expect(await service.checkPoster(posterId())).toBe("unknown");
+  });
+});
