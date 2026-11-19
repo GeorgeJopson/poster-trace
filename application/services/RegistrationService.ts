@@ -52,6 +52,6 @@ export class RegistrationService {
       location && RegistrationLocation.create(location),
       this.now(),
     );
-    await this.posters.addRegistration(poster);
+    await this.posters.save(poster);
   }
 }

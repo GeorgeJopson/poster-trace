@@ -6,16 +6,14 @@ import type { PosterId } from "./PosterId";
  * belongs to the user first (see ADR-0009).
  */
 export interface PosterRepository {
-  /** Stores posters made by `Poster.generate`, all or none. */
-  addAll(posters: readonly Poster[]): Promise<void>;
-
   /** The poster with its registration, or `null` if there's no such poster. */
   findById(id: PosterId): Promise<Poster | null>;
 
   /**
-   * Stores the poster's registration. It only ever inserts (see ADR-0016): if
-   * the poster already has a stored registration, e.g. because someone else
-   * registered it at the same moment, it throws `AlreadyRegisteredError`.
+   * Stores whatever the posters hold, new or already stored, all or none (see
+   * ADR-0018). A stored registration is never deleted, and a different one
+   * replaces it: only `poster.register` stops a second registration.
    */
-  addRegistration(poster: Poster): Promise<void>;
+  save(poster: Poster): Promise<void>;
+  save(posters: readonly Poster[]): Promise<void>;
 }
