@@ -1,10 +1,13 @@
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import type { PosterId } from "@domain/poster/PosterId";
+import type { PosterName } from "@domain/poster/PosterName";
 
-/** A poster and its scan count. */
+/** A poster, its poster name if it's registered, and its scan count. */
 export type PosterScanCount = {
   posterId: PosterId;
   designId: PosterDesignId;
+  /** `null` if the poster isn't registered. */
+  posterName: PosterName | null;
   scanCount: number;
 };
 
@@ -14,8 +17,8 @@ export type PosterScanCount = {
  */
 export interface ScanCountLookup {
   /**
-   * The scan count of every poster of the designs, including posters with no
-   * scans, in no particular order.
+   * The poster name and scan count of every poster of the designs, including
+   * unregistered posters and posters with no scans, in no particular order.
    */
   countScansPerPoster(
     designIds: readonly PosterDesignId[],

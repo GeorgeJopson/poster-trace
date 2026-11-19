@@ -19,7 +19,8 @@ export type DesignScanDistributionDto = {
 /** A poster with one of a campaign's highest scan counts. */
 export type TopPosterDto = {
   posterId: string;
-  designPosition: DesignPosition;
+  /** `null` if the poster isn't registered. */
+  posterName: string | null;
   /** At least 1. */
   scanCount: number;
 };

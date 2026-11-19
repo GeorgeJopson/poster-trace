@@ -6,6 +6,7 @@ import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { Poster } from "@domain/poster/Poster";
+import { PosterName } from "@domain/poster/PosterName";
 import { Scan } from "@domain/scan/Scan";
 import { UserId } from "@domain/user/UserId";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
@@ -48,9 +49,19 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
   return designs.map((design) => design.id);
 }
 
-/** Stores a poster of the design with `scanCount` scans. */
-async function addPoster(designId: PosterDesignId, scanCount: number) {
+/**
+ * Stores a poster of the design with `scanCount` scans, registered with
+ * `posterName` if one is given.
+ */
+async function addPoster(
+  designId: PosterDesignId,
+  scanCount: number,
+  posterName?: string,
+) {
   const [poster] = Poster.generate(designId, 1);
+  if (posterName !== undefined) {
+    poster.register(PosterName.create(posterName), null, new Date());
+  }
   await posters.save([poster]);
   for (let i = 0; i < scanCount; i++) {
     await scans.add(Scan.create(poster.id, new Date()));
@@ -69,9 +80,9 @@ describe("countScansPerPoster", () => {
     expect(counts).toHaveLength(3);
     expect(counts).toEqual(
       expect.arrayContaining([
-        { posterId: a, designId: first, scanCount: 3 },
-        { posterId: b, designId: first, scanCount: 0 },
-        { posterId: c, designId: second, scanCount: 1 },
+        { posterId: a, designId: first, posterName: null, scanCount: 3 },
+        { posterId: b, designId: first, posterName: null, scanCount: 0 },
+        { posterId: c, designId: second, posterName: null, scanCount: 1 },
       ]),
     );
   });
@@ -82,8 +93,33 @@ describe("countScansPerPoster", () => {
     await addPoster(second, 2);
 
     expect(await lookup.countScansPerPoster([first])).toEqual([
-      { posterId: a, designId: first, scanCount: 1 },
+      { posterId: a, designId: first, posterName: null, scanCount: 1 },
     ]);
+  });
+
+  it("gives registered posters their poster name and unregistered ones none", async () => {
+    const [design] = await addDesigns(1);
+    const registered = await addPoster(design, 2, "Corner café");
+    const unregistered = await addPoster(design, 1);
+
+    const counts = await lookup.countScansPerPoster([design]);
+    expect(counts).toHaveLength(2);
+    expect(counts).toEqual(
+      expect.arrayContaining([
+        {
+          posterId: registered,
+          designId: design,
+          posterName: PosterName.create("Corner café"),
+          scanCount: 2,
+        },
+        {
+          posterId: unregistered,
+          designId: design,
+          posterName: null,
+          scanCount: 1,
+        },
+      ]),
+    );
   });
 
   it("is empty when given no designs", async () => {

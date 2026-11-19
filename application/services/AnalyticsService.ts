@@ -22,10 +22,10 @@ export class AnalyticsService {
 
   /**
    * What the analytics show for one of the signed-in user's campaigns: its
-   * scan distribution and top posters, with each design referred to by its
-   * position in the campaign. The campaign is loaded for its owner, which is
-   * how ownership is checked (see ADR-0009), so another user's campaign
-   * reads as missing (see ADR-0005).
+   * scan distribution, with each design referred to by its position in the
+   * campaign, and its top posters, with their poster names. The campaign is
+   * loaded for its owner, which is how ownership is checked (see ADR-0009),
+   * so another user's campaign reads as missing (see ADR-0005).
    */
   async getCampaignAnalytics(
     campaignId: string,
@@ -59,9 +59,9 @@ export class AnalyticsService {
           (a.posterId < b.posterId ? -1 : a.posterId > b.posterId ? 1 : 0),
       )
       .slice(0, AnalyticsService.TOP_POSTER_COUNT)
-      .map(({ posterId, designId, scanCount }) => ({
+      .map(({ posterId, posterName, scanCount }) => ({
         posterId,
-        designPosition: positionOf.get(designId)!,
+        posterName: posterName?.value ?? null,
         scanCount,
       }));
 
