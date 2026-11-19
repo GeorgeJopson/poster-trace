@@ -25,6 +25,29 @@ export type TopPosterDto = {
   scanCount: number;
 };
 
+/** A located poster, as a point on the scan map. */
+export type MapPosterDto = {
+  posterId: string;
+  latitude: number;
+  longitude: number;
+  scanCount: number;
+};
+
+/** Where a campaign's posters are and how much each has been scanned. */
+export type ScanMapDto = {
+  /** The campaign's located posters, including ones with no scans. */
+  posters: MapPosterDto[];
+  /** The highest scan count of `posters`, or 0 if it's empty. */
+  maxScanCount: number;
+  /**
+   * How many of the campaign's posters aren't on the map, because they're
+   * unregistered or registered without a location.
+   */
+  unmappedPosterCount: PosterCount;
+  /** How many posters the campaign has, registered or not. */
+  posterCount: PosterCount;
+};
+
 /** What the analytics show for a campaign. */
 export type CampaignAnalyticsDto =
   /** No posters have been generated from any of the campaign's designs. */
@@ -44,4 +67,5 @@ export type CampaignAnalyticsDto =
        * ordered by id.
        */
       topPosters: TopPosterDto[];
+      scanMap: ScanMapDto;
     };

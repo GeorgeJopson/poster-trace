@@ -50,6 +50,10 @@ _Avoid_: Activation, placement; using "registration" for the act of logging a po
 A memorable name given to a poster when it's registered, so people can tell it apart from the campaign's other posters. Whoever registers the poster chooses it. It isn't an identifier, so two posters can share a name.
 _Avoid_: Label, title, nickname
 
+**Location**:
+Where a poster is, optionally given when it's registered. A poster is **located** when its registration has a location.
+_Avoid_: Position, coordinates, GPS
+
 **Scan**:
 One reading of a poster's QR code, recorded at the time it happened. Every scan of a poster counts, whether or not the poster is registered, and repeat scans by the same person count again. A few scans may go unrecorded; the scanner still reaches the target.
 _Avoid_: Visit, hit, click; "scan" for reading a QR code while registering a poster, since that isn't recorded and doesn't reach the target (say "read")

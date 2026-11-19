@@ -23,7 +23,8 @@ export class AnalyticsService {
   /**
    * What the analytics show for one of the signed-in user's campaigns: its
    * scan distribution, with each design referred to by its position in the
-   * campaign, and its top posters, with their poster names. The campaign is
+   * campaign, its top posters, with their poster names, and its scan map of
+   * located posters. The campaign is
    * loaded for its owner, which is how ownership is checked (see ADR-0009),
    * so another user's campaign reads as missing (see ADR-0005).
    */
@@ -65,6 +66,28 @@ export class AnalyticsService {
         scanCount,
       }));
 
-    return { kind: "posters", scanDistribution, topPosters };
+    const mapPosters = counts.flatMap(({ posterId, location, scanCount }) =>
+      location
+        ? [
+            {
+              posterId,
+              latitude: location.latitude,
+              longitude: location.longitude,
+              scanCount,
+            },
+          ]
+        : [],
+    );
+    const scanMap = {
+      posters: mapPosters,
+      maxScanCount: Math.max(
+        0,
+        ...mapPosters.map(({ scanCount }) => scanCount),
+      ),
+      unmappedPosterCount: counts.length - mapPosters.length,
+      posterCount: counts.length,
+    };
+
+    return { kind: "posters", scanDistribution, topPosters, scanMap };
   }
 }

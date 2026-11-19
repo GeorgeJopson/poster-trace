@@ -1,13 +1,19 @@
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import type { PosterId } from "@domain/poster/PosterId";
 import type { PosterName } from "@domain/poster/PosterName";
+import type { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 
-/** A poster, its poster name if it's registered, and its scan count. */
+/**
+ * A poster, its poster name if it's registered, its location if it's located,
+ * and its scan count.
+ */
 export type PosterScanCount = {
   posterId: PosterId;
   designId: PosterDesignId;
   /** `null` if the poster isn't registered. */
   posterName: PosterName | null;
+  /** `null` if the poster isn't located. */
+  location: RegistrationLocation | null;
   scanCount: number;
 };
 
@@ -17,7 +23,7 @@ export type PosterScanCount = {
  */
 export interface ScanCountLookup {
   /**
-   * The poster name and scan count of every poster of the designs, including
+   * The poster name, location and scan count of every poster of the designs, including
    * unregistered posters and posters with no scans, in no particular order.
    */
   countScansPerPoster(

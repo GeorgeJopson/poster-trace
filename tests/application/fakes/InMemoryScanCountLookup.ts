@@ -4,6 +4,7 @@ import type {
 } from "@application/ports/ScanCountLookup";
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterName } from "@domain/poster/PosterName";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 
 import type { InMemoryPosterRepository } from "./InMemoryPosterRepository";
 import type { InMemoryScanRepository } from "./InMemoryScanRepository";
@@ -29,6 +30,9 @@ export class InMemoryScanCountLookup implements ScanCountLookup {
           designId,
           posterName: registration
             ? PosterName.create(registration.posterName)
+            : null,
+          location: registration?.location
+            ? RegistrationLocation.create(registration.location)
             : null,
           scanCount: this.scans.stored.filter(({ posterId }) => posterId === id)
             .length,
