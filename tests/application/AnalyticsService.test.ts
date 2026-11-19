@@ -8,6 +8,7 @@ import { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
 import { PosterName } from "@domain/poster/PosterName";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { Scan } from "@domain/scan/Scan";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
@@ -48,18 +49,24 @@ async function addCampaign(designCount: number) {
   };
 }
 
+/** A location at the given point. */
+function at(latitude: number, longitude: number) {
+  return RegistrationLocation.create({ latitude, longitude, accuracy: 20 });
+}
+
 /**
  * Stores a poster of the design and `scanCount` scans of it, registered with
- * `posterName` if one is given.
+ * `posterName` and `location` if a poster name is given.
  */
 async function addPoster(
   designId: string,
   scanCount: number,
   posterName?: string,
+  location: RegistrationLocation | null = null,
 ) {
   const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
   if (posterName !== undefined) {
-    poster.register(PosterName.create(posterName), null, new Date());
+    poster.register(PosterName.create(posterName), location, new Date());
   }
   await posters.save([poster]);
   for (let i = 0; i < scanCount; i++) {
@@ -133,6 +140,47 @@ describe("getCampaignAnalytics", () => {
     });
   });
 
+  it("maps the located posters with their scan counts, and counts the posters that aren't on the map", async () => {
+    const { campaignId, designIds } = await addCampaign(2);
+    const [first, second] = designIds;
+    const a = await addPoster(first, 3, "Corner café", at(51.5, -0.12));
+    const b = await addPoster(second, 0, "Library", at(51.6, -0.1));
+    await addPoster(first, 5, "Station");
+    await addPoster(second, 2);
+
+    const analytics = await service.getCampaignAnalytics(campaignId);
+    expect(analytics).toMatchObject({
+      scanMap: {
+        maxScanCount: 3,
+        unmappedPosterCount: 2,
+        posterCount: 4,
+      },
+    });
+    if (analytics.kind !== "posters") return;
+    expect(analytics.scanMap.posters).toHaveLength(2);
+    expect(analytics.scanMap.posters).toEqual(
+      expect.arrayContaining([
+        { posterId: a, latitude: 51.5, longitude: -0.12, scanCount: 3 },
+        { posterId: b, latitude: 51.6, longitude: -0.1, scanCount: 0 },
+      ]),
+    );
+  });
+
+  it("maps no posters when none is located", async () => {
+    const { campaignId, designIds } = await addCampaign(1);
+    await addPoster(designIds[0], 1, "Station");
+    await addPoster(designIds[0], 4);
+
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      scanMap: {
+        posters: [],
+        maxScanCount: 0,
+        unmappedPosterCount: 2,
+        posterCount: 2,
+      },
+    });
+  });
+
   it("ignores other campaigns' posters", async () => {
     const { campaignId, designIds } = await addCampaign(1);
     const other = await addCampaign(1);
@@ -143,6 +191,12 @@ describe("getCampaignAnalytics", () => {
       kind: "posters",
       scanDistribution: [{ position: 0, posterCounts: [1] }],
       topPosters: [],
+      scanMap: {
+        posters: [],
+        maxScanCount: 0,
+        unmappedPosterCount: 1,
+        posterCount: 1,
+      },
     });
   });
 

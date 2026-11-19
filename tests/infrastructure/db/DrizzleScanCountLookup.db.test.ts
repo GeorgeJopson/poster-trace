@@ -7,6 +7,7 @@ import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { Poster } from "@domain/poster/Poster";
 import { PosterName } from "@domain/poster/PosterName";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { Scan } from "@domain/scan/Scan";
 import { UserId } from "@domain/user/UserId";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
@@ -51,16 +52,17 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
 
 /**
  * Stores a poster of the design with `scanCount` scans, registered with
- * `posterName` if one is given.
+ * `posterName` and `location` if a poster name is given.
  */
 async function addPoster(
   designId: PosterDesignId,
   scanCount: number,
   posterName?: string,
+  location: RegistrationLocation | null = null,
 ) {
   const [poster] = Poster.generate(designId, 1);
   if (posterName !== undefined) {
-    poster.register(PosterName.create(posterName), null, new Date());
+    poster.register(PosterName.create(posterName), location, new Date());
   }
   await posters.save([poster]);
   for (let i = 0; i < scanCount; i++) {
@@ -80,9 +82,27 @@ describe("countScansPerPoster", () => {
     expect(counts).toHaveLength(3);
     expect(counts).toEqual(
       expect.arrayContaining([
-        { posterId: a, designId: first, posterName: null, scanCount: 3 },
-        { posterId: b, designId: first, posterName: null, scanCount: 0 },
-        { posterId: c, designId: second, posterName: null, scanCount: 1 },
+        {
+          posterId: a,
+          designId: first,
+          posterName: null,
+          location: null,
+          scanCount: 3,
+        },
+        {
+          posterId: b,
+          designId: first,
+          posterName: null,
+          location: null,
+          scanCount: 0,
+        },
+        {
+          posterId: c,
+          designId: second,
+          posterName: null,
+          location: null,
+          scanCount: 1,
+        },
       ]),
     );
   });
@@ -93,7 +113,13 @@ describe("countScansPerPoster", () => {
     await addPoster(second, 2);
 
     expect(await lookup.countScansPerPoster([first])).toEqual([
-      { posterId: a, designId: first, posterName: null, scanCount: 1 },
+      {
+        posterId: a,
+        designId: first,
+        posterName: null,
+        location: null,
+        scanCount: 1,
+      },
     ]);
   });
 
@@ -110,14 +136,40 @@ describe("countScansPerPoster", () => {
           posterId: registered,
           designId: design,
           posterName: PosterName.create("Corner café"),
+          location: null,
           scanCount: 2,
         },
         {
           posterId: unregistered,
           designId: design,
           posterName: null,
+          location: null,
           scanCount: 1,
         },
+      ]),
+    );
+  });
+
+  it("gives located posters their location and other posters none", async () => {
+    const [design] = await addDesigns(1);
+    const location = RegistrationLocation.create({
+      latitude: 51.5072,
+      longitude: -0.1276,
+      accuracy: 12,
+    });
+    const located = await addPoster(design, 2, "Corner café", location);
+    const unlocated = await addPoster(design, 1, "Station");
+    const unregistered = await addPoster(design, 0);
+
+    const counts = await lookup.countScansPerPoster([design]);
+    const locationOf = new Map(
+      counts.map(({ posterId, location }) => [posterId, location]),
+    );
+    expect(locationOf).toEqual(
+      new Map([
+        [located, location],
+        [unlocated, null],
+        [unregistered, null],
       ]),
     );
   });

@@ -7,6 +7,7 @@ import type {
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
+import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 
 import type { Db } from "../db/client";
 import {
@@ -25,12 +26,16 @@ export class DrizzleScanCountLookup implements ScanCountLookup {
     // Counted in one query, without loading any scans (see ADR-0015). The
     // left join keeps posters with no scans, and count(scan.id) gives them 0.
     // A poster has at most one registration, so joining it adds no rows, and
-    // unregistered posters get a null poster name.
+    // unregistered posters get a null poster name and location. A location's
+    // columns are all set or all null.
     const rows = await this.db
       .select({
         posterId: posterTable.id,
         designId: posterTable.posterDesignId,
         posterName: registrationTable.posterName,
+        latitude: registrationTable.latitude,
+        longitude: registrationTable.longitude,
+        accuracy: registrationTable.accuracy,
         scanCount: count(scanTable.id),
       })
       .from(posterTable)
@@ -46,6 +51,14 @@ export class DrizzleScanCountLookup implements ScanCountLookup {
       designId: PosterDesignId.from(row.designId),
       posterName:
         row.posterName === null ? null : PosterName.create(row.posterName),
+      location:
+        row.latitude === null || row.longitude === null || row.accuracy === null
+          ? null
+          : RegistrationLocation.create({
+              latitude: row.latitude,
+              longitude: row.longitude,
+              accuracy: row.accuracy,
+            }),
       scanCount: row.scanCount,
     }));
   }

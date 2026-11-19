@@ -1,0 +1,22 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.heading {
+  font-size: var(--font-size-important-body);
+  font-weight: normal;
+}
+
+.map {
+  height: 400px;
+  overflow: hidden;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevation-low);
+}
+
+.note {
+  color: var(--color-text-muted);
+}

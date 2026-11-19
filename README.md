@@ -30,6 +30,7 @@ A [Next.js](https://nextjs.org) app using Netlify Database (Postgres) through
    GOOGLE_CLIENT_SECRET=<Google OAuth client secret>
    RESEND_KEY=<Resend API key>
    EMAIL_FROM=<optional sender, e.g. Poster Trace <noreply@example.com>>
+   NEXT_PUBLIC_CARTO_BASEMAP_KEY=<CARTO basemap key>
    ```
 
    The Google OAuth client must list
@@ -196,6 +197,12 @@ Environment variables), scoped to the Builds and Functions:
 - `RESEND_KEY` — Resend API key, in every deploy context
 - `EMAIL_FROM` — sender address on a domain verified in Resend, in every
   deploy context (see [Email](#email))
+- `NEXT_PUBLIC_CARTO_BASEMAP_KEY` — CARTO basemap key for the analytics
+  page's scan map (the Voyager basemap). It's sent from the browser, so
+  anyone can see it; CARTO restricts it to Poster Trace's websites. It's
+  inlined at build time, so changing it needs a redeploy. Keys are managed at
+  https://carto.com/basemaps/apikey/. Poster Trace is on CARTO's
+  non-commercial free tier; revisit that if it ever charges or shows ads.
 
 The Google OAuth client must list
 `<BETTER_AUTH_URL>/api/auth/callback/google` as an authorised redirect URI.
