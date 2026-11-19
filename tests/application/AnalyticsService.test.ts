@@ -7,6 +7,7 @@ import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { Poster } from "@domain/poster/Poster";
+import { PosterName } from "@domain/poster/PosterName";
 import { Scan } from "@domain/scan/Scan";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
@@ -47,9 +48,19 @@ async function addCampaign(designCount: number) {
   };
 }
 
-/** Stores a poster of the design and `scanCount` scans of it. */
-async function addPoster(designId: string, scanCount: number) {
+/**
+ * Stores a poster of the design and `scanCount` scans of it, registered with
+ * `posterName` if one is given.
+ */
+async function addPoster(
+  designId: string,
+  scanCount: number,
+  posterName?: string,
+) {
   const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
+  if (posterName !== undefined) {
+    poster.register(PosterName.create(posterName), null, new Date());
+  }
   await posters.save([poster]);
   for (let i = 0; i < scanCount; i++) {
     await scans.add(Scan.create(poster.id, new Date()));
@@ -96,20 +107,29 @@ describe("getCampaignAnalytics", () => {
     });
   });
 
-  it("lists the posters with the most scans, most first, with their design's position", async () => {
+  it("lists the posters with the most scans, most first, with their poster names", async () => {
     const { campaignId, designIds } = await addCampaign(2);
     const [first, second] = designIds;
-    const a = await addPoster(first, 1);
-    const b = await addPoster(second, 4);
-    const c = await addPoster(first, 3);
-    await addPoster(second, 0);
+    const a = await addPoster(first, 1, "Library noticeboard");
+    const b = await addPoster(second, 4, "Corner café");
+    const c = await addPoster(first, 3, "Bus stop");
+    await addPoster(second, 0, "Station");
 
     expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
       topPosters: [
-        { posterId: b, designPosition: 1, scanCount: 4 },
-        { posterId: c, designPosition: 0, scanCount: 3 },
-        { posterId: a, designPosition: 0, scanCount: 1 },
+        { posterId: b, posterName: "Corner café", scanCount: 4 },
+        { posterId: c, posterName: "Bus stop", scanCount: 3 },
+        { posterId: a, posterName: "Library noticeboard", scanCount: 1 },
       ],
+    });
+  });
+
+  it("gives unregistered top posters no poster name", async () => {
+    const { campaignId, designIds } = await addCampaign(1);
+    const poster = await addPoster(designIds[0], 2);
+
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      topPosters: [{ posterId: poster, posterName: null, scanCount: 2 }],
     });
   });
 

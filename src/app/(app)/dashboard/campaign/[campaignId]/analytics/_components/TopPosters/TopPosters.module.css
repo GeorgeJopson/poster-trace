@@ -27,9 +27,20 @@
   box-shadow: var(--shadow-elevation-low);
 }
 
+.posterLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.unregistered {
+  font-style: italic;
+  color: oklch(45% 0 0);
+}
+
 .posterId {
   font-family: monospace;
   color: oklch(45% 0 0);
+  white-space: nowrap;
 }
 
 .scanCount {

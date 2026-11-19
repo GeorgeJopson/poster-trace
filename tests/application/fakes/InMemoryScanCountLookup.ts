@@ -3,6 +3,7 @@ import type {
   ScanCountLookup,
 } from "@application/ports/ScanCountLookup";
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
+import { PosterName } from "@domain/poster/PosterName";
 
 import type { InMemoryPosterRepository } from "./InMemoryPosterRepository";
 import type { InMemoryScanRepository } from "./InMemoryScanRepository";
@@ -19,11 +20,19 @@ export class InMemoryScanCountLookup implements ScanCountLookup {
   ): Promise<PosterScanCount[]> {
     return this.posters.posters
       .filter(({ designId }) => designIds.includes(designId))
-      .map(({ id, designId }) => ({
-        posterId: id,
-        designId,
-        scanCount: this.scans.stored.filter(({ posterId }) => posterId === id)
-          .length,
-      }));
+      .map(({ id, designId }) => {
+        const registration = this.posters.registrations.find(
+          ({ posterId }) => posterId === id,
+        );
+        return {
+          posterId: id,
+          designId,
+          posterName: registration
+            ? PosterName.create(registration.posterName)
+            : null,
+          scanCount: this.scans.stored.filter(({ posterId }) => posterId === id)
+            .length,
+        };
+      });
   }
 }

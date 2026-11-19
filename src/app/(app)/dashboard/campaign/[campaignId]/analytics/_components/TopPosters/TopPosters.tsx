@@ -1,6 +1,5 @@
 import type { TopPosterDto } from "@application/dto/AnalyticsDto";
 
-import { posterDesignLabel } from "../../../posterDesignLabel";
 import styles from "./TopPosters.module.css";
 
 interface TopPostersProps {
@@ -18,10 +17,13 @@ export default function TopPosters({ posters }: TopPostersProps) {
         <p>No scans yet.</p>
       ) : (
         <ol className={styles.list}>
-          {posters.map(({ posterId, designPosition, scanCount }) => (
+          {posters.map(({ posterId, posterName, scanCount }) => (
             <li key={posterId} className={styles.poster}>
-              <span>
-                {posterDesignLabel(designPosition)}{" "}
+              <span className={styles.posterLabel}>
+                {posterName ?? (
+                  // Styled apart, as a poster can be named "Unregistered".
+                  <span className={styles.unregistered}>Unregistered</span>
+                )}{" "}
                 <span className={styles.posterId} title={posterId}>
                   #{posterId.slice(0, 8)}
                 </span>

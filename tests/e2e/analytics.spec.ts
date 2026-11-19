@@ -36,9 +36,7 @@ test("shows the campaign's scans once its posters are scanned", async ({
     await page.reload();
     const poster = topPosters.getByRole("listitem");
     await expect(poster).toHaveCount(1);
-    await expect(poster).toContainText(
-      `Poster design 1 #${posterId.slice(0, 8)}`,
-    );
+    await expect(poster).toContainText(`Unregistered #${posterId.slice(0, 8)}`);
     await expect(poster).toContainText("2 scans");
   }).toPass();
 });
