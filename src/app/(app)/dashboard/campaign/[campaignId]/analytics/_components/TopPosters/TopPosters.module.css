@@ -34,12 +34,12 @@
 
 .unregistered {
   font-style: italic;
-  color: oklch(45% 0 0);
+  color: var(--color-text-muted);
 }
 
 .posterId {
   font-family: monospace;
-  color: oklch(45% 0 0);
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
