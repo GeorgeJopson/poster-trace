@@ -15,10 +15,12 @@ import styles from "./ScanMap.module.css";
 // caching its tiles. The key is public; CARTO restricts it to our websites.
 const STYLE_URL = `https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json?key=${process.env.NEXT_PUBLIC_CARTO_BASEMAP_KEY}`;
 
-/** Street level: the heat map has faded into circles by here. */
+/** Street level: posters are labelled with their scan counts from here. */
 const STREET_ZOOM = 15;
-/** Where the heat map starts fading into circles. */
-const FADE_START_ZOOM = 13;
+/** Where each poster's circle starts fading in over the heat map. */
+const CIRCLES_ZOOM = 13;
+/** One of the basemap's own fonts, so CARTO serves its glyphs. */
+const LABEL_FONT = ["Montserrat SemiBold", "Open Sans Bold"];
 
 interface ScanMapCanvasProps {
   /** At least one. */
@@ -86,7 +88,6 @@ export default function ScanMapCanvas({
           id: "scan-heat",
           type: "heatmap",
           source: "posters",
-          maxzoom: STREET_ZOOM + 1,
           paint: {
             // Relative to the campaign's most scanned poster, so the hottest
             // spot is always fully hot. Posters with no scans add no heat.
@@ -114,6 +115,8 @@ export default function ScanMapCanvas({
               24,
               STREET_ZOOM,
               48,
+              20,
+              96,
             ],
             "heatmap-color": [
               "interpolate",
@@ -132,38 +135,41 @@ export default function ScanMapCanvas({
               1,
               "rgb(178, 24, 43)",
             ],
+            // Kept at every zoom, a little fainter once the circles are on
+            // top, so they stand out.
             "heatmap-opacity": [
               "interpolate",
               ["linear"],
               ["zoom"],
-              FADE_START_ZOOM,
+              CIRCLES_ZOOM,
               0.85,
               STREET_ZOOM,
-              0,
+              0.6,
             ],
           },
         });
-        // Every located poster looks the same up close, scanned or not.
-        const fadeIn: ExpressionSpecification = [
+        // Fades in over the zoom levels from `from`.
+        const fadeIn = (from: number): ExpressionSpecification => [
           "interpolate",
           ["linear"],
           ["zoom"],
-          FADE_START_ZOOM,
+          from,
           0,
-          STREET_ZOOM,
+          from + 1,
           1,
         ];
+        // Every located poster looks the same up close, scanned or not.
         newMap.addLayer({
           id: "poster-circles",
           type: "circle",
           source: "posters",
-          minzoom: FADE_START_ZOOM,
+          minzoom: CIRCLES_ZOOM,
           paint: {
             "circle-radius": [
               "interpolate",
               ["linear"],
               ["zoom"],
-              FADE_START_ZOOM,
+              CIRCLES_ZOOM,
               4,
               18,
               10,
@@ -171,8 +177,32 @@ export default function ScanMapCanvas({
             "circle-color": "rgb(178, 24, 43)",
             "circle-stroke-color": "white",
             "circle-stroke-width": 2,
-            "circle-opacity": fadeIn,
-            "circle-stroke-opacity": fadeIn,
+            "circle-opacity": fadeIn(CIRCLES_ZOOM),
+            "circle-stroke-opacity": fadeIn(CIRCLES_ZOOM),
+          },
+        });
+        newMap.addLayer({
+          id: "poster-scan-counts",
+          type: "symbol",
+          source: "posters",
+          minzoom: STREET_ZOOM,
+          layout: {
+            "text-field": [
+              "case",
+              ["==", ["get", "scanCount"], 1],
+              "1 scan",
+              ["concat", ["to-string", ["get", "scanCount"]], " scans"],
+            ],
+            "text-font": LABEL_FONT,
+            "text-size": 13,
+            "text-anchor": "top",
+            "text-offset": [0, 0.9],
+          },
+          paint: {
+            "text-color": "rgb(40, 40, 40)",
+            "text-halo-color": "white",
+            "text-halo-width": 1.5,
+            "text-opacity": fadeIn(STREET_ZOOM),
           },
         });
       });

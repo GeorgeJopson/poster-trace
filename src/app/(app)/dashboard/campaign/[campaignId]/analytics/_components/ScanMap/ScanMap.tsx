@@ -9,8 +9,9 @@ interface ScanMapProps {
 
 /**
  * A heat map of where the campaign's located posters are, hotter where they've
- * been scanned more. Without any located posters, it says so instead, and the
- * map (and its tiles) never loads.
+ * been scanned more. Zoomed in, each poster also gets a circle, and at street
+ * level a label with its scan count. Without any located posters, it says so
+ * instead, and the map (and its tiles) never loads.
  */
 export default function ScanMap({ scanMap }: ScanMapProps) {
   const { posters, maxScanCount, unmappedPosterCount, posterCount } = scanMap;
