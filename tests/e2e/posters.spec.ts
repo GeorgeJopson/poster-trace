@@ -269,6 +269,17 @@ test.describe("scanning a poster's QR code", () => {
     expect(response.headers()["cache-control"]).toBe("no-store");
   });
 
+  test("reports how long the redirect took", async ({ page, request }) => {
+    await addPosterDesign(page);
+    const [path] = await generatePosters(page, 1);
+
+    const response = await request.get(path, { maxRedirects: 0 });
+
+    const serverTiming = response.headers()["server-timing"];
+    expect(serverTiming).toMatch(/(^|, )lookup;dur=\d+(\.\d+)?/);
+    expect(serverTiming).toMatch(/(^|, )total;dur=\d+(\.\d+)?/);
+  });
+
   for (const [name, path] of [
     ["an unknown poster", `/redirect/${crypto.randomUUID()}`],
     ["a malformed poster id", "/redirect/not-a-poster"],
