@@ -2,6 +2,7 @@ import fs from "node:fs";
 import type { Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 
+import { storeCampaignTarget } from "./database";
 import { expect, test } from "./fixtures";
 import {
   addPosterDesign,
@@ -267,6 +268,20 @@ test.describe("scanning a poster's QR code", () => {
     expect(response.status()).toBe(307);
     expect(response.headers()["location"]).toBe("https://example.com/");
     expect(response.headers()["cache-control"]).toBe("no-store");
+  });
+
+  test("never sends the scanner to a stored target that isn't http(s)", async ({
+    page,
+    request,
+  }) => {
+    await addPosterDesign(page);
+    const [path] = await generatePosters(page, 1);
+    await storeCampaignTarget(path, "javascript:alert(1)");
+
+    const response = await request.get(path, { maxRedirects: 0 });
+
+    expect(response.status()).toBeGreaterThanOrEqual(500);
+    expect(response.headers()["location"]).toBeUndefined();
   });
 
   for (const [name, path] of [

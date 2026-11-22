@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process";
 import { drizzle } from "drizzle-orm/node-postgres";
 
+import { sql } from "drizzle-orm";
+
 import { registration } from "@infrastructure/db/schema";
 
 // Registering a poster in the browser needs a camera to read its QR code, so
@@ -18,6 +20,24 @@ function getLocalConnectionString() {
 }
 
 let db: ReturnType<typeof drizzle> | undefined;
+
+/**
+ * Stores `target` as the target of the campaign the poster with the scan URL
+ * path belongs to, bypassing validation, as if it had been stored before the
+ * rules on targets changed.
+ */
+export async function storeCampaignTarget(scanPath: string, target: string) {
+  db ??= drizzle({ connection: getLocalConnectionString() });
+  const posterId = scanPath.split("/").at(-1)!;
+  await db.execute(sql`
+    update campaign set target = ${target}
+    where id = (
+      select poster_design.campaign_id
+      from poster
+      join poster_design on poster_design.id = poster.poster_design_id
+      where poster.id = ${posterId}
+    )`);
+}
 
 /**
  * Registers the poster with the scan URL path, at `location` if one is given,
