@@ -1,32 +1,37 @@
-import type { DesignPosition } from "@application/dto/AnalyticsDto";
-
 import { posterDesignLabel } from "../../../posterDesignLabel";
 
 /** A stacked series of daily scan counts, one per day. */
 export type DailySeries = { label: string; values: number[] };
 
 /**
- * A labelled series of each design's daily scans, in campaign order. Past
- * `maxSeries`, the last designs are combined into one series.
+ * A labelled series of each design's daily scans, in campaign order, from
+ * daily scans indexed by design position. Past `maxSeries`, the last designs
+ * are combined into one series.
  */
 export function scanSeries(
-  dailyScansByDesign: Map<DesignPosition, number[]>,
+  dailyScansByDesign: number[][],
   maxSeries: number,
 ): DailySeries[] {
-  const designCount = dailyScansByDesign.size;
+  if (dailyScansByDesign.length <= maxSeries) {
+    return dailyScansByDesign.map((values, position) => ({
+      label: posterDesignLabel(position),
+      values,
+    }));
+  }
   // Past the series the chart can tell apart, the last designs share one
   // series rather than reusing a colour.
-  const ownSeriesCount = designCount > maxSeries ? maxSeries - 1 : designCount;
-  const series: DailySeries[] = [];
-  for (const [position, values] of dailyScansByDesign) {
-    if (position < ownSeriesCount) {
-      series.push({ label: posterDesignLabel(position), values: [...values] });
-    } else if (series.length === ownSeriesCount) {
-      series.push({ label: "Other poster designs", values: [...values] });
-    } else {
-      const other = series[ownSeriesCount].values;
-      values.forEach((count, day) => (other[day] += count));
-    }
-  }
-  return series;
+  const own = dailyScansByDesign.slice(0, maxSeries - 1);
+  const rest = dailyScansByDesign.slice(maxSeries - 1);
+  return [
+    ...own.map((values, position) => ({
+      label: posterDesignLabel(position),
+      values,
+    })),
+    {
+      label: "Other poster designs",
+      values: rest[0].map((_, day) =>
+        rest.reduce((total, values) => total + values[day], 0),
+      ),
+    },
+  ];
 }

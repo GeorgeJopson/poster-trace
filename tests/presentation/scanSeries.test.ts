@@ -6,10 +6,10 @@ describe("scanSeries", () => {
   it("gives each design its own labelled series, in campaign order", () => {
     expect(
       scanSeries(
-        new Map([
-          [0, [3, 0, 1]],
-          [1, [0, 4, 0]],
-        ]),
+        [
+          [3, 0, 1],
+          [0, 4, 0],
+        ],
         8,
       ),
     ).toEqual([
@@ -21,12 +21,12 @@ describe("scanSeries", () => {
   it("combines the last designs into one series when there are more than fit", () => {
     expect(
       scanSeries(
-        new Map([
-          [0, [0, 0]],
-          [1, [1, 0]],
-          [2, [2, 0]],
-          [3, [0, 5]],
-        ]),
+        [
+          [0, 0],
+          [1, 0],
+          [2, 0],
+          [0, 5],
+        ],
         3,
       ),
     ).toEqual([

@@ -94,18 +94,15 @@ export class AnalyticsService {
       dayOf(this.now()),
     );
     const indexOfDay = new Map(days.map((day, index) => [day, index]));
-    const dailyScansByDesign = new Map(
-      designIds.map((_, position) => [
-        position,
-        new Array<number>(days.length).fill(0),
-      ]),
+    const dailyScansByDesign = designIds.map(() =>
+      new Array<number>(days.length).fill(0),
     );
     for (const { designId, day, scanCount } of campaignDailyScans.dailyScans) {
       const position = positionOf.get(designId);
       // A day after today, from a clock running ahead, is left out.
       const index = indexOfDay.get(day);
       if (position === undefined || index === undefined) continue;
-      dailyScansByDesign.get(position)![index] += scanCount;
+      dailyScansByDesign[position][index] += scanCount;
     }
     const scansOverTime = { days, dailyScansByDesign };
 

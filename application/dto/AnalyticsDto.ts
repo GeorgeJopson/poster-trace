@@ -1,9 +1,3 @@
-/**
- * A poster design's position in its campaign, counting from 0, in campaign
- * order (oldest first).
- */
-export type DesignPosition = number;
-
 /** A number of posters. */
 export type PosterCount = number;
 
@@ -18,10 +12,11 @@ export type ScansOverTimeDto = {
    */
   days: string[];
   /**
-   * Every design's scans on each of `days`, keyed by its position, in
-   * campaign order. Days without scans count 0.
+   * Every design's scans on each of `days`, indexed by the design's position
+   * in the campaign, counting from 0 in campaign order (oldest first). Days
+   * without scans count 0.
    */
-  dailyScansByDesign: Map<DesignPosition, number[]>;
+  dailyScansByDesign: number[][];
 };
 
 /** A poster with one of a campaign's highest scan counts. */
