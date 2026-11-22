@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // Shown, with a 404 status, when someone scans a QR code whose poster doesn't
-// exist (see netlify/edge-functions/redirect.ts and ADR-0014).
+// exist (see netlify/edge-functions/redirect.ts and ADR-0019).
 export default function PosterNotFoundPage() {
   return (
     <div>

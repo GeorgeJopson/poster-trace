@@ -1,5 +1,7 @@
 # PosterRepository saves the whole aggregate
 
+Amended by ADR-0019: `ScanRepository` was deleted, because the scan redirect's edge function records scans itself. `PosterRepository` is unaffected.
+
 This supersedes ADR-0016's decisions that a registration is persisted by intent with `PosterRepository.addRegistration` and that the first-registration rule is enforced twice. `PosterRepository` now has `save(poster)` and `save(posters)` in place of `addAll` and `addRegistration`, the same as `CampaignRepository.save` (ADR-0012), which closes the exception to ADR-0012 that `addRegistration` was. `ScanRepository.add` stays insert-only, because scans are append-only events (ADR-0017).
 
 ## Decisions

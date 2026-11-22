@@ -10,9 +10,9 @@ import { Poster } from "@domain/poster/Poster";
 import { PosterName } from "@domain/poster/PosterName";
 import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { UserId } from "@domain/user/UserId";
+import { scan } from "@infrastructure/db/schema";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
-import { scan } from "@infrastructure/db/schema";
 import { DrizzlePosterAnalyticsLookup } from "@infrastructure/repositories/DrizzlePosterAnalyticsLookup";
 
 import { A4_PDF_DETAILS } from "../../support/pdfs";

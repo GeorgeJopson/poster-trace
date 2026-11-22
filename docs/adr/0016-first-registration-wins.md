@@ -1,6 +1,6 @@
 # A poster's first registration wins
 
-Partly superseded by ADR-0018: registrations are stored with `PosterRepository.save`, and only `poster.register` enforces the rule, so two registrations at exactly the same moment let the last one win.
+Partly superseded by ADR-0018: registrations are stored with `PosterRepository.save`, and only `poster.register` enforces the rule, so two registrations at exactly the same moment let the last one win. `ScanRepository`, mentioned below, was deleted by ADR-0019: scans are recorded by the scan redirect's edge function.
 
 Anyone who reads a poster's QR code on the public register page can register it, and that includes passers-by as well as the helper who put it up. A poster can be registered only once, so a later attempt is rejected as "already registered" rather than replacing the stored registration. Letting the latest registration win would let anyone overwrite a helper's poster name and location just by walking past the poster. We'd rather a helper occasionally lose the race to register than have every registration open to vandalism.
 
