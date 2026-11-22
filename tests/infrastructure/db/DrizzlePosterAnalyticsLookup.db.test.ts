@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { Campaign } from "@domain/campaign/Campaign";
+import { CampaignId } from "@domain/campaign/CampaignId";
 import { CampaignTarget } from "@domain/campaign/CampaignTarget";
 import type { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
 import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
@@ -12,7 +13,7 @@ import { Scan } from "@domain/scan/Scan";
 import { UserId } from "@domain/user/UserId";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
-import { DrizzleScanCountLookup } from "@infrastructure/repositories/DrizzleScanCountLookup";
+import { DrizzlePosterAnalyticsLookup } from "@infrastructure/repositories/DrizzlePosterAnalyticsLookup";
 import { DrizzleScanRepository } from "@infrastructure/repositories/DrizzleScanRepository";
 
 import { A4_PDF_DETAILS } from "../../support/pdfs";
@@ -23,18 +24,20 @@ const alice = UserId.from("alice");
 
 let posters: DrizzlePosterRepository;
 let scans: DrizzleScanRepository;
-let lookup: DrizzleScanCountLookup;
+let lookup: DrizzlePosterAnalyticsLookup;
 
 beforeEach(async () => {
   await clearDatabase();
   await insertUser(alice);
   posters = new DrizzlePosterRepository(db);
   scans = new DrizzleScanRepository(db);
-  lookup = new DrizzleScanCountLookup(db);
+  lookup = new DrizzlePosterAnalyticsLookup(db);
 });
 
-/** Stores a campaign with `count` designs, returning their ids. */
-async function addDesigns(count: number): Promise<PosterDesignId[]> {
+/** Stores a campaign with `count` designs, returning its id and theirs. */
+async function addCampaign(
+  count: number,
+): Promise<{ campaignId: CampaignId; designIds: PosterDesignId[] }> {
   const campaign = Campaign.create(
     alice,
     "Campaign",
@@ -47,7 +50,10 @@ async function addDesigns(count: number): Promise<PosterDesignId[]> {
     ),
   );
   await new DrizzleCampaignRepository(db, new FakeBlobStore()).save(campaign);
-  return designs.map((design) => design.id);
+  return {
+    campaignId: campaign.id,
+    designIds: designs.map((design) => design.id),
+  };
 }
 
 /**
@@ -71,14 +77,17 @@ async function addPoster(
   return poster.id;
 }
 
-describe("countScansPerPoster", () => {
+describe("summarisePosters", () => {
   it("counts each poster's scans, including posters with none", async () => {
-    const [first, second] = await addDesigns(2);
+    const {
+      campaignId,
+      designIds: [first, second],
+    } = await addCampaign(2);
     const a = await addPoster(first, 3);
     const b = await addPoster(first, 0);
     const c = await addPoster(second, 1);
 
-    const counts = await lookup.countScansPerPoster([first, second]);
+    const counts = await lookup.summarisePosters(campaignId);
     expect(counts).toHaveLength(3);
     expect(counts).toEqual(
       expect.arrayContaining([
@@ -107,15 +116,19 @@ describe("countScansPerPoster", () => {
     );
   });
 
-  it("ignores posters of designs it wasn't given", async () => {
-    const [first, second] = await addDesigns(2);
-    const a = await addPoster(first, 1);
-    await addPoster(second, 2);
+  it("ignores other campaigns' posters", async () => {
+    const {
+      campaignId,
+      designIds: [design],
+    } = await addCampaign(1);
+    const other = await addCampaign(1);
+    const a = await addPoster(design, 1);
+    await addPoster(other.designIds[0], 2);
 
-    expect(await lookup.countScansPerPoster([first])).toEqual([
+    expect(await lookup.summarisePosters(campaignId)).toEqual([
       {
         posterId: a,
-        designId: first,
+        designId: design,
         posterName: null,
         location: null,
         scanCount: 1,
@@ -124,11 +137,14 @@ describe("countScansPerPoster", () => {
   });
 
   it("gives registered posters their poster name and unregistered ones none", async () => {
-    const [design] = await addDesigns(1);
+    const {
+      campaignId,
+      designIds: [design],
+    } = await addCampaign(1);
     const registered = await addPoster(design, 2, "Corner café");
     const unregistered = await addPoster(design, 1);
 
-    const counts = await lookup.countScansPerPoster([design]);
+    const counts = await lookup.summarisePosters(campaignId);
     expect(counts).toHaveLength(2);
     expect(counts).toEqual(
       expect.arrayContaining([
@@ -151,7 +167,10 @@ describe("countScansPerPoster", () => {
   });
 
   it("gives located posters their location and other posters none", async () => {
-    const [design] = await addDesigns(1);
+    const {
+      campaignId,
+      designIds: [design],
+    } = await addCampaign(1);
     const location = RegistrationLocation.create({
       latitude: 51.5072,
       longitude: -0.1276,
@@ -161,7 +180,7 @@ describe("countScansPerPoster", () => {
     const unlocated = await addPoster(design, 1, "Station");
     const unregistered = await addPoster(design, 0);
 
-    const counts = await lookup.countScansPerPoster([design]);
+    const counts = await lookup.summarisePosters(campaignId);
     const locationOf = new Map(
       counts.map(({ posterId, location }) => [posterId, location]),
     );
@@ -174,9 +193,16 @@ describe("countScansPerPoster", () => {
     );
   });
 
-  it("is empty when given no designs", async () => {
-    const [design] = await addDesigns(1);
-    await addPoster(design, 1);
-    expect(await lookup.countScansPerPoster([])).toEqual([]);
+  it("is empty for a campaign with no posters", async () => {
+    const { campaignId } = await addCampaign(2);
+    const other = await addCampaign(1);
+    await addPoster(other.designIds[0], 1);
+    expect(await lookup.summarisePosters(campaignId)).toEqual([]);
+  });
+
+  it("is empty for a campaign that doesn't exist", async () => {
+    const { designIds } = await addCampaign(1);
+    await addPoster(designIds[0], 1);
+    expect(await lookup.summarisePosters(CampaignId.generate())).toEqual([]);
   });
 });

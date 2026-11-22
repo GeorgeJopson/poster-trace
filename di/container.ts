@@ -1,7 +1,7 @@
 import "server-only";
 
 import type { AccountGateway } from "@application/ports/AccountGateway";
-import type { ScanCountLookup } from "@application/ports/ScanCountLookup";
+import type { PosterAnalyticsLookup } from "@application/ports/PosterAnalyticsLookup";
 import type { ScanTargetLookup } from "@application/ports/ScanTargetLookup";
 import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
@@ -21,7 +21,7 @@ import { auth } from "@infrastructure/auth/betterAuth";
 import { getDb } from "@infrastructure/db/client";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
-import { DrizzleScanCountLookup } from "@infrastructure/repositories/DrizzleScanCountLookup";
+import { DrizzlePosterAnalyticsLookup } from "@infrastructure/repositories/DrizzlePosterAnalyticsLookup";
 import { DrizzleScanRepository } from "@infrastructure/repositories/DrizzleScanRepository";
 import { DrizzleScanTargetLookup } from "@infrastructure/repositories/DrizzleScanTargetLookup";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
@@ -71,9 +71,9 @@ function getScanTargetLookup() {
   return (scanTargetLookup ??= new DrizzleScanTargetLookup(getDb()));
 }
 
-let scanCountLookup: ScanCountLookup | undefined;
-function getScanCountLookup() {
-  return (scanCountLookup ??= new DrizzleScanCountLookup(getDb()));
+let posterAnalyticsLookup: PosterAnalyticsLookup | undefined;
+function getPosterAnalyticsLookup() {
+  return (posterAnalyticsLookup ??= new DrizzlePosterAnalyticsLookup(getDb()));
 }
 
 /**
@@ -142,7 +142,7 @@ export function getAnalyticsService() {
   return (analyticsService ??= new AnalyticsService(
     getSessionProvider(),
     getCampaignRepository(),
-    getScanCountLookup(),
+    getPosterAnalyticsLookup(),
   ));
 }
 

@@ -6,26 +6,24 @@ import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { Poster } from "@domain/poster/Poster";
+import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
 import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
-import { Scan } from "@domain/scan/Scan";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
-import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
-import { InMemoryScanCountLookup } from "./fakes/InMemoryScanCountLookup";
-import { InMemoryScanRepository } from "./fakes/InMemoryScanRepository";
+import { InMemoryPosterAnalyticsLookup } from "./fakes/InMemoryPosterAnalyticsLookup";
 
 const { TOP_POSTER_COUNT } = AnalyticsService;
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
-let posters: InMemoryPosterRepository;
-let scans: InMemoryScanRepository;
+let posterAnalytics: InMemoryPosterAnalyticsLookup;
+/** The campaign each design added by `addCampaign` belongs to. */
+let campaignOfDesign: Map<string, CampaignId>;
 let campaignService: CampaignService;
 let service: AnalyticsService;
 
@@ -43,10 +41,11 @@ async function addCampaign(designCount: number) {
     });
   }
   const campaign = await campaignService.getMyCampaign(id);
-  return {
-    campaignId: id,
-    designIds: campaign!.posterDesigns.map((design) => design.id),
-  };
+  const designIds = campaign!.posterDesigns.map((design) => design.id);
+  for (const designId of designIds) {
+    campaignOfDesign.set(designId, CampaignId.from(id));
+  }
+  return { campaignId: id, designIds };
 }
 
 /** A location at the given point. */
@@ -55,8 +54,9 @@ function at(latitude: number, longitude: number) {
 }
 
 /**
- * Stores a poster of the design and `scanCount` scans of it, registered with
- * `posterName` and `location` if a poster name is given.
+ * Adds a poster of the design with `scanCount` scans to its campaign's
+ * analytics, registered with `posterName` and `location` if a poster name is
+ * given.
  */
 async function addPoster(
   designId: string,
@@ -64,28 +64,24 @@ async function addPoster(
   posterName?: string,
   location: RegistrationLocation | null = null,
 ) {
-  const [poster] = Poster.generate(PosterDesignId.from(designId), 1);
-  if (posterName !== undefined) {
-    poster.register(PosterName.create(posterName), location, new Date());
-  }
-  await posters.save([poster]);
-  for (let i = 0; i < scanCount; i++) {
-    await scans.add(Scan.create(poster.id, new Date()));
-  }
-  return poster.id;
+  const posterId = PosterId.generate();
+  posterAnalytics.add(campaignOfDesign.get(designId)!, {
+    posterId,
+    designId: PosterDesignId.from(designId),
+    posterName: posterName === undefined ? null : PosterName.create(posterName),
+    location: posterName === undefined ? null : location,
+    scanCount,
+  });
+  return posterId;
 }
 
 beforeEach(() => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
-  posters = new InMemoryPosterRepository();
-  scans = new InMemoryScanRepository(posters);
+  posterAnalytics = new InMemoryPosterAnalyticsLookup();
+  campaignOfDesign = new Map();
   campaignService = new CampaignService(sessions, campaigns);
-  service = new AnalyticsService(
-    sessions,
-    campaigns,
-    new InMemoryScanCountLookup(posters, scans),
-  );
+  service = new AnalyticsService(sessions, campaigns, posterAnalytics);
 });
 
 describe("getCampaignAnalytics", () => {
@@ -197,6 +193,24 @@ describe("getCampaignAnalytics", () => {
         unmappedPosterCount: 1,
         posterCount: 1,
       },
+    });
+  });
+
+  it("leaves out posters of designs the campaign didn't have when it was loaded", async () => {
+    const { campaignId, designIds } = await addCampaign(1);
+    await addPoster(designIds[0], 1, "Station", at(51.5, -0.12));
+    posterAnalytics.add(CampaignId.from(campaignId), {
+      posterId: PosterId.generate(),
+      designId: PosterDesignId.generate(),
+      posterName: PosterName.create("Corner café"),
+      location: at(51.6, -0.1),
+      scanCount: 4,
+    });
+
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      scanDistribution: [{ position: 0, posterCounts: [0, 1] }],
+      topPosters: [{ posterName: "Station", scanCount: 1 }],
+      scanMap: { maxScanCount: 1, unmappedPosterCount: 0, posterCount: 1 },
     });
   });
 

@@ -6,7 +6,7 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import { requireUserId } from "../auth/requireUserId";
 import type { CampaignAnalyticsDto } from "../dto/AnalyticsDto";
-import type { ScanCountLookup } from "../ports/ScanCountLookup";
+import type { PosterAnalyticsLookup } from "../ports/PosterAnalyticsLookup";
 import type { SessionProvider } from "../ports/SessionProvider";
 
 /** Analytics of the signed-in user's campaigns. */
@@ -17,7 +17,7 @@ export class AnalyticsService {
   constructor(
     private readonly sessions: SessionProvider,
     private readonly campaigns: CampaignRepository,
-    private readonly scanCounts: ScanCountLookup,
+    private readonly posterAnalytics: PosterAnalyticsLookup,
   ) {}
 
   /**
@@ -37,10 +37,15 @@ export class AnalyticsService {
     if (!campaign) throw new NotFoundError("Campaign not found");
 
     const designIds = campaign.getDesigns().map((design) => design.id);
-    const counts = await this.scanCounts.countScansPerPoster(designIds);
+    const positionOf = new Map(designIds.map((id, position) => [id, position]));
+    // The campaign and its posters are read separately, so a design added in
+    // between could have posters the loaded campaign doesn't know. They're
+    // left out until the next load rather than breaking the page.
+    const counts = (
+      await this.posterAnalytics.summarisePosters(campaign.id)
+    ).filter(({ designId }) => positionOf.has(designId));
     if (counts.length === 0) return { kind: "noPosters" };
 
-    const positionOf = new Map(designIds.map((id, position) => [id, position]));
     const highestScanCount = Math.max(
       ...counts.map(({ scanCount }) => scanCount),
     );
