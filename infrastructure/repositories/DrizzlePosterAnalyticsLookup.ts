@@ -1,10 +1,9 @@
 import { count, eq, sql } from "drizzle-orm";
 
 import {
-  type CampaignScanSlots,
+  type CampaignDailyScans,
   type PosterAnalyticsLookup,
   type PosterSummary,
-  SCAN_SLOT_MS,
 } from "@application/ports/PosterAnalyticsLookup";
 import type { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
@@ -70,9 +69,9 @@ export class DrizzlePosterAnalyticsLookup implements PosterAnalyticsLookup {
     }));
   }
 
-  async countScanSlots(
+  async countDailyScans(
     campaignId: CampaignId,
-  ): Promise<CampaignScanSlots | null> {
+  ): Promise<CampaignDailyScans | null> {
     const [campaign] = await this.db
       .select({ createdAt: campaignTable.createdAt })
       .from(campaignTable)
@@ -80,14 +79,13 @@ export class DrizzlePosterAnalyticsLookup implements PosterAnalyticsLookup {
     if (!campaign) return null;
 
     // Counted in the database without loading any scans (see ADR-0015).
-    // Times are stored in UTC, so a scan's slot is its number of whole slots
-    // since the Unix epoch. The slot length is inlined rather than a
-    // parameter, so the select and group by are the same expression.
-    const slot = sql<number>`floor(extract(epoch from ${scanTable.scannedAt}) / ${sql.raw(String(SCAN_SLOT_MS / 1000))})::integer`;
+    // Times are stored in UTC, so a scan's day is the date of its stored
+    // time (see ADR-0021).
+    const day = sql<string>`to_char(${scanTable.scannedAt}, 'YYYY-MM-DD')`;
     const rows = await this.db
       .select({
         designId: posterTable.posterDesignId,
-        slot,
+        day,
         scanCount: count(),
       })
       .from(scanTable)
@@ -97,12 +95,12 @@ export class DrizzlePosterAnalyticsLookup implements PosterAnalyticsLookup {
         eq(posterDesignTable.id, posterTable.posterDesignId),
       )
       .where(eq(posterDesignTable.campaignId, campaignId))
-      .groupBy(posterTable.posterDesignId, slot);
+      .groupBy(posterTable.posterDesignId, day);
     return {
       createdAt: campaign.createdAt,
-      slots: rows.map((row) => ({
+      dailyScans: rows.map((row) => ({
         designId: PosterDesignId.from(row.designId),
-        slotStart: new Date(row.slot * SCAN_SLOT_MS),
+        day: row.day,
         scanCount: row.scanCount,
       })),
     };

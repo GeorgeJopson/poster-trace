@@ -8,24 +8,20 @@ export type DesignPosition = number;
 export type PosterCount = number;
 
 /**
- * How many scans of one design's posters happened in one scan slot: the 15
- * minutes from `slotStart`, which is on the quarter hour in UTC.
+ * A campaign's scans on each day since it began. A day is a calendar day in
+ * UTC (see ADR-0021).
  */
-export type ScanSlotDto = {
-  position: DesignPosition;
-  slotStart: Date;
-  /** At least 1. */
-  scanCount: number;
-};
-
-/** A campaign's scans since it was created, by design and scan slot. */
 export type ScansOverTimeDto = {
-  /** When the campaign was created, which is when it began. */
-  createdAt: Date;
-  /** How many designs the campaign has. Every slot's position is below it. */
-  designCount: number;
-  /** Only slots with scans, in no particular order. */
-  slots: ScanSlotDto[];
+  /**
+   * Each day from the one the campaign began through today, as
+   * `YYYY-MM-DD`, in order.
+   */
+  days: string[];
+  /**
+   * Every design's scans on each of `days`, keyed by its position, in
+   * campaign order. Days without scans count 0.
+   */
+  dailyScansByDesign: Map<DesignPosition, number[]>;
 };
 
 /** A poster with one of a campaign's highest scan counts. */

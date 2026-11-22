@@ -226,7 +226,7 @@ async function addScannedPoster(designId: PosterDesignId, times: string[]) {
   }
 }
 
-describe("countScanSlots", () => {
+describe("countDailyScans", () => {
   it("gives when the campaign was created", async () => {
     const { campaignId } = await addCampaign(1);
     const createdAt = new Date("2026-11-02T09:41:07.000Z");
@@ -235,44 +235,32 @@ describe("countScanSlots", () => {
       .set({ createdAt })
       .where(eq(campaignTable.id, campaignId));
 
-    expect(await lookup.countScanSlots(campaignId)).toEqual({
+    expect(await lookup.countDailyScans(campaignId)).toEqual({
       createdAt,
-      slots: [],
+      dailyScans: [],
     });
   });
 
-  it("counts each design's scans in 15-minute slots starting on the quarter hour", async () => {
+  it("counts each design's scans by UTC day", async () => {
     const {
       campaignId,
       designIds: [first, second],
     } = await addCampaign(2);
     await addScannedPoster(first, [
-      "2026-11-03T10:00:00.000Z",
-      "2026-11-03T10:14:59.999Z",
-      "2026-11-03T10:15:00.000Z",
+      "2026-11-03T00:00:00.000Z",
+      "2026-11-03T23:59:59.999Z",
+      "2026-11-04T00:00:00.000Z",
     ]);
-    await addScannedPoster(first, ["2026-11-03T10:07:30.000Z"]);
+    await addScannedPoster(first, ["2026-11-03T12:30:00.000Z"]);
     await addScannedPoster(second, ["2026-11-03T10:05:00.000Z"]);
 
-    const result = await lookup.countScanSlots(campaignId);
-    expect(result?.slots).toHaveLength(3);
-    expect(result?.slots).toEqual(
+    const result = await lookup.countDailyScans(campaignId);
+    expect(result?.dailyScans).toHaveLength(3);
+    expect(result?.dailyScans).toEqual(
       expect.arrayContaining([
-        {
-          designId: first,
-          slotStart: new Date("2026-11-03T10:00:00.000Z"),
-          scanCount: 3,
-        },
-        {
-          designId: first,
-          slotStart: new Date("2026-11-03T10:15:00.000Z"),
-          scanCount: 1,
-        },
-        {
-          designId: second,
-          slotStart: new Date("2026-11-03T10:00:00.000Z"),
-          scanCount: 1,
-        },
+        { designId: first, day: "2026-11-03", scanCount: 3 },
+        { designId: first, day: "2026-11-04", scanCount: 1 },
+        { designId: second, day: "2026-11-03", scanCount: 1 },
       ]),
     );
   });
@@ -282,10 +270,10 @@ describe("countScanSlots", () => {
     const other = await addCampaign(1);
     await addScannedPoster(other.designIds[0], ["2026-11-03T10:00:00.000Z"]);
 
-    expect((await lookup.countScanSlots(campaignId))?.slots).toEqual([]);
+    expect((await lookup.countDailyScans(campaignId))?.dailyScans).toEqual([]);
   });
 
   it("is null for a campaign that doesn't exist", async () => {
-    expect(await lookup.countScanSlots(CampaignId.generate())).toBeNull();
+    expect(await lookup.countDailyScans(CampaignId.generate())).toBeNull();
   });
 });

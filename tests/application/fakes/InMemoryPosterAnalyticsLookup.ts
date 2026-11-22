@@ -1,18 +1,18 @@
 import type {
-  CampaignScanSlots,
+  CampaignDailyScans,
+  DailyScanCount,
   PosterAnalyticsLookup,
   PosterSummary,
-  ScanSlot,
 } from "@application/ports/PosterAnalyticsLookup";
 import type { CampaignId } from "@domain/campaign/CampaignId";
 
 /**
- * Returns the summaries and scan slots added for each campaign. A campaign
- * exists once it's given a creation time.
+ * Returns the summaries and daily scan counts added for each campaign. A
+ * campaign exists once it's given a creation time.
  */
 export class InMemoryPosterAnalyticsLookup implements PosterAnalyticsLookup {
   private readonly summaries = new Map<CampaignId, PosterSummary[]>();
-  private readonly scanSlots = new Map<CampaignId, CampaignScanSlots>();
+  private readonly dailyScans = new Map<CampaignId, CampaignDailyScans>();
 
   /** Adds `summary` to the campaign's posters. */
   add(campaignId: CampaignId, summary: PosterSummary): void {
@@ -22,23 +22,26 @@ export class InMemoryPosterAnalyticsLookup implements PosterAnalyticsLookup {
 
   /** Records that the campaign was created at `createdAt`. */
   setCreatedAt(campaignId: CampaignId, createdAt: Date): void {
-    const slots = this.scanSlots.get(campaignId)?.slots ?? [];
-    this.scanSlots.set(campaignId, { createdAt, slots });
+    const dailyScans = this.dailyScans.get(campaignId)?.dailyScans ?? [];
+    this.dailyScans.set(campaignId, { createdAt, dailyScans });
   }
 
-  /** Adds `slot` to the campaign's scan slots. Set its creation time first. */
-  addScanSlot(campaignId: CampaignId, slot: ScanSlot): void {
-    const { createdAt, slots } = this.scanSlots.get(campaignId)!;
-    this.scanSlots.set(campaignId, { createdAt, slots: [...slots, slot] });
+  /** Adds `count` to the campaign's daily scans. Set its creation time first. */
+  addDailyScans(campaignId: CampaignId, count: DailyScanCount): void {
+    const { createdAt, dailyScans } = this.dailyScans.get(campaignId)!;
+    this.dailyScans.set(campaignId, {
+      createdAt,
+      dailyScans: [...dailyScans, count],
+    });
   }
 
   async summarisePosters(campaignId: CampaignId): Promise<PosterSummary[]> {
     return this.summaries.get(campaignId) ?? [];
   }
 
-  async countScanSlots(
+  async countDailyScans(
     campaignId: CampaignId,
-  ): Promise<CampaignScanSlots | null> {
-    return this.scanSlots.get(campaignId) ?? null;
+  ): Promise<CampaignDailyScans | null> {
+    return this.dailyScans.get(campaignId) ?? null;
   }
 }

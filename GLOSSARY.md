@@ -22,6 +22,10 @@ _Avoid_: Destination, redirect URL, link
 When the owner made the campaign. A campaign **begins** on the day it was created, so anything shown "since the campaign began" starts from that day.
 _Avoid_: Started, launched, opened
 
+**Day**:
+A calendar day in UTC. Analytics count scans by day, and a campaign begins on the UTC day it was created.
+_Avoid_: Local day, date
+
 ### Designs
 
 **Poster Design**:

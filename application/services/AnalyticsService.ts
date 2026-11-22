@@ -18,6 +18,7 @@ export class AnalyticsService {
     private readonly sessions: SessionProvider,
     private readonly campaigns: CampaignRepository,
     private readonly posterAnalytics: PosterAnalyticsLookup,
+    private readonly now: () => Date = () => new Date(),
   ) {}
 
   /**
@@ -84,19 +85,46 @@ export class AnalyticsService {
 
     // The campaign was loaded for its owner just now, so it only reads as
     // missing here if it has since been deleted.
-    const scanSlots = await this.posterAnalytics.countScanSlots(campaign.id);
-    if (!scanSlots) throw new NotFoundError("Campaign not found");
-    const scansOverTime = {
-      createdAt: scanSlots.createdAt,
-      designCount: designIds.length,
-      slots: scanSlots.slots.flatMap(({ designId, slotStart, scanCount }) => {
-        const position = positionOf.get(designId);
-        return position === undefined
-          ? []
-          : [{ position, slotStart, scanCount }];
-      }),
-    };
+    const campaignDailyScans = await this.posterAnalytics.countDailyScans(
+      campaign.id,
+    );
+    if (!campaignDailyScans) throw new NotFoundError("Campaign not found");
+    const days = daysFrom(
+      dayOf(campaignDailyScans.createdAt),
+      dayOf(this.now()),
+    );
+    const indexOfDay = new Map(days.map((day, index) => [day, index]));
+    const dailyScansByDesign = new Map(
+      designIds.map((_, position) => [
+        position,
+        new Array<number>(days.length).fill(0),
+      ]),
+    );
+    for (const { designId, day, scanCount } of campaignDailyScans.dailyScans) {
+      const position = positionOf.get(designId);
+      // A day after today, from a clock running ahead, is left out.
+      const index = indexOfDay.get(day);
+      if (position === undefined || index === undefined) continue;
+      dailyScansByDesign.get(position)![index] += scanCount;
+    }
+    const scansOverTime = { days, dailyScansByDesign };
 
     return { kind: "posters", scansOverTime, topPosters, scanMap };
   }
+}
+
+/** The UTC day `time` falls on, as `YYYY-MM-DD` (see ADR-0021). */
+function dayOf(time: Date): string {
+  return time.toISOString().slice(0, 10);
+}
+
+/** Every day from `first` to `last`, both `YYYY-MM-DD`, in order. */
+function daysFrom(first: string, last: string): string[] {
+  const days = [first];
+  const day = new Date(`${first}T00:00:00Z`);
+  while (days.at(-1)! < last) {
+    day.setUTCDate(day.getUTCDate() + 1);
+    days.push(dayOf(day));
+  }
+  return days;
 }
