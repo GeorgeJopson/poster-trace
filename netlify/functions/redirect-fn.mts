@@ -8,9 +8,6 @@ import redirect from "../edge-functions/redirect";
 // this file goes (see ADR-0014).
 export default redirect;
 
-export const config = {
-  path: "/redirect-fn/:posterId",
-  // Next to the database, which looks to be in or near Frankfurt
-  // (aws-eu-central-1), so the comparison isn't skewed by distance.
-  region: "fra",
-};
+// It runs in the site's functions region (London, set in the Netlify UI),
+// near the scanners and the database. A region here would override it.
+export const config = { path: "/redirect-fn/:posterId" };
