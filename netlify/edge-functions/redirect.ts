@@ -5,9 +5,8 @@ import type { Config, Context } from "@netlify/edge-functions";
 // rather than a Next route so that a scan never waits for the Next server to
 // start. The edge runtime (Deno) can't import the app's layers, which use
 // extensionless imports and tsconfig path aliases, so this repeats the few
-// rules a scan needs. Keep them in step with:
+// rules a scan needs (see ADR-0019). Keep them in step with:
 // - PosterId.parse / isUuid (domain/shared/uuid.ts)
-// - CampaignTarget.create (domain/campaign/CampaignTarget.ts)
 // - DrizzleScanTargetLookup and DrizzleScanRepository
 // - ScanService.recordScan
 // Anyone can scan a poster, so there's no session check.
@@ -16,31 +15,11 @@ import type { Config, Context } from "@netlify/edge-functions";
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-// CampaignTarget.MAX_LENGTH, in UTF-8 bytes.
-const TARGET_MAX_LENGTH = 1000;
-
 // Postgres's error code for a foreign key violation.
 const FOREIGN_KEY_VIOLATION = "23503";
 
-/**
- * The stored target checked as CampaignTarget.create checks it (ADR-0006),
- * so a scan is only ever sent to an http(s) URL. Throws if it isn't valid,
- * like loading an invalid stored value anywhere else.
- */
-function validTarget(raw: string): string {
-  const value = raw.trim();
-  if (
-    value === "" ||
-    new TextEncoder().encode(value).length > TARGET_MAX_LENGTH
-  ) {
-    throw new Error("Stored campaign target is invalid");
-  }
-  const url = new URL(value);
-  if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new Error("Stored campaign target is invalid");
-  }
-  return value;
-}
+// routeNames.posterNotFound, which this runtime can't import.
+const POSTER_NOT_FOUND_PATH = "/poster-not-found";
 
 /** Whether `error`, or an error it wraps, has the Postgres `code`. */
 function hasPgCode(error: unknown, code: string): boolean {
@@ -58,7 +37,8 @@ function hasPgCode(error: unknown, code: string): boolean {
 async function findTarget(posterId: string): Promise<string | null> {
   if (!UUID_PATTERN.test(posterId)) return null;
   // Every scan runs this, so it's one query joined on primary keys, reading
-  // only the target (ADR-0014).
+  // only the target (ADR-0014). The target is followed as stored: only
+  // CampaignTarget.create writes it, so it's already been checked (ADR-0019).
   const rows = await getDatabase().sql<{ target: string }>`
     select campaign.target
     from poster
@@ -66,7 +46,27 @@ async function findTarget(posterId: string): Promise<string | null> {
     join campaign on campaign.id = poster_design.campaign_id
     where poster.id = ${posterId}
     limit 1`;
-  return rows[0] ? validTarget(rows[0].target) : null;
+  return rows[0]?.target ?? null;
+}
+
+/**
+ * The "poster not found" page, served at the scan URL with a 404 status
+ * (ADR-0014). The request's headers are passed on so that a deploy preview's
+ * access protection lets the page through.
+ */
+async function posterNotFound(request: Request): Promise<Response> {
+  const page = await fetch(new URL(POSTER_NOT_FOUND_PATH, request.url), {
+    headers: request.headers,
+  });
+  return new Response(page.body, {
+    status: 404,
+    headers: {
+      "Content-Type": page.headers.get("Content-Type") ?? "text/html",
+      // Like the redirect: a poster that doesn't exist yet mustn't stay
+      // cached as missing.
+      "Cache-Control": "no-store",
+    },
+  });
 }
 
 /**
@@ -89,12 +89,12 @@ async function recordScan(posterId: string, scannedAt: Date): Promise<void> {
   }
 }
 
-export default async function redirect(_request: Request, context: Context) {
+export default async function redirect(request: Request, context: Context) {
   const scannedAt = new Date();
   const posterId = context.params.posterId ?? "";
   const target = await findTarget(posterId);
   if (!target) {
-    return new Response("Not found", { status: 404 });
+    return posterNotFound(request);
   }
 
   // The scan is recorded after the scanner has been redirected, so they

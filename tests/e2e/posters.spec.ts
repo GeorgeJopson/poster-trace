@@ -2,7 +2,6 @@ import fs from "node:fs";
 import type { Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 
-import { storeCampaignTarget } from "./database";
 import { expect, test } from "./fixtures";
 import {
   addPosterDesign,
@@ -270,27 +269,23 @@ test.describe("scanning a poster's QR code", () => {
     expect(response.headers()["cache-control"]).toBe("no-store");
   });
 
-  test("never sends the scanner to a stored target that isn't http(s)", async ({
-    page,
-    request,
-  }) => {
-    await addPosterDesign(page);
-    const [path] = await generatePosters(page, 1);
-    await storeCampaignTarget(path, "javascript:alert(1)");
-
-    const response = await request.get(path, { maxRedirects: 0 });
-
-    expect(response.status()).toBeGreaterThanOrEqual(500);
-    expect(response.headers()["location"]).toBeUndefined();
-  });
-
   for (const [name, path] of [
     ["an unknown poster", `/redirect/${crypto.randomUUID()}`],
     ["a malformed poster id", "/redirect/not-a-poster"],
   ]) {
-    test(`returns 404 for ${name}`, async ({ request }) => {
-      const response = await request.get(path, { maxRedirects: 0 });
-      expect(response.status()).toBe(404);
+    test(`shows a "poster not found" page with a 404 for ${name}`, async ({
+      page,
+    }) => {
+      const response = await page.goto(path);
+
+      expect(response?.status()).toBe(404);
+      expect(response?.headers()["cache-control"]).toBe("no-store");
+      // The page is rendered for another path, so check it survives hydration.
+      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveURL(path);
+      await expect(
+        page.getByRole("heading", { name: "Poster not found" }),
+      ).toBeVisible();
     });
   }
 });

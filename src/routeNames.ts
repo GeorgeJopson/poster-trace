@@ -10,6 +10,7 @@ export const routeNames = {
   privacy: "/privacy",
   terms: "/terms",
   error: "/error",
+  posterNotFound: "/poster-not-found",
   passwordReset: "/password-reset",
   passwordResetAuthorized: "/password-reset/authorized",
   campaign: (id: string) => `/dashboard/campaign/${id}`,
