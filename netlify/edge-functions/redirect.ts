@@ -1,4 +1,4 @@
-import { getDatabase } from "@netlify/database";
+import { neon } from "@neondatabase/serverless";
 import type { Config, Context } from "@netlify/edge-functions";
 
 // Where every poster's QR code points (see ADR-0014). It's an edge function
@@ -61,23 +61,78 @@ function since(start: number): number {
   return performance.now() - start;
 }
 
-type Database = ReturnType<typeof getDatabase>;
-let database: Database | undefined;
+/** Runs a query written as a tagged template, resolving to its rows. */
+type Sql = <Row>(
+  strings: TemplateStringsArray,
+  ...values: unknown[]
+) => Promise<Row[]>;
+
+interface Database {
+  /** The NETLIFY_DB_DRIVER it was chosen for. */
+  driver: string;
+  sql: Sql;
+}
+
+let database: Promise<Database> | undefined;
+
+/** An environment variable, as Netlify's edge runtime provides it. */
+function env(name: string): string | undefined {
+  const { Netlify } = globalThis as {
+    Netlify?: { env: { get(name: string): string | undefined } };
+  };
+  return Netlify?.env.get(name);
+}
+
+/**
+ * Connects to the database. On Netlify the driver is "serverless", and
+ * queries go to Neon over HTTP with the Neon driver alone, rather than
+ * through @netlify/database, which also loads pg, ws and two query builders
+ * and so slows every cold start. `netlify dev` runs a plain Postgres instead
+ * ("server"), which Neon's HTTP driver can't reach, so there it falls back
+ * to @netlify/database, imported only then so production never loads it.
+ */
+async function connect(): Promise<Database> {
+  const driver = env("NETLIFY_DB_DRIVER") ?? "server";
+  if (driver === "serverless") {
+    const url = env("NETLIFY_DB_URL");
+    if (!url) throw new Error("NETLIFY_DB_URL isn't set");
+    const query = neon(url);
+    return {
+      driver,
+      sql: async <Row>(strings: TemplateStringsArray, ...values: unknown[]) =>
+        (await query(strings, ...values)) as Row[],
+    };
+  }
+  const { getDatabase } = await import("@netlify/database");
+  const local = getDatabase();
+  return {
+    driver,
+    sql: async <Row>(strings: TemplateStringsArray, ...values: unknown[]) =>
+      (await local.sql(strings, ...values)) as Row[],
+  };
+}
 
 /**
  * The database client, created on first use and kept for the life of the
- * isolate. Each getDatabase() call opens a new connection pool, so it's
- * called only once. `timings` gets how long creating it took, if it was
- * created now, and which driver it uses.
+ * isolate, so that its connections are reused. If connecting fails, the
+ * next call tries again. `timings` gets how long connecting took, if it
+ * happened now, and which driver it uses.
  */
-function db(timings?: Record<string, unknown>): Database {
+async function db(timings?: Record<string, unknown>): Promise<Database> {
   if (!database) {
     const start = performance.now();
-    database = getDatabase();
+    database = connect().catch((error: unknown) => {
+      database = undefined;
+      throw error;
+    });
+    const connected = await database;
     if (timings) timings.dbCreateMs = since(start);
+    if (timings) timings.dbDriver = connected.driver;
+    return connected;
   }
-  if (timings) timings.dbDriver = database.driver;
-  return database;
+  const connected = await database;
+  if (timings) timings.dbDriver = connected.driver;
+  return connected;
 }
 
 /** Whether `error`, or an error it wraps, has the Postgres `code`. */
@@ -105,7 +160,7 @@ async function findTarget(
     return null;
   }
   timings.validId = true;
-  const client = db(timings);
+  const client = await db(timings);
   timings.firstQueryOnIsolate = !hasQueried;
   hasQueried = true;
   // Every scan runs this, so it's one query joined on primary keys, reading
@@ -185,7 +240,9 @@ async function recordScan(
   try {
     // scanned_at has no time zone and holds UTC, so send an ISO string, as
     // Drizzle does, rather than a Date the driver would put in local time.
-    await db().sql`
+    await (
+      await db()
+    ).sql`
       insert into scan (id, poster_id, scanned_at)
       values (${crypto.randomUUID()}, ${posterId}, ${scannedAt.toISOString()})`;
   } catch (error) {

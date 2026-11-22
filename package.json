@@ -21,6 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.1",
     "@netlify/blobs": "^11.1.4",
     "@netlify/database": "^2.0.1",
     "@radix-ui/react-dialog": "^1.2.0",

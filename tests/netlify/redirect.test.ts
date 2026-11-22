@@ -3,21 +3,41 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import redirect from "../../netlify/edge-functions/redirect";
 
-// A stand-in for @netlify/database's client. Each query is recorded as its
-// SQL text (with "?" for each value) and its values, and answered by `answer`.
-type Query = { text: string; values: unknown[] };
+// Stand-ins for the database drivers: Neon's, used on Netlify, and
+// @netlify/database's, used under `netlify dev`. Each query is recorded as
+// its SQL text (with "?" for each value), its values and the driver that ran
+// it, and answered by `answer`.
+type Query = { text: string; values: unknown[]; driver: string };
 const queries: Query[] = [];
 let answer: (query: Query) => unknown[] = () => [];
 
-const { getDatabase } = vi.hoisted(() => ({ getDatabase: vi.fn() }));
-vi.mock("@netlify/database", () => ({ getDatabase }));
-getDatabase.mockImplementation(() => ({
-  sql: async (strings: TemplateStringsArray, ...values: unknown[]) => {
-    const query = { text: strings.join("?"), values };
+function fakeSql(driver: string) {
+  return async (strings: TemplateStringsArray, ...values: unknown[]) => {
+    const query = { text: strings.join("?"), values, driver };
     queries.push(query);
     return answer(query);
-  },
+  };
+}
+
+const { neon, getDatabase } = vi.hoisted(() => ({
+  neon: vi.fn(),
+  getDatabase: vi.fn(),
 }));
+vi.mock("@neondatabase/serverless", () => ({ neon }));
+vi.mock("@netlify/database", () => ({ getDatabase }));
+neon.mockImplementation(() => fakeSql("neon"));
+getDatabase.mockImplementation(() => ({ sql: fakeSql("netlify-database") }));
+
+const DB_URL = "postgres://user:password@db.example/poster";
+
+// The environment Netlify's edge runtime provides, through its Netlify
+// global. On Netlify the driver is "serverless".
+let environment: Record<string, string>;
+function stubNetlifyEnv() {
+  vi.stubGlobal("Netlify", {
+    env: { get: (name: string) => environment[name] },
+  });
+}
 
 const POSTER_ID = "6f1c2a4e-8b3d-4f7a-9c2e-1d5b7a9e3f40";
 const TARGET = "https://example.com/";
@@ -48,6 +68,25 @@ async function scan(posterId: string, headers: HeadersInit = {}) {
   return response;
 }
 
+/**
+ * Scans a poster with a fresh copy of the edge function. The database client
+ * is kept for the life of the module, so this connects again, with the
+ * current environment.
+ */
+async function scanWithFreshModule() {
+  vi.resetModules();
+  const { default: freshRedirect } =
+    await import("../../netlify/edge-functions/redirect");
+  const context = {
+    params: { posterId: POSTER_ID },
+    waitUntil: () => {},
+  } as unknown as Context;
+  return freshRedirect(
+    new Request(`https://postertrace.example/redirect/${POSTER_ID}`),
+    context,
+  );
+}
+
 const fetchPage = vi.fn<typeof fetch>();
 
 beforeEach(() => {
@@ -60,6 +99,9 @@ beforeEach(() => {
     }),
   );
   vi.stubGlobal("fetch", fetchPage);
+  environment = { NETLIFY_DB_DRIVER: "serverless", NETLIFY_DB_URL: DB_URL };
+  stubNetlifyEnv();
+  vi.spyOn(console, "log").mockImplementation(() => {});
   vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
 });
 
@@ -120,15 +162,56 @@ describe("scanning an existing poster", () => {
     );
   });
 
+  it("queries Neon over HTTP with the deploy's connection string", async () => {
+    neon.mockClear();
+
+    await scanWithFreshModule();
+
+    expect(neon).toHaveBeenCalledWith(DB_URL);
+    expect(queries.find(isTargetQuery)?.driver).toBe("neon");
+  });
+
   it("reuses one database client across scans", async () => {
     await scan(POSTER_ID);
-    const opened = getDatabase.mock.calls.length;
+    const opened = neon.mock.calls.length;
 
     await scan(POSTER_ID);
     await scan(POSTER_ID);
 
-    expect(getDatabase.mock.calls.length).toBe(opened);
+    expect(neon.mock.calls.length).toBe(opened);
     expect(inserts()).toHaveLength(3);
+  });
+
+  it("logs how long each step took", async () => {
+    const log = vi.mocked(console.log);
+
+    await scan(POSTER_ID);
+
+    const lines = log.mock.calls
+      .filter(([tag]) => tag === "[redirect-timing]")
+      .map(([, json]) => JSON.parse(json as string));
+    expect(lines).toEqual([
+      expect.objectContaining({
+        event: "redirect",
+        status: 307,
+        findTargetMs: expect.any(Number),
+        handlerMs: expect.any(Number),
+      }),
+      expect.objectContaining({ event: "record-scan", outcome: "recorded" }),
+    ]);
+  });
+});
+
+describe("scanning under netlify dev", () => {
+  it("uses the local Postgres through @netlify/database", async () => {
+    environment = { NETLIFY_DB_DRIVER: "server", NETLIFY_DB_URL: DB_URL };
+    neon.mockClear();
+
+    const response = await scanWithFreshModule();
+
+    expect(response.status).toBe(307);
+    expect(neon).not.toHaveBeenCalled();
+    expect(queries.find(isTargetQuery)?.driver).toBe("netlify-database");
   });
 });
 
