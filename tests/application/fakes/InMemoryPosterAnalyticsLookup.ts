@@ -15,6 +15,6 @@ export class InMemoryPosterAnalyticsLookup implements PosterAnalyticsLookup {
   }
 
   async summarisePosters(campaignId: CampaignId): Promise<PosterSummary[]> {
-    return [...(this.summaries.get(campaignId) ?? [])];
+    return this.summaries.get(campaignId) ?? [];
   }
 }
