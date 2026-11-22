@@ -72,24 +72,28 @@ async function uploadDesignImage(filename: string) {
   return key;
 }
 
-// Rows are ordered by created_at, which the database sets. Inserts in quick
-// succession can get the same timestamp, so each insert waits a moment first
-// to keep the seeded order.
-function pause() {
-  return new Promise((resolve) => setTimeout(resolve, 10));
-}
-
 // Ids come from the domain, and values go through its factories, so an invalid
 // seeded value fails here rather than when a page loads it.
 
-async function insertCampaign(userId: string, name: string, target: string) {
+// Rows are ordered by created_at, so each seeded row is given its own. A
+// campaign's scans over time start on the day it was created, so campaigns
+// with scans are created before their first scan. Without a createdAt the
+// database sets it to now, with a pause first so quick inserts keep their
+// order.
+async function insertCampaign(
+  userId: string,
+  name: string,
+  target: string,
+  createdAt?: Date,
+) {
   const id = CampaignId.generate();
-  await pause();
+  if (!createdAt) await pause();
   await db.insert(campaign).values({
     id,
     name,
     target: CampaignTarget.create(target).value,
     userId,
+    createdAt,
   });
   return id;
 }
@@ -100,11 +104,11 @@ async function insertDesign(
   campaignId: CampaignId,
   filename: string,
   fields: QrPlacementFields,
+  createdAt: Date,
 ) {
   const id = PosterDesignId.generate();
   const { x, y, size, rotation } = QrPlacement.create(fields);
   const designImageKey = await uploadDesignImage(filename);
-  await pause();
   await db.insert(posterDesign).values({
     id,
     designImageKey,
@@ -113,16 +117,21 @@ async function insertDesign(
     size,
     rotation,
     campaignId,
+    createdAt,
   });
   return id;
 }
 
-// Scan timestamps relative to now, spread over the last couple of weeks.
-function daysAgo(days: number, hour = 12) {
+// Seeded timestamps relative to now, spread over the last couple of weeks.
+function daysAgo(days: number, hour = 12, minute = 0) {
   const date = new Date();
   date.setDate(date.getDate() - days);
-  date.setHours(hour, 0, 0, 0);
+  date.setHours(hour, minute, 0, 0);
   return date;
+}
+
+function pause() {
+  return new Promise((resolve) => setTimeout(resolve, 10));
 }
 
 // Seeded campaigns belong to this test account. Log in with these
@@ -185,18 +194,21 @@ async function main() {
     userId,
     "Summer Music Festival 2026",
     "https://posters.example.com/campaigns/summer-fest-2026",
+    daysAgo(16, 9),
   );
   const cafeOpening = await insertCampaign(
     userId,
     "Downtown Cafe Grand Opening",
     "https://posters.example.com/campaigns/cafe-opening",
+    daysAgo(16, 10),
   );
   const marathon = await insertCampaign(
     userId,
     "City Marathon 2026 Registration",
     "https://posters.example.com/campaigns/marathon-2026",
+    daysAgo(16, 11),
   );
-  // Newly created campaign: no design or posters exist
+  // Newly created campaign, created now: no design or posters exist
   await insertCampaign(
     userId,
     "Neighborhood Art Walk 2026",
@@ -207,38 +219,45 @@ async function main() {
     summerFest,
     "stock-poster-1.pdf",
     { x: 82, y: 85, size: 12, rotation: 0 },
+    daysAgo(16, 13),
   );
   const summerFestDesignB = await insertDesign(
     summerFest,
     "stock-poster-2.pdf",
     { x: 50, y: 85, size: 15, rotation: 5 },
+    daysAgo(16, 14),
   );
-  const cafeDesign = await insertDesign(cafeOpening, "stock-poster-3.pdf", {
-    x: 75,
-    y: 80,
-    size: 10,
-    rotation: 357,
-  });
-  const marathonDesignA = await insertDesign(marathon, "stock-poster-4.pdf", {
-    x: 20,
-    y: 15,
-    size: 18,
-    rotation: 0,
-  });
-  const marathonDesignB = await insertDesign(marathon, "stock-poster-5.pdf", {
-    x: 85,
-    y: 10,
-    size: 10,
-    rotation: 90,
-  });
+  const cafeDesign = await insertDesign(
+    cafeOpening,
+    "stock-poster-3.pdf",
+    { x: 75, y: 80, size: 10, rotation: 357 },
+    daysAgo(16, 15),
+  );
+  const marathonDesignA = await insertDesign(
+    marathon,
+    "stock-poster-4.pdf",
+    { x: 20, y: 15, size: 18, rotation: 0 },
+    daysAgo(16, 16),
+  );
+  const marathonDesignB = await insertDesign(
+    marathon,
+    "stock-poster-5.pdf",
+    { x: 85, y: 10, size: 10, rotation: 90 },
+    daysAgo(16, 17),
+  );
 
   // Generated posters. Some are registered below, and some of those with
-  // where they were put up.
+  // where they were put up. They're generated a minute apart, before the
+  // first registration.
+  let posterCount = 0;
   const insertPoster = async (posterDesignId: PosterDesignId) => {
-    await pause();
     const [row] = await db
       .insert(poster)
-      .values({ id: PosterId.generate(), posterDesignId })
+      .values({
+        id: PosterId.generate(),
+        posterDesignId,
+        createdAt: daysAgo(15, 9, posterCount++),
+      })
       .returning();
     return row;
   };
