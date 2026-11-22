@@ -7,7 +7,7 @@ Recording a scan used to load the poster (a select joined to its registration) o
 ## Decisions
 
 - **`ScanRepository` only adds scans.** Stored scans are never changed or deleted, the same as before (ADR-0015).
-- **The read-side lookups stay as application ports.** `ScanTargetLookup` reads a campaign's target and never touches scans (ADR-0014), and `ScanCountLookup` returns counts, not Scan aggregates, so neither belongs on a domain repository.
+- **The read-side lookups stay as application ports.** `ScanTargetLookup` reads a campaign's target and never touches scans (ADR-0014), and `ScanCountLookup` returns counts, not Scan aggregates, so neither belongs on a domain repository. (`ScanCountLookup` has since been renamed `PosterAnalyticsLookup`: it takes a campaign id and returns a `PosterSummary` for each of the campaign's posters, which holds the poster's name and location as well as its scan count. The decision is unchanged.)
 - **A poster deleted before its scan is recorded is still skipped without an error.** There's no existence check before the insert, so `ScanRepository.add` treats the foreign key violation as a no-op. The redirect confirmed the poster existed moments earlier, so this only happens in that race, and the scan's would-be row would have been deleted with the poster anyway.
 
 ## Considered Options

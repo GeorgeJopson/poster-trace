@@ -6,7 +6,7 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import { requireUserId } from "../auth/requireUserId";
 import type { CampaignAnalyticsDto } from "../dto/AnalyticsDto";
-import type { ScanCountLookup } from "../ports/ScanCountLookup";
+import type { PosterAnalyticsLookup } from "../ports/PosterAnalyticsLookup";
 import type { SessionProvider } from "../ports/SessionProvider";
 
 /** Analytics of the signed-in user's campaigns. */
@@ -17,7 +17,7 @@ export class AnalyticsService {
   constructor(
     private readonly sessions: SessionProvider,
     private readonly campaigns: CampaignRepository,
-    private readonly scanCounts: ScanCountLookup,
+    private readonly posterAnalytics: PosterAnalyticsLookup,
   ) {}
 
   /**
@@ -37,22 +37,27 @@ export class AnalyticsService {
     if (!campaign) throw new NotFoundError("Campaign not found");
 
     const designIds = campaign.getDesigns().map((design) => design.id);
-    const counts = await this.scanCounts.countScansPerPoster(designIds);
-    if (counts.length === 0) return { kind: "noPosters" };
-
     const positionOf = new Map(designIds.map((id, position) => [id, position]));
+    // The campaign and its posters are read separately, so a design added in
+    // between could have posters the loaded campaign doesn't know. They're
+    // left out until the next load rather than breaking the page.
+    const summaries = (
+      await this.posterAnalytics.summarisePosters(campaign.id)
+    ).filter(({ designId }) => positionOf.has(designId));
+    if (summaries.length === 0) return { kind: "noPosters" };
+
     const highestScanCount = Math.max(
-      ...counts.map(({ scanCount }) => scanCount),
+      ...summaries.map(({ scanCount }) => scanCount),
     );
     const scanDistribution = designIds.map((_, position) => ({
       position,
       posterCounts: new Array<number>(highestScanCount + 1).fill(0),
     }));
-    for (const { designId, scanCount } of counts) {
+    for (const { designId, scanCount } of summaries) {
       scanDistribution[positionOf.get(designId)!].posterCounts[scanCount]++;
     }
 
-    const topPosters = counts
+    const topPosters = summaries
       .filter(({ scanCount }) => scanCount > 0)
       .sort(
         (a, b) =>
@@ -66,7 +71,7 @@ export class AnalyticsService {
         scanCount,
       }));
 
-    const mapPosters = counts.flatMap(({ posterId, location, scanCount }) =>
+    const mapPosters = summaries.flatMap(({ posterId, location, scanCount }) =>
       location
         ? [
             {
@@ -84,8 +89,8 @@ export class AnalyticsService {
         0,
         ...mapPosters.map(({ scanCount }) => scanCount),
       ),
-      unmappedPosterCount: counts.length - mapPosters.length,
-      posterCount: counts.length,
+      unmappedPosterCount: summaries.length - mapPosters.length,
+      posterCount: summaries.length,
     };
 
     return { kind: "posters", scanDistribution, topPosters, scanMap };

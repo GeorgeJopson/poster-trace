@@ -32,6 +32,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 - **Nothing connects at import time.** `next build` imports these modules without credentials.
 - **`tests/application/fakes/` mirror the Drizzle repositories' behaviour**, including what they _don't_ write. Change both together.
+- **Fakes of read-side lookups are stubs**, filled with the rows a test wants (e.g. `InMemoryScanTargetLookup`, `InMemoryPosterAnalyticsLookup`). They don't re-implement the Drizzle query over other fakes; the query is tested once, against the database, in `tests/infrastructure/db/`.
 
 ## Presentation
 
