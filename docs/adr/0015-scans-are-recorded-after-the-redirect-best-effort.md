@@ -1,6 +1,6 @@
 # Scans are recorded after the redirect, on a best-effort basis
 
-Partly superseded by ADR-0017: a scan is its own aggregate, stored with `ScanRepository.add` without loading the poster, so a Poster no longer holds new scans and `addNewScans` is gone.
+Partly superseded by ADR-0017: a scan is its own aggregate, stored with `ScanRepository.add` without loading the poster, so a Poster no longer holds new scans and `addNewScans` is gone. Also partly superseded by ADR-0019: the redirect is a Netlify Edge Function, which records the scan in `context.waitUntil` instead of Next's `after()`.
 
 A scan's redirect (ADR-0014) never waits for the scan to be stored. The route handler takes the time the request arrived, sends the `307`, and records the scan in Next's `after()`: `ScanService.recordScan` loads the poster with `PosterRepository.findById`, calls `poster.addScan(scannedAt)`, and stores it with `PosterRepository.addNewScans(poster)`. If that fails, the error is logged and the scan is lost. Getting the scanner to the target quickly matters more than an exact count, so a few missing scans are acceptable.
 
