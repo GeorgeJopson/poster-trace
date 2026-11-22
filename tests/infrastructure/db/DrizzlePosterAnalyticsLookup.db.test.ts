@@ -9,12 +9,11 @@ import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import { Poster } from "@domain/poster/Poster";
 import { PosterName } from "@domain/poster/PosterName";
 import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
-import { Scan } from "@domain/scan/Scan";
 import { UserId } from "@domain/user/UserId";
+import { scan } from "@infrastructure/db/schema";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 import { DrizzlePosterAnalyticsLookup } from "@infrastructure/repositories/DrizzlePosterAnalyticsLookup";
-import { DrizzleScanRepository } from "@infrastructure/repositories/DrizzleScanRepository";
 
 import { A4_PDF_DETAILS } from "../../support/pdfs";
 import { FakeBlobStore } from "./FakeBlobStore";
@@ -23,14 +22,12 @@ import { clearDatabase, db, insertUser } from "./testDb";
 const alice = UserId.from("alice");
 
 let posters: DrizzlePosterRepository;
-let scans: DrizzleScanRepository;
 let lookup: DrizzlePosterAnalyticsLookup;
 
 beforeEach(async () => {
   await clearDatabase();
   await insertUser(alice);
   posters = new DrizzlePosterRepository(db);
-  scans = new DrizzleScanRepository(db);
   lookup = new DrizzlePosterAnalyticsLookup(db);
 });
 
@@ -71,8 +68,14 @@ async function addPoster(
     poster.register(PosterName.create(posterName), location, new Date());
   }
   await posters.save([poster]);
-  for (let i = 0; i < scanCount; i++) {
-    await scans.add(Scan.create(poster.id, new Date()));
+  if (scanCount > 0) {
+    await db.insert(scan).values(
+      Array.from({ length: scanCount }, () => ({
+        id: crypto.randomUUID(),
+        posterId: poster.id,
+        scannedAt: new Date(),
+      })),
+    );
   }
   return poster.id;
 }

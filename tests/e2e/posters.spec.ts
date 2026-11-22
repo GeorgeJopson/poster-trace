@@ -273,9 +273,19 @@ test.describe("scanning a poster's QR code", () => {
     ["an unknown poster", `/redirect/${crypto.randomUUID()}`],
     ["a malformed poster id", "/redirect/not-a-poster"],
   ]) {
-    test(`returns 404 for ${name}`, async ({ request }) => {
-      const response = await request.get(path, { maxRedirects: 0 });
-      expect(response.status()).toBe(404);
+    test(`shows a "poster not found" page with a 404 for ${name}`, async ({
+      page,
+    }) => {
+      const response = await page.goto(path);
+
+      expect(response?.status()).toBe(404);
+      expect(response?.headers()["cache-control"]).toBe("no-store");
+      // The page is rendered for another path, so check it survives hydration.
+      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveURL(path);
+      await expect(
+        page.getByRole("heading", { name: "Poster not found" }),
+      ).toBeVisible();
     });
   }
 });

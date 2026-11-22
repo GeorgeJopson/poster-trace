@@ -16,9 +16,9 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 - **Browser-safe.** Domain files never import `server-only`, because the value objects' rules also run in forms.
 - **Value objects** are immutable classes with a private constructor and a static factory that validates and throws `ValidationError`. The factory is the only way to check a value. `ValidationError` messages are shown to users, so write them for users.
 - **Ids** are branded strings. `as XxxId` appears only inside that id's own `generate` / `from` / `parse`. Ids that come from URLs go through `parse`, which returns `null` for anything that isn't a UUID.
-- **Entities** have two factories. `create` builds a new entity and generates its id. `restore` rebuilds a stored entity and generates nothing; only repositories call it. `Poster`'s `create` is called `generate`, the glossary's word for making posters. `Scan` has no `restore`, as scans are never loaded (see ADR-0017).
+- **Entities** have two factories. `create` builds a new entity and generates its id. `restore` rebuilds a stored entity and generates nothing; only repositories call it. `Poster`'s `create` is called `generate`, the glossary's word for making posters.
 - **Repositories** take and return entities, never Drizzle rows. They store the ids the domain generated, never read the session, and take an explicit `ownerId` for owner-facing reads (see ADR-0005).
-- **Aggregate changes are persisted with `save`**, which writes the whole aggregate: `CampaignRepository.save` (see ADR-0012) and `PosterRepository.save` (see ADR-0018). A new mutation needs no repository method, but the in-memory fakes must keep matching the Drizzle repositories' `save` rules. The exception is the insert-only `ScanRepository.add` (see ADR-0015 and ADR-0017).
+- **Aggregate changes are persisted with `save`**, which writes the whole aggregate: `CampaignRepository.save` (see ADR-0012) and `PosterRepository.save` (see ADR-0018). A new mutation needs no repository method, but the in-memory fakes must keep matching the Drizzle repositories' `save` rules.
 
 ## Application
 
@@ -32,11 +32,11 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 - **Nothing connects at import time.** `next build` imports these modules without credentials.
 - **`tests/application/fakes/` mirror the Drizzle repositories' behaviour**, including what they _don't_ write. Change both together.
-- **Fakes of read-side lookups are stubs**, filled with the rows a test wants (e.g. `InMemoryScanTargetLookup`, `InMemoryPosterAnalyticsLookup`). They don't re-implement the Drizzle query over other fakes; the query is tested once, against the database, in `tests/infrastructure/db/`.
+- **Fakes of read-side lookups are stubs**, filled with the rows a test wants (e.g. `InMemoryPosterAnalyticsLookup`). They don't re-implement the Drizzle query over other fakes; the query is tested once, against the database, in `tests/infrastructure/db/`.
 
 ## Presentation
 
-- **Every service call from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`.** The layout guard isn't enough, because layouts don't re-render on client navigation and Server Actions don't run through them. Two route handlers are exceptions: the image route maps `NotAuthenticatedError` to a 404, and the scan redirect route (`/redirect/[posterId]`) never checks a session, because anyone can scan a poster (see ADR-0014).
+- **Every service call from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`.** The layout guard isn't enough, because layouts don't re-render on client navigation and Server Actions don't run through them. The image route handler is an exception: it maps `NotAuthenticatedError` to a 404. Scans don't go through Next at all; the redirect is an edge function (see ADR-0019).
 - **Services come from `@di/container` getters.** Client Components never call services; they get DTOs through props, or call Server Actions.
 - **Forms validate through `@application/validation`**, not by calling domain factories. They may read domain constants such as `CampaignTarget.MAX_LENGTH` and `QrPlacement.RANGES`.
 - **Client Components reach auth through `@clientApplication`.**
