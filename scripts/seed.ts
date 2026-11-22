@@ -15,7 +15,6 @@ import { PosterDesignImage } from "@domain/campaign/design/PosterDesignImage";
 import { PosterId } from "@domain/poster/PosterId";
 import { PosterName } from "@domain/poster/PosterName";
 import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
-import { ScanId } from "@domain/scan/ScanId";
 import {
   QrPlacement,
   type QrPlacementFields,
@@ -328,7 +327,7 @@ async function main() {
   ];
   await db
     .insert(scan)
-    .values(scans.map((values) => ({ id: ScanId.generate(), ...values })));
+    .values(scans.map((values) => ({ id: crypto.randomUUID(), ...values })));
 
   console.log(
     `Seed complete. Log in as ${SEED_USER_EMAIL} / ${SEED_USER_PASSWORD}.`,

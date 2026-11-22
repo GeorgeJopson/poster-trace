@@ -4,11 +4,9 @@ import type { Config, Context } from "@netlify/edge-functions";
 // Where every poster's QR code points (see ADR-0014). It's an edge function
 // rather than a Next route so that a scan never waits for the Next server to
 // start. The edge runtime (Deno) can't import the app's layers, which use
-// extensionless imports and tsconfig path aliases, so this repeats the few
-// rules a scan needs (see ADR-0019). Keep them in step with:
-// - PosterId.parse / isUuid (domain/shared/uuid.ts)
-// - DrizzleScanTargetLookup and DrizzleScanRepository
-// - ScanService.recordScan
+// extensionless imports and tsconfig path aliases, so this is the only code
+// that reads a scan's target or records a scan (see ADR-0019). Its UUID check
+// must stay in step with isUuid (domain/shared/uuid.ts).
 // Anyone can scan a poster, so there's no session check.
 
 // A UUID in its canonical, lower-case form, like isUuid in the domain.
