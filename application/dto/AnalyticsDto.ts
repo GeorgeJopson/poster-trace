@@ -8,12 +8,24 @@ export type DesignPosition = number;
 export type PosterCount = number;
 
 /**
- * One poster design's share of the scan distribution: `posterCounts[n]` is
- * how many of its posters have `n` scans.
+ * How many scans of one design's posters happened in one scan slot: the 15
+ * minutes from `slotStart`, which is on the quarter hour in UTC.
  */
-export type DesignScanDistributionDto = {
+export type ScanSlotDto = {
   position: DesignPosition;
-  posterCounts: PosterCount[];
+  slotStart: Date;
+  /** At least 1. */
+  scanCount: number;
+};
+
+/** A campaign's scans since it was created, by design and scan slot. */
+export type ScansOverTimeDto = {
+  /** When the campaign was created, which is when it began. */
+  createdAt: Date;
+  /** How many designs the campaign has. Every slot's position is below it. */
+  designCount: number;
+  /** Only slots with scans, in no particular order. */
+  slots: ScanSlotDto[];
 };
 
 /** A poster with one of a campaign's highest scan counts. */
@@ -54,12 +66,7 @@ export type CampaignAnalyticsDto =
   | { kind: "noPosters" }
   | {
       kind: "posters";
-      /**
-       * Every design of the campaign, in campaign order. Every
-       * `posterCounts` has the same length, one more than the highest scan
-       * count, and a design with no posters has all zeros.
-       */
-      scanDistribution: DesignScanDistributionDto[];
+      scansOverTime: ScansOverTimeDto;
       /**
        * Up to `AnalyticsService.TOP_POSTER_COUNT` posters with the most
        * scans, most first. Posters with no scans are left out, so it's empty

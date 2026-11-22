@@ -1,0 +1,18 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.heading {
+  font-size: var(--font-size-important-body);
+  font-weight: normal;
+}
+
+/* Holds the chart's place until it can be drawn in the viewer's time zone. */
+.placeholder {
+  height: 360px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: var(--shadow-elevation-low);
+}

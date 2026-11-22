@@ -22,7 +22,7 @@ export class AnalyticsService {
 
   /**
    * What the analytics show for one of the signed-in user's campaigns: its
-   * scan distribution, with each design referred to by its position in the
+   * scans over time, with each design referred to by its position in the
    * campaign, its top posters, with their poster names, and its scan map of
    * located posters. The campaign is
    * loaded for its owner, which is how ownership is checked (see ADR-0009),
@@ -45,17 +45,6 @@ export class AnalyticsService {
       await this.posterAnalytics.summarisePosters(campaign.id)
     ).filter(({ designId }) => positionOf.has(designId));
     if (summaries.length === 0) return { kind: "noPosters" };
-
-    const highestScanCount = Math.max(
-      ...summaries.map(({ scanCount }) => scanCount),
-    );
-    const scanDistribution = designIds.map((_, position) => ({
-      position,
-      posterCounts: new Array<number>(highestScanCount + 1).fill(0),
-    }));
-    for (const { designId, scanCount } of summaries) {
-      scanDistribution[positionOf.get(designId)!].posterCounts[scanCount]++;
-    }
 
     const topPosters = summaries
       .filter(({ scanCount }) => scanCount > 0)
@@ -93,6 +82,21 @@ export class AnalyticsService {
       posterCount: summaries.length,
     };
 
-    return { kind: "posters", scanDistribution, topPosters, scanMap };
+    // The campaign was loaded for its owner just now, so it only reads as
+    // missing here if it has since been deleted.
+    const scanSlots = await this.posterAnalytics.countScanSlots(campaign.id);
+    if (!scanSlots) throw new NotFoundError("Campaign not found");
+    const scansOverTime = {
+      createdAt: scanSlots.createdAt,
+      designCount: designIds.length,
+      slots: scanSlots.slots.flatMap(({ designId, slotStart, scanCount }) => {
+        const position = positionOf.get(designId);
+        return position === undefined
+          ? []
+          : [{ position, slotStart, scanCount }];
+      }),
+    };
+
+    return { kind: "posters", scansOverTime, topPosters, scanMap };
   }
 }

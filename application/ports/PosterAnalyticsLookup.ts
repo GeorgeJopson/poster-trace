@@ -18,6 +18,30 @@ export type PosterSummary = {
   scanCount: number;
 };
 
+/** How long each scan slot lasts: 15 minutes, in milliseconds. */
+export const SCAN_SLOT_MS = 15 * 60 * 1000;
+
+/**
+ * How many scans of one design's posters happened in one scan slot. Slots
+ * are 15 minutes long and start on the quarter hour in UTC. Every time zone's
+ * offset is a whole number of quarter hours, so each slot falls within one
+ * day wherever it's viewed.
+ */
+export type ScanSlot = {
+  designId: PosterDesignId;
+  /** When the slot starts. */
+  slotStart: Date;
+  /** At least 1. */
+  scanCount: number;
+};
+
+/** When a campaign was created, and its scans counted by scan slot. */
+export type CampaignScanSlots = {
+  createdAt: Date;
+  /** Only slots with scans, in no particular order. */
+  slots: ScanSlot[];
+};
+
 /**
  * Reads what a campaign's analytics show about its posters. A read-only
  * query, so stored scans are counted in the database rather than loaded
@@ -31,4 +55,11 @@ export interface PosterAnalyticsLookup {
    * check that first.
    */
   summarisePosters(campaignId: CampaignId): Promise<PosterSummary[]>;
+
+  /**
+   * When the campaign was created, and its posters' scans counted by design
+   * and scan slot. `null` for a campaign that doesn't exist. Doesn't check
+   * who owns the campaign: callers must check that first.
+   */
+  countScanSlots(campaignId: CampaignId): Promise<CampaignScanSlots | null>;
 }

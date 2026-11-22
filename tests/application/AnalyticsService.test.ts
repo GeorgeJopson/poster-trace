@@ -20,6 +20,7 @@ import { InMemoryPosterAnalyticsLookup } from "./fakes/InMemoryPosterAnalyticsLo
 
 const { TOP_POSTER_COUNT } = AnalyticsService;
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
+const createdAt = new Date("2026-11-02T09:41:07.000Z");
 
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
@@ -35,6 +36,7 @@ async function addCampaign(designCount: number) {
     name: "Campaign",
     target: "https://example.com/",
   });
+  posterAnalytics.setCreatedAt(CampaignId.from(id), createdAt);
   const designs = new PosterDesignService(sessions, campaigns);
   for (let i = 0; i < designCount; i++) {
     await designs.createPosterDesign(id, {
@@ -99,21 +101,40 @@ describe("getCampaignAnalytics", () => {
     });
   });
 
-  it("counts each design's posters by scan count, in campaign order, with every count up to the highest", async () => {
+  it("gives when the campaign was created, how many designs it has, and its scans by design position and slot", async () => {
     const { campaignId, designIds } = await addCampaign(3);
-    const [first, second] = designIds;
-    await addPoster(first, 0);
-    await addPoster(first, 0);
-    await addPoster(first, 2);
-    await addPoster(second, 1);
+    const [first, , third] = designIds;
+    await addPoster(first, 3);
+    const id = CampaignId.from(campaignId);
+    posterAnalytics.addScanSlot(id, {
+      designId: PosterDesignId.from(first),
+      slotStart: new Date("2026-11-03T10:00:00.000Z"),
+      scanCount: 2,
+    });
+    posterAnalytics.addScanSlot(id, {
+      designId: PosterDesignId.from(third),
+      slotStart: new Date("2026-11-04T18:45:00.000Z"),
+      scanCount: 1,
+    });
 
     expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
       kind: "posters",
-      scanDistribution: [
-        { position: 0, posterCounts: [2, 0, 1] },
-        { position: 1, posterCounts: [0, 1, 0] },
-        { position: 2, posterCounts: [0, 0, 0] },
-      ],
+      scansOverTime: {
+        createdAt,
+        designCount: 3,
+        slots: [
+          {
+            position: 0,
+            slotStart: new Date("2026-11-03T10:00:00.000Z"),
+            scanCount: 2,
+          },
+          {
+            position: 2,
+            slotStart: new Date("2026-11-04T18:45:00.000Z"),
+            scanCount: 1,
+          },
+        ],
+      },
     });
   });
 
@@ -192,7 +213,7 @@ describe("getCampaignAnalytics", () => {
 
     expect(await service.getCampaignAnalytics(campaignId)).toEqual({
       kind: "posters",
-      scanDistribution: [{ position: 0, posterCounts: [1] }],
+      scansOverTime: { createdAt, designCount: 1, slots: [] },
       topPosters: [],
       scanMap: {
         posters: [],
@@ -213,9 +234,14 @@ describe("getCampaignAnalytics", () => {
       location: at(51.6, -0.1),
       scanCount: 4,
     });
+    posterAnalytics.addScanSlot(CampaignId.from(campaignId), {
+      designId: PosterDesignId.generate(),
+      slotStart: new Date("2026-11-03T10:00:00.000Z"),
+      scanCount: 4,
+    });
 
     expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
-      scanDistribution: [{ position: 0, posterCounts: [0, 1] }],
+      scansOverTime: { slots: [] },
       topPosters: [{ posterName: "Station", scanCount: 1 }],
       scanMap: { maxScanCount: 1, unmappedPosterCount: 0, posterCount: 1 },
     });
