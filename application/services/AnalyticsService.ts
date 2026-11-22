@@ -41,23 +41,23 @@ export class AnalyticsService {
     // The campaign and its posters are read separately, so a design added in
     // between could have posters the loaded campaign doesn't know. They're
     // left out until the next load rather than breaking the page.
-    const counts = (
+    const summaries = (
       await this.posterAnalytics.summarisePosters(campaign.id)
     ).filter(({ designId }) => positionOf.has(designId));
-    if (counts.length === 0) return { kind: "noPosters" };
+    if (summaries.length === 0) return { kind: "noPosters" };
 
     const highestScanCount = Math.max(
-      ...counts.map(({ scanCount }) => scanCount),
+      ...summaries.map(({ scanCount }) => scanCount),
     );
     const scanDistribution = designIds.map((_, position) => ({
       position,
       posterCounts: new Array<number>(highestScanCount + 1).fill(0),
     }));
-    for (const { designId, scanCount } of counts) {
+    for (const { designId, scanCount } of summaries) {
       scanDistribution[positionOf.get(designId)!].posterCounts[scanCount]++;
     }
 
-    const topPosters = counts
+    const topPosters = summaries
       .filter(({ scanCount }) => scanCount > 0)
       .sort(
         (a, b) =>
@@ -71,7 +71,7 @@ export class AnalyticsService {
         scanCount,
       }));
 
-    const mapPosters = counts.flatMap(({ posterId, location, scanCount }) =>
+    const mapPosters = summaries.flatMap(({ posterId, location, scanCount }) =>
       location
         ? [
             {
@@ -89,8 +89,8 @@ export class AnalyticsService {
         0,
         ...mapPosters.map(({ scanCount }) => scanCount),
       ),
-      unmappedPosterCount: counts.length - mapPosters.length,
-      posterCount: counts.length,
+      unmappedPosterCount: summaries.length - mapPosters.length,
+      posterCount: summaries.length,
     };
 
     return { kind: "posters", scanDistribution, topPosters, scanMap };
