@@ -5,7 +5,9 @@ import type { Config, Context } from "@netlify/edge-functions";
 // rather than a Next route so that a scan never waits for the Next server to
 // start. The edge runtime (Deno) can't import the app's layers, which use
 // extensionless imports and tsconfig path aliases, so this is the only code
-// that reads a scan's target or records a scan (see ADR-0019). Keep in step:
+// that reads a scan's target or records a scan (see ADR-0019). For now,
+// netlify/functions/redirect-fn.mts also serves this handler from a standard
+// function, to compare the two runtimes' cold starts. Keep in step:
 // - UUID_PATTERN with isUuid (domain/shared/uuid.ts)
 // - POSTER_NOT_FOUND_PATH with src/app/(public)/poster-not-found
 // Anyone can scan a poster, so there's no session check.
@@ -44,6 +46,10 @@ let isolateRequests = 0;
 // Whether this isolate has run a query yet. The first one pays for setting
 // up the connection, or waking a suspended database.
 let hasQueried = false;
+
+// Which runtime is serving this module: Deno for the edge function, Node for
+// the standard function.
+const RUNTIME = "Deno" in globalThis ? "edge" : "function";
 
 /** Logs a timing line, rounding durations to a tenth of a millisecond. */
 function logTiming(event: string, fields: Record<string, unknown>): void {
@@ -135,6 +141,37 @@ async function db(timings?: Record<string, unknown>): Promise<Database> {
   return connected;
 }
 
+// The connection warm-up, started when the module loads (see warmUp).
+const warmUpTimings: Record<string, unknown> = {};
+let warmingUp: Promise<void> | undefined;
+
+/**
+ * Opens the connection to Neon as soon as the module loads, with a trivial
+ * query, so the TLS handshake overlaps the rest of the cold start instead of
+ * delaying the first scan's lookup. Only on Netlify ("serverless"): locally
+ * the connection is cheap. It never throws; a failed warm-up is logged and
+ * the lookup connects as usual.
+ */
+function warmUp(): void {
+  if (env("NETLIFY_DB_DRIVER") !== "serverless") return;
+  const start = performance.now();
+  warmUpTimings.warmUpStartedAtMs = start;
+  warmingUp = db()
+    .then((client) => client.sql`select 1`)
+    .then(
+      () => {
+        warmUpTimings.warmUpMs = since(start);
+      },
+      (error: unknown) => {
+        warmUpTimings.warmUpMs = since(start);
+        warmUpTimings.warmUpFailed = true;
+        console.error("Couldn't warm up the database connection", error);
+      },
+    );
+}
+
+warmUp();
+
 /** Whether `error`, or an error it wraps, has the Postgres `code`. */
 function hasPgCode(error: unknown, code: string): boolean {
   for (
@@ -160,6 +197,15 @@ async function findTarget(
     return null;
   }
   timings.validId = true;
+  if (warmingUp) {
+    // Wait for the warm-up rather than racing it, so the lookup reuses the
+    // connection it opened instead of opening another.
+    const start = performance.now();
+    await warmingUp;
+    warmingUp = undefined;
+    timings.waitedForWarmUpMs = since(start);
+    Object.assign(timings, warmUpTimings);
+  }
   const client = await db(timings);
   timings.firstQueryOnIsolate = !hasQueried;
   hasQueried = true;
@@ -254,6 +300,7 @@ async function recordScan(
     console.error(`Couldn't record a scan of poster ${posterId}`, error);
   } finally {
     logTiming("record-scan", {
+      runtime: RUNTIME,
       requestId,
       outcome,
       insertMs: since(start),
@@ -267,15 +314,16 @@ export default async function redirect(request: Request, context: Context) {
   isolateRequests += 1;
   // Filled in by each step and logged once the response is ready.
   const timings: Record<string, unknown> = {
+    runtime: RUNTIME,
     requestId: context.requestId,
     coldStart: isolateRequests === 1,
     isolateRequests,
-    // Isolate start to module evaluated, and module evaluated to this
-    // request. On a cold start, together they're the time before the
+    // Isolate (or Lambda) start to module evaluated, and module evaluated to
+    // this request. On a cold start, together they're the time before the
     // handler ran.
     moduleEvaluatedAtMs: moduleEvaluatedAt,
     moduleToHandlerMs: handlerStart - moduleEvaluatedAt,
-    edgeRegion: context.server?.region,
+    region: context.server?.region,
     country: context.geo?.country?.code,
     deployContext: context.deploy?.context,
   };

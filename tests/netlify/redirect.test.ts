@@ -171,6 +171,51 @@ describe("scanning an existing poster", () => {
     expect(queries.find(isTargetQuery)?.driver).toBe("neon");
   });
 
+  it("opens the connection when the module loads, before the first lookup", async () => {
+    await scanWithFreshModule();
+
+    expect(queries.slice(0, 2).map((query) => query.text.trim())).toEqual([
+      "select 1",
+      expect.stringContaining("select campaign.target"),
+    ]);
+    const log = vi.mocked(console.log);
+    const [, json] = log.mock.calls.find(
+      ([tag, line]) =>
+        tag === "[redirect-timing]" && String(line).includes('"redirect"'),
+    )!;
+    expect(JSON.parse(json as string)).toMatchObject({
+      warmUpMs: expect.any(Number),
+      waitedForWarmUpMs: expect.any(Number),
+    });
+  });
+
+  it("still redirects if the warm-up fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    answer = (query) => {
+      if (query.text.includes("select 1")) throw new Error("Network down");
+      return isTargetQuery(query) ? [{ target: TARGET }] : [];
+    };
+
+    const response = await scanWithFreshModule();
+
+    expect(response.status).toBe(307);
+    expect(console.error).toHaveBeenCalledWith(
+      "Couldn't warm up the database connection",
+      expect.any(Error),
+    );
+  });
+
+  it("is served by the comparison function too", async () => {
+    vi.resetModules();
+    const [edge, fn] = await Promise.all([
+      import("../../netlify/edge-functions/redirect"),
+      import("../../netlify/functions/redirect-fn.mjs"),
+    ]);
+
+    expect(fn.default).toBe(edge.default);
+    expect(fn.config.path).toBe("/redirect-fn/:posterId");
+  });
+
   it("reuses one database client across scans", async () => {
     await scan(POSTER_ID);
     const opened = neon.mock.calls.length;
