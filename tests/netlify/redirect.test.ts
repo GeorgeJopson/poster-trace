@@ -352,44 +352,43 @@ describe("scanning an existing poster", () => {
     });
   });
 
-  it("answers a warm-up ping only once the database warm-up has finished", async () => {
-    // Only the warm-up's query, the first, is held until released.
-    let finishWarmUpQuery: (() => void) | undefined;
-    answer = (query) => {
-      if (query.text.includes("select 1") && !finishWarmUpQuery) {
-        return new Promise<unknown[]>((resolve) => {
-          finishWarmUpQuery = () => resolve([]);
-        }) as unknown as unknown[];
-      }
-      return [];
-    };
+  it("doesn't wake the database or read Blobs on a cold comparison function", async () => {
     vi.resetModules();
     const fn = await import("../../netlify/functions/redirect-fn.mjs");
-    let answered = false;
+    queries.length = 0;
 
-    const ping = fn
-      .default(
-        new Request("https://postertrace.example/redirect-fn/warm-up", {
-          headers: { "X-Warm-Up": "1" },
-        }),
-        {
-          params: { posterId: "warm-up" },
-          waitUntil: () => {},
-        } as unknown as Context,
-      )
-      .then((response) => {
-        answered = true;
-        return response;
-      });
-    await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(answered).toBe(false);
+    const response = await fn.default(
+      new Request("https://postertrace.example/redirect-fn/warm-up", {
+        headers: { "X-Warm-Up": "1" },
+      }),
+      {
+        params: { posterId: "warm-up" },
+        waitUntil: () => {},
+      } as unknown as Context,
+    );
 
-    finishWarmUpQuery?.();
+    expect(response.status).toBe(204);
+    expect(queries).toEqual([]);
+    expect(fakeBlobs.reads).toEqual([]);
+  });
 
-    expect((await ping).status).toBe(204);
+  it("only connects to the database in the comparison function when the copy misses", async () => {
+    vi.resetModules();
+    const fn = await import("../../netlify/functions/redirect-fn.mjs");
+    queries.length = 0;
+    copiedTargets().set(POSTER_ID, "https://example.com/copied");
+
+    await fn.default(
+      new Request(`https://postertrace.example/redirect-fn/${POSTER_ID}`),
+      {
+        params: { posterId: POSTER_ID },
+        waitUntil: () => {},
+      } as unknown as Context,
+    );
+
     expect(
-      queries.filter((query) => query.text.includes("select 1")),
-    ).toHaveLength(1);
+      queries.filter((query) => !query.text.includes("insert into scan")),
+    ).toEqual([]);
   });
 
   it("logs how long each step took", async () => {
