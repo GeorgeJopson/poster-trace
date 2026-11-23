@@ -206,14 +206,40 @@ describe("scanning an existing poster", () => {
   });
 
   it("is served by the comparison function too", async () => {
-    vi.resetModules();
-    const [edge, fn] = await Promise.all([
-      import("../../netlify/edge-functions/redirect"),
-      import("../../netlify/functions/redirect-fn.mjs"),
-    ]);
+    const fn = await import("../../netlify/functions/redirect-fn.mjs");
+    const context = {
+      params: { posterId: POSTER_ID },
+      waitUntil: () => {},
+    } as unknown as Context;
 
-    expect(fn.default).toBe(edge.default);
+    const response = await fn.default(
+      new Request(`https://postertrace.example/redirect-fn/${POSTER_ID}`),
+      context,
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("Location")).toBe(TARGET);
     expect(fn.config.path).toBe("/redirect-fn/:posterId");
+  });
+
+  it("answers a warm-up ping to the comparison function without a scan", async () => {
+    const fn = await import("../../netlify/functions/redirect-fn.mjs");
+    queries.length = 0;
+    const context = {
+      params: { posterId: "warm-up" },
+      waitUntil: () => {},
+    } as unknown as Context;
+
+    const response = await fn.default(
+      new Request("https://postertrace.example/redirect-fn/warm-up", {
+        headers: { "X-Warm-Up": "1" },
+      }),
+      context,
+    );
+
+    expect(response.status).toBe(204);
+    expect(queries).toEqual([]);
+    expect(fetchPage).not.toHaveBeenCalled();
   });
 
   it("reuses one database client across scans", async () => {
