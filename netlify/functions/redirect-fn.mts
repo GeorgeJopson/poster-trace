@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { getStore } from "@netlify/blobs";
 
 // Temporary: a prototype of the scan redirect as a standard (Node, AWS
 // Lambda) function, to compare its cold starts with the edge function's
@@ -11,7 +12,12 @@ import { neon } from "@neondatabase/serverless";
 // - UUID_PATTERN with isUuid (domain/shared/uuid.ts)
 // - POSTER_NOT_FOUND_PATH with src/app/(public)/poster-not-found
 // - WARM_UP_HEADER with its copy in warm-redirect-fn.mts
+// - SCAN_TARGET_REGION and scanTargetStoreName with NetlifyScanTargetCopy
+//   (infrastructure/storage/NetlifyScanTargetCopy.ts)
 // Anyone can scan a poster, so there's no session check.
+//
+// Prototype: like the edge function, it reads each poster's copied target
+// from Netlify Blobs first, and only queries the database if it's missing.
 
 /** The parts of Netlify's function context this uses. */
 interface Context {
@@ -31,6 +37,25 @@ const UUID_PATTERN =
 const FOREIGN_KEY_VIOLATION = "23503";
 
 const POSTER_NOT_FOUND_PATH = "/poster-not-found";
+
+// Where the copy of each poster's target is kept. A site-wide store defaults
+// to us-east-2, so the region is given on every call, as the app does.
+const SCAN_TARGET_REGION = "eu-central-1";
+
+/**
+ * The copy's store for the deploy context: deploy previews have their own
+ * database, so their own store. "dev" locally.
+ */
+function scanTargetStoreName(deployContext: string | undefined): string {
+  return `scan-targets-${deployContext || "dev"}`;
+}
+
+function scanTargets(deployContext: string | undefined) {
+  return getStore({
+    name: scanTargetStoreName(deployContext),
+    region: SCAN_TARGET_REGION,
+  });
+}
 
 // The headers a deploy preview's access protection checks: its password or
 // SSO session cookie, or basic auth.
@@ -265,6 +290,74 @@ async function findTarget(
 }
 
 /**
+ * The poster's copied target, or `null` if it hasn't been copied or the copy
+ * can't be read, so the caller falls back to the database. `timings` gets
+ * how long the read took and whether it found the poster.
+ */
+async function readCopiedTarget(
+  posterId: string,
+  deployContext: string | undefined,
+  timings: Record<string, unknown>,
+): Promise<string | null> {
+  const start = performance.now();
+  try {
+    // Eventually consistent, the default, so it's served from the nearest
+    // edge cache. A new key is readable straight away; a changed target
+    // takes up to 60 seconds to reach every location.
+    const target = await scanTargets(deployContext).get(posterId, {
+      type: "text",
+    });
+    timings.blobHit = target !== null;
+    return target;
+  } catch (error) {
+    timings.blobHit = false;
+    timings.blobReadFailed = true;
+    console.error(
+      `Couldn't read the copied target of poster ${posterId}`,
+      error,
+    );
+    return null;
+  } finally {
+    timings.blobReadMs = since(start);
+  }
+}
+
+/**
+ * Copies the poster's target, found in the database, so its next scan needn't
+ * wait for the database. Only if it's still missing: if the campaign's target
+ * changed meanwhile, the app has already copied the new one, which mustn't be
+ * overwritten with this older one. It runs after the redirect, so it never
+ * throws, and logs how long it took.
+ */
+async function copyTarget(
+  posterId: string,
+  target: string,
+  deployContext: string | undefined,
+  requestId: string | undefined,
+): Promise<void> {
+  const start = performance.now();
+  let outcome = "copied";
+  try {
+    const { modified } = await scanTargets(deployContext).set(
+      posterId,
+      target,
+      { onlyIfNew: true },
+    );
+    if (!modified) outcome = "already copied";
+  } catch (error) {
+    outcome = "failed";
+    console.error(`Couldn't copy the target of poster ${posterId}`, error);
+  } finally {
+    logTiming("copy-target", {
+      runtime: RUNTIME,
+      requestId,
+      outcome,
+      blobWriteMs: since(start),
+    });
+  }
+}
+
+/**
  * The "poster not found" page, served at the scan URL with a 404 status
  * (ADR-0019). Only the access headers are passed on, so that a deploy
  * preview's protection lets the page through and the body comes back
@@ -364,10 +457,23 @@ async function redirect(request: Request, context: Context) {
     deployContext: context.deploy?.context,
   };
   const posterId = context.params.posterId ?? "";
+  const deployContext = context.deploy?.context;
 
   let response: Response | undefined;
   try {
-    const target = await findTarget(posterId, timings);
+    // A malformed id can't have been copied, so it goes straight to
+    // findTarget, which rejects it without a query.
+    let target = UUID_PATTERN.test(posterId)
+      ? await readCopiedTarget(posterId, deployContext, timings)
+      : null;
+    if (target === null) {
+      target = await findTarget(posterId, timings);
+      if (target) {
+        context.waitUntil(
+          copyTarget(posterId, target, deployContext, context.requestId),
+        );
+      }
+    }
     if (!target) {
       response = await posterNotFound(request, timings);
       return response;
