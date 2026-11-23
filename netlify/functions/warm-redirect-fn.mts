@@ -3,14 +3,14 @@
 // deploy. It pings the comparison redirect function so its Lambda stays warm,
 // to see how much of that function's scan latency is cold starts. AWS
 // reclaims an idle Lambda after somewhere around 5 to 15 minutes. It doesn't
-// keep the database awake, which would cost too much.
+// keep the database awake, which would cost too much: a scan reads its
+// poster's target from Netlify Blobs, so it no longer waits for Neon.
 //
 // A ping keeps one Lambda instance warm. Scans that arrive together can
 // still start a second, cold instance.
 
 // Keep in step with WARM_UP_HEADER in redirect-fn.mts. It isn't imported,
-// because that would bundle the redirect handler, which queries the database
-// when it loads.
+// because that would bundle the whole redirect handler into this function.
 const WARM_UP_HEADER = "X-Warm-Up";
 
 export default async function warmRedirectFn() {

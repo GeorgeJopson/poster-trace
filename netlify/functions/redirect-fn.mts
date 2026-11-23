@@ -18,6 +18,8 @@ import { getStore } from "@netlify/blobs";
 //
 // Prototype: like the edge function, it reads each poster's copied target
 // from Netlify Blobs first, and only queries the database if it's missing.
+// So nothing here warms up the database, and a warm-up ping never wakes
+// Neon. Blobs has no cold state, so there's nothing there to warm either.
 
 /** The parts of Netlify's function context this uses. */
 interface Context {
@@ -203,37 +205,6 @@ async function db(timings?: Record<string, unknown>): Promise<Database> {
   return connected;
 }
 
-// The connection warm-up, started when the module loads (see warmUp).
-const warmUpTimings: Record<string, unknown> = {};
-let warmingUp: Promise<void> | undefined;
-
-/**
- * Opens the connection to Neon as soon as the module loads, with a trivial
- * query, so the TLS handshake overlaps the rest of the cold start instead of
- * delaying the first scan's lookup. Only on Netlify ("serverless"): locally
- * the connection is cheap. It never throws; a failed warm-up is logged and
- * the lookup connects as usual.
- */
-function warmUp(): void {
-  if (env("NETLIFY_DB_DRIVER") !== "serverless") return;
-  const start = performance.now();
-  warmUpTimings.warmUpStartedAtMs = start;
-  warmingUp = db()
-    .then((client) => client.sql`select 1`)
-    .then(
-      () => {
-        warmUpTimings.warmUpMs = since(start);
-      },
-      (error: unknown) => {
-        warmUpTimings.warmUpMs = since(start);
-        warmUpTimings.warmUpFailed = true;
-        console.error("Couldn't warm up the database connection", error);
-      },
-    );
-}
-
-warmUp();
-
 /** Whether `error`, or an error it wraps, has the Postgres `code`. */
 function hasPgCode(error: unknown, code: string): boolean {
   for (
@@ -259,15 +230,6 @@ async function findTarget(
     return null;
   }
   timings.validId = true;
-  if (warmingUp) {
-    // Wait for the warm-up rather than racing it, so the lookup reuses the
-    // connection it opened instead of opening another.
-    const start = performance.now();
-    await warmingUp;
-    warmingUp = undefined;
-    timings.waitedForWarmUpMs = since(start);
-    Object.assign(timings, warmUpTimings);
-  }
   const client = await db(timings);
   timings.firstQueryOnIsolate = !hasQueried;
   hasQueried = true;
@@ -502,22 +464,16 @@ const WARM_UP_HEADER = "X-Warm-Up";
 
 export default async function redirectFn(request: Request, context: Context) {
   // A warm-up ping only needs the Lambda to run: it skips the handler, so it
-  // never queries the database, fetches the not found page or records a
-  // scan. Keeping Neon awake would cost too much. It counts as a request, so
-  // a scan after it isn't logged as a cold start, and its line carries the
-  // Lambda's instance, like the scans' lines. On a cold Lambda, loading this
-  // module starts the connection warm-up, and the ping waits for it: Lambda
-  // freezes the process after each response, and a warm-up frozen mid-query
-  // fails when the Lambda next wakes, once Neon has closed the connection.
+  // never reads Blobs, queries the database, fetches the not found page or
+  // records a scan. A scan reads its target from Blobs, so it no longer
+  // waits for Neon, and there's no need to wake it. It counts as a request,
+  // so a scan after it isn't logged as a cold start, and its line carries
+  // the Lambda's instance, like the scans' lines.
   if (request.headers.has(WARM_UP_HEADER)) {
-    const isolate = countRequest();
-    const start = performance.now();
-    await warmingUp;
     logTiming("warm-up-ping", {
       runtime: RUNTIME,
       requestId: context.requestId,
-      ...isolate,
-      waitedForWarmUpMs: since(start),
+      ...countRequest(),
     });
     return new Response(null, { status: 204, headers: NO_STORE });
   }
