@@ -2,7 +2,8 @@
 // function: it runs every five minutes, and only on the published production
 // deploy. It pings the comparison redirect function so its Lambda stays warm,
 // to see how much of that function's scan latency is cold starts. AWS
-// reclaims an idle Lambda after somewhere around 5 to 15 minutes.
+// reclaims an idle Lambda after somewhere around 5 to 15 minutes. It doesn't
+// keep the database awake, which would cost too much.
 //
 // A ping keeps one Lambda instance warm. Scans that arrive together can
 // still start a second, cold instance.

@@ -40,34 +40,8 @@ const TIMING_LOG = "[redirect-timing]";
 // isolate took to start and load the bundle.
 const moduleEvaluatedAt = performance.now();
 
-// How many requests this isolate has handled, including the standard
-// function's warm-up pings. The first one is a cold start.
+// How many requests this isolate has handled. The first one is a cold start.
 let isolateRequests = 0;
-
-// Identifies this isolate (or Lambda) in the logs: every line it writes
-// carries it, so lines with the same instance ran on the same one. Random,
-// because neither runtime gives a handler its instance's own id.
-const INSTANCE = crypto.randomUUID().slice(0, 8);
-
-/** What a request's log line says about the isolate (or Lambda) it ran on. */
-export interface Isolate {
-  instance: string;
-  coldStart: boolean;
-  isolateRequests: number;
-}
-
-/**
- * Counts a request against this isolate (or Lambda). Every request calls it
- * once, scan or warm-up ping, so that whichever comes first is the cold one.
- */
-export function countRequest(): Isolate {
-  isolateRequests += 1;
-  return {
-    instance: INSTANCE,
-    coldStart: isolateRequests === 1,
-    isolateRequests,
-  };
-}
 
 // Whether this isolate has run a query yet. The first one pays for setting
 // up the connection, or waking a suspended database.
@@ -327,7 +301,6 @@ async function recordScan(
   } finally {
     logTiming("record-scan", {
       runtime: RUNTIME,
-      instance: INSTANCE,
       requestId,
       outcome,
       insertMs: since(start),
@@ -338,11 +311,13 @@ async function recordScan(
 export default async function redirect(request: Request, context: Context) {
   const handlerStart = performance.now();
   const scannedAt = new Date();
+  isolateRequests += 1;
   // Filled in by each step and logged once the response is ready.
   const timings: Record<string, unknown> = {
     runtime: RUNTIME,
     requestId: context.requestId,
-    ...countRequest(),
+    coldStart: isolateRequests === 1,
+    isolateRequests,
     // Isolate (or Lambda) start to module evaluated, and module evaluated to
     // this request. On a cold start, together they're the time before the
     // handler ran.

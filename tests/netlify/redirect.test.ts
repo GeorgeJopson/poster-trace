@@ -239,6 +239,7 @@ describe("scanning an existing poster", () => {
 
     expect(response.status).toBe(204);
     expect(queries).toEqual([]);
+    expect(inserts()).toEqual([]);
     expect(fetchPage).not.toHaveBeenCalled();
   });
 
@@ -287,6 +288,46 @@ describe("scanning an existing poster", () => {
       isolateRequests: 2,
       instance: ping.instance,
     });
+  });
+
+  it("answers a warm-up ping only once the database warm-up has finished", async () => {
+    // Only the warm-up's query, the first, is held until released.
+    let finishWarmUpQuery: (() => void) | undefined;
+    answer = (query) => {
+      if (query.text.includes("select 1") && !finishWarmUpQuery) {
+        return new Promise<unknown[]>((resolve) => {
+          finishWarmUpQuery = () => resolve([]);
+        }) as unknown as unknown[];
+      }
+      return [];
+    };
+    vi.resetModules();
+    const fn = await import("../../netlify/functions/redirect-fn.mjs");
+    let answered = false;
+
+    const ping = fn
+      .default(
+        new Request("https://postertrace.example/redirect-fn/warm-up", {
+          headers: { "X-Warm-Up": "1" },
+        }),
+        {
+          params: { posterId: "warm-up" },
+          waitUntil: () => {},
+        } as unknown as Context,
+      )
+      .then((response) => {
+        answered = true;
+        return response;
+      });
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(answered).toBe(false);
+
+    finishWarmUpQuery?.();
+
+    expect((await ping).status).toBe(204);
+    expect(
+      queries.filter((query) => query.text.includes("select 1")),
+    ).toHaveLength(1);
   });
 
   it("logs how long each step took", async () => {
