@@ -10,6 +10,8 @@ import { requireUserId } from "../auth/requireUserId";
 import type { CampaignDto } from "../dto/CampaignDto";
 import type { CampaignFieldsInput } from "../dto/inputs";
 import { CampaignDtoMapper } from "../mappers/CampaignDtoMapper";
+import type { CampaignPosterLookup } from "../ports/CampaignPosterLookup";
+import type { ScanTargetCopy } from "../ports/ScanTargetCopy";
 import type { SessionProvider } from "../ports/SessionProvider";
 
 /** The signed-in user's campaigns. */
@@ -17,6 +19,8 @@ export class CampaignService {
   constructor(
     private readonly sessions: SessionProvider,
     private readonly campaigns: CampaignRepository,
+    private readonly campaignPosters: CampaignPosterLookup,
+    private readonly scanTargets: ScanTargetCopy,
   ) {}
 
   async listMyCampaigns(): Promise<CampaignDto[]> {
@@ -54,5 +58,14 @@ export class CampaignService {
     campaign.setName(input.name);
     campaign.setTarget(target);
     await this.campaigns.save(campaign);
+    // Prototype: the scan redirect reads each poster's target from a copy
+    // first, so the copy must follow the new target. It's written after the
+    // save, and a failure is thrown, so the owner sees it and saves again
+    // rather than scans carrying on to the old target. It's rewritten even if
+    // the target is unchanged, which also repairs a copy a failure left stale.
+    await this.scanTargets.copy(
+      await this.campaignPosters.listPosterIds(campaign.id),
+      target,
+    );
   }
 }

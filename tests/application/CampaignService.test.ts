@@ -4,23 +4,35 @@ import { NotAuthenticatedError } from "@application/errors/NotAuthenticatedError
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
+import { PosterId } from "@domain/poster/PosterId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
+import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
+import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 
 const fields = { name: "Campaign", target: "https://example.com/" };
 
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
+let campaignPosters: InMemoryCampaignPosterLookup;
+let scanTargets: InMemoryScanTargetCopy;
 let service: CampaignService;
 
 beforeEach(() => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
-  service = new CampaignService(sessions, campaigns);
+  campaignPosters = new InMemoryCampaignPosterLookup();
+  scanTargets = new InMemoryScanTargetCopy();
+  service = new CampaignService(
+    sessions,
+    campaigns,
+    campaignPosters,
+    scanTargets,
+  );
 });
 
 describe("createCampaign", () => {
@@ -88,6 +100,40 @@ describe("getMyCampaign", () => {
 });
 
 describe("updateCampaign", () => {
+  it("copies the new target for each of the campaign's posters", async () => {
+    const { id } = await service.createCampaign(fields);
+    const [first, second] = [PosterId.generate(), PosterId.generate()];
+    campaignPosters.add(CampaignId.from(id), first, second);
+
+    await service.updateCampaign(id, {
+      name: "Renamed",
+      target: "https://example.com/new",
+    });
+
+    expect(Object.fromEntries(scanTargets.targets)).toEqual({
+      [first]: "https://example.com/new",
+      [second]: "https://example.com/new",
+    });
+  });
+
+  it("rejects if the new target can't be copied, after saving it", async () => {
+    // So the owner sees the failure and saves again, rather than scans
+    // carrying on to the old target.
+    const { id } = await service.createCampaign(fields);
+    campaignPosters.add(CampaignId.from(id), PosterId.generate());
+    scanTargets.fail = true;
+
+    await expect(
+      service.updateCampaign(id, {
+        ...fields,
+        target: "https://example.com/new",
+      }),
+    ).rejects.toThrow("Couldn't copy the targets");
+    expect(await service.getMyCampaign(id)).toMatchObject({
+      target: "https://example.com/new",
+    });
+  });
+
   it("updates the name and target", async () => {
     const { id } = await service.createCampaign(fields);
     await service.updateCampaign(id, {

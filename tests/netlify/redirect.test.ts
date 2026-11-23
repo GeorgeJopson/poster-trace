@@ -26,6 +26,42 @@ const { neon, getDatabase } = vi.hoisted(() => ({
 vi.mock("@neondatabase/serverless", () => ({ neon }));
 vi.mock("@netlify/database", () => ({ getDatabase }));
 neon.mockImplementation(() => fakeSql("neon"));
+
+// Stands in for Netlify Blobs, which holds the copy of each poster's target:
+// each store's entries by its region and name, as a store opened without the
+// right region sees nothing. `failReads` makes every read throw.
+const fakeBlobs = vi.hoisted(() => ({
+  stores: new Map<string, Map<string, string>>(),
+  reads: [] as string[],
+  failReads: false,
+}));
+vi.mock("@netlify/blobs", () => ({
+  getStore: ({ name, region }: { name: string; region?: string }) => {
+    const id = `${region ?? "us-east-2"}/${name}`;
+    const entries = fakeBlobs.stores.get(id) ?? new Map<string, string>();
+    fakeBlobs.stores.set(id, entries);
+    return {
+      async get(key: string) {
+        fakeBlobs.reads.push(`${id}/${key}`);
+        if (fakeBlobs.failReads) throw new Error("Blobs unavailable");
+        return entries.get(key) ?? null;
+      },
+      async set(key: string, value: string, options?: { onlyIfNew?: boolean }) {
+        if (options?.onlyIfNew && entries.has(key)) return { modified: false };
+        entries.set(key, value);
+        return { modified: true };
+      },
+    };
+  },
+}));
+
+/** The store a local scan reads, in the region the app writes to. */
+function copiedTargets(deployContext = "dev") {
+  const id = `eu-central-1/scan-targets-${deployContext}`;
+  const entries = fakeBlobs.stores.get(id) ?? new Map<string, string>();
+  fakeBlobs.stores.set(id, entries);
+  return entries;
+}
 getDatabase.mockImplementation(() => ({ sql: fakeSql("netlify-database") }));
 
 const DB_URL = "postgres://user:password@db.example/poster";
@@ -51,10 +87,15 @@ function inserts() {
 }
 
 /** Scans `posterId`, returning the response and the work left running. */
-async function scan(posterId: string, headers: HeadersInit = {}) {
+async function scan(
+  posterId: string,
+  headers: HeadersInit = {},
+  deployContext?: string,
+) {
   const pending: Promise<unknown>[] = [];
   const context = {
     params: { posterId },
+    deploy: deployContext ? { context: deployContext } : undefined,
     waitUntil: (promise: Promise<unknown>) => pending.push(promise),
   } as unknown as Context;
   const request = new Request(
@@ -91,6 +132,9 @@ const fetchPage = vi.fn<typeof fetch>();
 
 beforeEach(() => {
   queries.length = 0;
+  fakeBlobs.stores.clear();
+  fakeBlobs.reads.length = 0;
+  fakeBlobs.failReads = false;
   answer = (query) => (isTargetQuery(query) ? [{ target: TARGET }] : []);
   fetchPage.mockReset();
   fetchPage.mockResolvedValue(
@@ -222,6 +266,24 @@ describe("scanning an existing poster", () => {
     expect(fn.config.path).toBe("/redirect-fn/:posterId");
   });
 
+  it("reads the copied target in the comparison function too", async () => {
+    const fn = await import("../../netlify/functions/redirect-fn.mjs");
+    copiedTargets().set(POSTER_ID, "https://example.com/copied");
+    queries.length = 0;
+    const context = {
+      params: { posterId: POSTER_ID },
+      waitUntil: () => {},
+    } as unknown as Context;
+
+    const response = await fn.default(
+      new Request(`https://postertrace.example/redirect-fn/${POSTER_ID}`),
+      context,
+    );
+
+    expect(response.headers.get("Location")).toBe("https://example.com/copied");
+    expect(queries.filter(isTargetQuery)).toEqual([]);
+  });
+
   it("answers a warm-up ping to the comparison function without a scan", async () => {
     const fn = await import("../../netlify/functions/redirect-fn.mjs");
     queries.length = 0;
@@ -342,11 +404,103 @@ describe("scanning an existing poster", () => {
       expect.objectContaining({
         event: "redirect",
         status: 307,
+        blobHit: false,
+        blobReadMs: expect.any(Number),
         findTargetMs: expect.any(Number),
         handlerMs: expect.any(Number),
       }),
+      expect.objectContaining({ event: "copy-target", outcome: "copied" }),
       expect.objectContaining({ event: "record-scan", outcome: "recorded" }),
     ]);
+  });
+});
+
+describe("scanning a poster whose target has been copied", () => {
+  beforeEach(() => {
+    copiedTargets().set(POSTER_ID, "https://example.com/copied");
+  });
+
+  it("redirects to the copied target without querying the database", async () => {
+    const response = await scan(POSTER_ID);
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("Location")).toBe("https://example.com/copied");
+    expect(queries.filter(isTargetQuery)).toEqual([]);
+  });
+
+  it("still records the scan afterwards", async () => {
+    await scan(POSTER_ID);
+
+    expect(inserts()).toHaveLength(1);
+  });
+
+  it("logs that the copy had the poster, and how long reading it took", async () => {
+    const log = vi.mocked(console.log);
+
+    await scan(POSTER_ID);
+
+    const [line] = log.mock.calls
+      .filter(([tag]) => tag === "[redirect-timing]")
+      .map(([, json]) => JSON.parse(json as string));
+    expect(line).toMatchObject({
+      event: "redirect",
+      blobHit: true,
+      blobReadMs: expect.any(Number),
+    });
+    expect(line).not.toHaveProperty("findTargetMs");
+  });
+
+  it("reads the store for the deploy's context", async () => {
+    copiedTargets("deploy-preview").set(POSTER_ID, "https://example.com/pr");
+
+    const response = await scan(POSTER_ID, {}, "deploy-preview");
+
+    expect(response.headers.get("Location")).toBe("https://example.com/pr");
+  });
+});
+
+describe("scanning a poster whose target hasn't been copied", () => {
+  it("redirects to the target from the database and copies it", async () => {
+    const response = await scan(POSTER_ID);
+
+    expect(response.headers.get("Location")).toBe(TARGET);
+    expect(copiedTargets().get(POSTER_ID)).toBe(TARGET);
+  });
+
+  it("doesn't overwrite a target copied while it looked in the database", async () => {
+    // As if the campaign's target changed, and the app copied the new one,
+    // between the lookup and the copy.
+    answer = (query) => {
+      if (!isTargetQuery(query)) return [];
+      copiedTargets().set(POSTER_ID, "https://example.com/new");
+      return [{ target: TARGET }];
+    };
+
+    await scan(POSTER_ID);
+
+    expect(copiedTargets().get(POSTER_ID)).toBe("https://example.com/new");
+  });
+
+  it("falls back to the database if the copy can't be read", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    fakeBlobs.failReads = true;
+
+    const response = await scan(POSTER_ID);
+
+    expect(response.headers.get("Location")).toBe(TARGET);
+    expect(error).toHaveBeenCalledWith(
+      `Couldn't read the copied target of poster ${POSTER_ID}`,
+      expect.any(Error),
+    );
+  });
+
+  it("copies nothing for a poster that doesn't exist", async () => {
+    answer = () => [];
+
+    const response = await scan(POSTER_ID);
+
+    expect(response.status).toBe(404);
+    expect(copiedTargets().has(POSTER_ID)).toBe(false);
   });
 });
 
@@ -389,6 +543,7 @@ describe("scanning a poster that doesn't exist", () => {
 
     expect(response.status).toBe(404);
     expect(queries).toHaveLength(0);
+    expect(fakeBlobs.reads).toEqual([]);
   });
 
   it("passes on only the headers access protection checks", async () => {
