@@ -10,6 +10,7 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import { requireUserId } from "../auth/requireUserId";
 import type { PosterDto } from "../dto/PosterDto";
+import type { ScanTargetCopy } from "../ports/ScanTargetCopy";
 import type { SessionProvider } from "../ports/SessionProvider";
 
 /** The posters of the signed-in user's poster designs. */
@@ -18,6 +19,7 @@ export class PosterService {
     private readonly sessions: SessionProvider,
     private readonly campaigns: CampaignRepository,
     private readonly posters: PosterRepository,
+    private readonly scanTargets: ScanTargetCopy,
     /** Where Poster Trace is served from, which QR codes point back to. */
     private readonly baseUrl: string,
   ) {}
@@ -37,12 +39,24 @@ export class PosterService {
     const campaign = id && (await this.campaigns.findByIdForOwner(id, userId));
     const parsedDesignId = PosterDesignId.parse(designId);
     const design = parsedDesignId && campaign?.findDesign(parsedDesignId);
-    if (!design) {
+    if (!campaign || !design) {
       throw new NotFoundError("Poster design not found");
     }
 
     const posters = Poster.generate(design.id, count);
     await this.posters.save(posters);
+    // For the scan redirect, which reads the copy first (ADR-0020). The
+    // posters are saved, so the copy is only a shortcut: if it fails, the
+    // redirect falls back to the database and copies the target itself, so
+    // the posters are still returned.
+    try {
+      await this.scanTargets.copy(
+        posters.map((poster) => poster.id),
+        campaign.getTarget(),
+      );
+    } catch (error) {
+      console.error("Couldn't copy the new posters' target", error);
+    }
     return posters.map((poster) => ({
       id: poster.id,
       scanUrl: ClientScanUrlService.build(this.baseUrl, poster.id),

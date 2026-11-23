@@ -1,6 +1,12 @@
 import { expect, test } from "./fixtures";
 
-import { addPosterDesign, createCampaign, mainNav, signUp } from "./helpers";
+import {
+  addPosterDesign,
+  createCampaign,
+  generatePosters,
+  mainNav,
+  signUp,
+} from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await signUp(page);
@@ -52,6 +58,35 @@ test("edits a campaign's name and target", async ({ page }) => {
   await expect(
     page.getByRole("heading", { level: 1, name: "Renamed campaign" }),
   ).toBeVisible();
+});
+
+test("sends scans of the campaign's posters to its new target", async ({
+  page,
+  request,
+}) => {
+  await createCampaign(page, {
+    name: "Retargeted campaign",
+    target: "https://example.com/original",
+  });
+  await addPosterDesign(page);
+  const [path] = await generatePosters(page, 1);
+  await page.keyboard.press("Escape");
+  // `request` shares no cookies with `page`, so the scanner isn't signed in.
+  const scan = async () =>
+    (await request.get(path, { maxRedirects: 0 })).headers()["location"];
+  expect(await scan()).toBe("https://example.com/original");
+
+  await page.getByRole("button", { name: "Edit campaign" }).click();
+  const dialog = page.getByRole("dialog", { name: "Edit campaign" });
+  await expect(
+    dialog.getByText("Scans can take up to a minute to follow a new target."),
+  ).toBeVisible();
+  await dialog.getByLabel("Target URL").fill("https://example.com/new");
+  await dialog.getByRole("button", { name: "Save changes" }).click();
+  await expect(dialog).toBeHidden();
+
+  // The local Blobs store is strongly consistent, unlike production's.
+  expect(await scan()).toBe("https://example.com/new");
 });
 
 test("shows the validation message for an invalid target", async ({ page }) => {

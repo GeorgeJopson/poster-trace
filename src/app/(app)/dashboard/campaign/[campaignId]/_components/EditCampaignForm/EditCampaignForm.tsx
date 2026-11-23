@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import type { CampaignDto } from "@application/dto/CampaignDto";
 import { validateCampaignTarget } from "@application/validation/validateCampaignTarget";
@@ -20,10 +20,17 @@ export default function EditCampaignForm({
   onSaved,
 }: EditCampaignFormProps) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(formData: FormData) {
+    setError(null);
     startTransition(async () => {
-      await updateCampaign(campaign.id, formData);
+      const result = await updateCampaign(campaign.id, formData);
+      // The dialog stays open, so the owner can save again to retry.
+      if (result.error !== undefined) {
+        setError(result.error);
+        return;
+      }
       onSaved?.();
     });
   }
@@ -51,13 +58,23 @@ export default function EditCampaignForm({
           required
           maxLength={CampaignTarget.MAX_LENGTH}
           defaultValue={campaign.target}
+          aria-describedby="targetHint"
           onChange={(event) =>
             event.currentTarget.setCustomValidity(
               validateCampaignTarget(event.currentTarget.value) ?? "",
             )
           }
         />
+        <p className={styles.hint} id="targetHint">
+          Scans can take up to a minute to follow a new target.
+        </p>
       </div>
+
+      {error && (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
+      )}
 
       <div className={styles.submitButtonWrapper}>
         <Button

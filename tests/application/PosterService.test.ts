@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NotAuthenticatedError } from "@application/errors/NotAuthenticatedError";
 import { CampaignService } from "@application/services/CampaignService";
@@ -12,8 +12,10 @@ import { ValidationError } from "@domain/shared/ValidationError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
+import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
+import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 
 const BASE_URL = "https://www.postertrace.app";
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
@@ -21,6 +23,7 @@ const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
 let posters: InMemoryPosterRepository;
+let scanTargets: InMemoryScanTargetCopy;
 let campaignService: CampaignService;
 let service: PosterService;
 let campaignId: string;
@@ -43,8 +46,20 @@ beforeEach(async () => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
   posters = new InMemoryPosterRepository();
-  campaignService = new CampaignService(sessions, campaigns);
-  service = new PosterService(sessions, campaigns, posters, BASE_URL);
+  scanTargets = new InMemoryScanTargetCopy();
+  campaignService = new CampaignService(
+    sessions,
+    campaigns,
+    new InMemoryCampaignPosterLookup(campaigns, posters),
+    scanTargets,
+  );
+  service = new PosterService(
+    sessions,
+    campaigns,
+    posters,
+    scanTargets,
+    BASE_URL,
+  );
   ({ campaignId, designId } = await addCampaignWithDesign());
 });
 
@@ -62,8 +77,39 @@ describe("generatePosters", () => {
     );
   });
 
+  it("copies the campaign's target to the new posters, for the scan redirect", async () => {
+    const generated = await service.generatePosters(campaignId, designId, 2);
+
+    expect(Object.fromEntries(scanTargets.targets)).toEqual(
+      Object.fromEntries(
+        generated.map(({ id }) => [id, "https://example.com/"]),
+      ),
+    );
+  });
+
+  it("still returns the stored posters if the copy fails", async () => {
+    // The redirect falls back to the database and copies the target itself.
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    scanTargets.fail = true;
+
+    const generated = await service.generatePosters(campaignId, designId, 2);
+
+    expect(generated).toHaveLength(2);
+    expect(posters.posters.map(({ id }) => id)).toEqual(
+      generated.map(({ id }) => id),
+    );
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
+  });
+
   it("builds the URL from a base URL with a trailing slash", async () => {
-    service = new PosterService(sessions, campaigns, posters, `${BASE_URL}/`);
+    service = new PosterService(
+      sessions,
+      campaigns,
+      posters,
+      scanTargets,
+      `${BASE_URL}/`,
+    );
     const [poster] = await service.generatePosters(campaignId, designId, 1);
     expect(poster.scanUrl).toBe(`${BASE_URL}/redirect/${poster.id}`);
   });
