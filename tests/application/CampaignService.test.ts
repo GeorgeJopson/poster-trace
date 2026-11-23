@@ -5,9 +5,7 @@ import { ScanTargetCopyError } from "@application/errors/ScanTargetCopyError";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
-import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
-import { Poster } from "@domain/poster/Poster";
-import type { PosterId } from "@domain/poster/PosterId";
+import { PosterId } from "@domain/poster/PosterId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
@@ -15,44 +13,34 @@ import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
-import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
 import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 
 const fields = { name: "Campaign", target: "https://example.com/" };
 
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
-let posters: InMemoryPosterRepository;
+let campaignPosters: InMemoryCampaignPosterLookup;
 let scanTargets: InMemoryScanTargetCopy;
 let service: CampaignService;
 
 beforeEach(() => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
-  posters = new InMemoryPosterRepository();
+  campaignPosters = new InMemoryCampaignPosterLookup();
   scanTargets = new InMemoryScanTargetCopy();
   service = new CampaignService(
     sessions,
     campaigns,
-    new InMemoryCampaignPosterLookup(campaigns, posters),
+    campaignPosters,
     scanTargets,
   );
 });
 
-/** Adds a design to the campaign, and `count` posters of it. */
-async function addPosters(campaignId: string, count: number) {
-  await new PosterDesignService(sessions, campaigns).createPosterDesign(
-    campaignId,
-    {
-      image: new Blob([await makePdf(1)], { type: "application/pdf" }),
-      qrPlacement: { x: 10, y: 20, size: 15, rotation: 0 },
-    },
-  );
-  const campaign = await service.getMyCampaign(campaignId);
-  const designId = PosterDesignId.parse(campaign!.posterDesigns.at(-1)!.id)!;
-  const generated = Poster.generate(designId, count);
-  await posters.save(generated);
-  return generated.map((poster): PosterId => poster.id);
+/** Adds `count` posters to the campaign, returning their ids. */
+function addPosters(campaignId: string, count: number): PosterId[] {
+  const ids = Array.from({ length: count }, () => PosterId.generate());
+  campaignPosters.add(CampaignId.parse(campaignId)!, ...ids);
+  return ids;
 }
 
 describe("createCampaign", () => {
@@ -174,9 +162,9 @@ describe("updateCampaign", () => {
 
   it("copies a changed target to every poster of the campaign, for the scan redirect", async () => {
     const { id } = await service.createCampaign(fields);
-    const ids = [...(await addPosters(id, 2)), ...(await addPosters(id, 1))];
+    const ids = [...addPosters(id, 2), ...addPosters(id, 1)];
     const other = await service.createCampaign(fields);
-    const otherIds = await addPosters(other.id, 1);
+    const otherIds = addPosters(other.id, 1);
 
     await service.updateCampaign(id, {
       ...fields,
@@ -193,7 +181,7 @@ describe("updateCampaign", () => {
 
   it("repairs a copy a failure left behind when the campaign is saved again", async () => {
     const { id } = await service.createCampaign(fields);
-    const [posterId] = await addPosters(id, 1);
+    const [posterId] = addPosters(id, 1);
     const changed = { ...fields, target: "https://example.com/new" };
     scanTargets.fail = true;
     await expect(service.updateCampaign(id, changed)).rejects.toThrow();
@@ -206,7 +194,7 @@ describe("updateCampaign", () => {
 
   it("throws ScanTargetCopyError if the copy fails, having saved the campaign", async () => {
     const { id } = await service.createCampaign(fields);
-    await addPosters(id, 1);
+    addPosters(id, 1);
     scanTargets.fail = true;
 
     await expect(

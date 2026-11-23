@@ -1,5 +1,7 @@
 import { inArray } from "drizzle-orm";
 
+// Relative rather than @domain: the scheduled function bundles this, and
+// this is a runtime import, not a type erased at build time.
 import { isUuid } from "../../domain/shared/uuid";
 import type { Db } from "../db/client";
 import { poster } from "../db/schema";

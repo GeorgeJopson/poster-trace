@@ -2,26 +2,17 @@ import type { CampaignPosterLookup } from "@application/ports/CampaignPosterLook
 import type { CampaignId } from "@domain/campaign/CampaignId";
 import type { PosterId } from "@domain/poster/PosterId";
 
-import type { InMemoryCampaignRepository } from "./InMemoryCampaignRepository";
-import type { InMemoryPosterRepository } from "./InMemoryPosterRepository";
-
-/**
- * Behaves like DrizzleCampaignPosterLookup, joining the stored posters to the
- * stored campaigns' designs.
- */
+/** Returns the poster ids added for each campaign. */
 export class InMemoryCampaignPosterLookup implements CampaignPosterLookup {
-  constructor(
-    private readonly campaigns: InMemoryCampaignRepository,
-    private readonly posters: InMemoryPosterRepository,
-  ) {}
+  private readonly posterIds = new Map<CampaignId, PosterId[]>();
+
+  /** Adds `posterIds` to the campaign's posters. */
+  add(campaignId: CampaignId, ...posterIds: PosterId[]): void {
+    const existing = this.posterIds.get(campaignId) ?? [];
+    this.posterIds.set(campaignId, [...existing, ...posterIds]);
+  }
 
   async listPosterIds(campaignId: CampaignId): Promise<PosterId[]> {
-    const campaign = this.campaigns.campaigns.find(
-      ({ id }) => id === campaignId,
-    );
-    const designIds = new Set(campaign?.designs.map(({ id }) => id));
-    return this.posters.posters
-      .filter(({ designId }) => designIds.has(designId))
-      .map(({ id }) => id);
+    return this.posterIds.get(campaignId) ?? [];
   }
 }

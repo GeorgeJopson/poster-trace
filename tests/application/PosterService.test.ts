@@ -50,7 +50,7 @@ beforeEach(async () => {
   campaignService = new CampaignService(
     sessions,
     campaigns,
-    new InMemoryCampaignPosterLookup(campaigns, posters),
+    new InMemoryCampaignPosterLookup(),
     scanTargets,
   );
   service = new PosterService(

@@ -12,7 +12,6 @@ import { FakeAccountGateway } from "./fakes/FakeAccountGateway";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
 import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
-import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
 import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 import { InMemoryUserRepository } from "./fakes/InMemoryUserRepository";
 
@@ -39,7 +38,7 @@ async function addDesigns(count: number) {
   const campaignService = new CampaignService(
     sessions,
     campaigns,
-    new InMemoryCampaignPosterLookup(campaigns, new InMemoryPosterRepository()),
+    new InMemoryCampaignPosterLookup(),
     new InMemoryScanTargetCopy(),
   );
   const designService = new PosterDesignService(sessions, campaigns);
