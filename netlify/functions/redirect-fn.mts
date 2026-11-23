@@ -1,5 +1,5 @@
 import type { Context } from "@netlify/edge-functions";
-import redirect from "../edge-functions/redirect";
+import redirect, { countRequest } from "../edge-functions/redirect";
 
 // Temporary: serves the scan redirect from a standard (Node, AWS Lambda)
 // function as well as the edge function, so the two runtimes' cold starts
@@ -12,23 +12,20 @@ import redirect from "../edge-functions/redirect";
 // Keep in step with its copy there.
 const WARM_UP_HEADER = "X-Warm-Up";
 
-// How many warm-up pings this Lambda has handled, so a ping can tell whether
-// it found the Lambda cold.
-let warmUpPings = 0;
-
 export default async function redirectFn(request: Request, context: Context) {
   // A warm-up ping only needs the Lambda to run: it skips the handler, so it
   // never queries the database, fetches the not found page or records a
   // scan. Loading this module still runs the handler module's own warm-up.
+  // It counts as a request, so a scan after it isn't logged as a cold start,
+  // and its line carries the Lambda's instance, like the scans' lines.
   if (request.headers.has(WARM_UP_HEADER)) {
-    warmUpPings += 1;
     console.log(
       "[redirect-timing]",
       JSON.stringify({
         event: "warm-up-ping",
         runtime: "function",
-        coldStart: warmUpPings === 1,
-        warmUpPings,
+        requestId: context.requestId,
+        ...countRequest(),
       }),
     );
     return new Response(null, {

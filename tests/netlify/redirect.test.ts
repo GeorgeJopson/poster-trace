@@ -253,6 +253,42 @@ describe("scanning an existing poster", () => {
     expect(inserts()).toHaveLength(3);
   });
 
+  it("counts a warm-up ping as the Lambda's cold start, and names the Lambda", async () => {
+    vi.resetModules();
+    const fn = await import("../../netlify/functions/redirect-fn.mjs");
+    const log = vi.mocked(console.log);
+    log.mockClear();
+    const context = (posterId: string) =>
+      ({ params: { posterId }, waitUntil: () => {} }) as unknown as Context;
+
+    await fn.default(
+      new Request("https://postertrace.example/redirect-fn/warm-up", {
+        headers: { "X-Warm-Up": "1" },
+      }),
+      context("warm-up"),
+    );
+    await fn.default(
+      new Request(`https://postertrace.example/redirect-fn/${POSTER_ID}`),
+      context(POSTER_ID),
+    );
+
+    const [ping, redirectLine] = log.mock.calls
+      .filter(([tag]) => tag === "[redirect-timing]")
+      .map(([, json]) => JSON.parse(json as string));
+    expect(ping).toMatchObject({
+      event: "warm-up-ping",
+      coldStart: true,
+      isolateRequests: 1,
+      instance: expect.stringMatching(/^[0-9a-f]{8}$/),
+    });
+    expect(redirectLine).toMatchObject({
+      event: "redirect",
+      coldStart: false,
+      isolateRequests: 2,
+      instance: ping.instance,
+    });
+  });
+
   it("logs how long each step took", async () => {
     const log = vi.mocked(console.log);
 
