@@ -115,7 +115,7 @@ export default function StackedAreaChart({
             labelFormatter={(x) => formatTooltipLabel(String(x))}
           />
           <Legend
-            verticalAlign="top"
+            position="top"
             wrapperStyle={{ paddingBottom: 16 }}
             formatter={(label) => (
               <span className={styles.legendLabel}>{label}</span>
