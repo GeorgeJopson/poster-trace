@@ -22,9 +22,26 @@
   padding: 0 10px;
 }
 
+/* Under the target, in the inputs' column. */
+.hint {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.875rem;
+  text-align: left;
+  color: var(--color-text-muted);
+}
+
+.error {
+  color: oklch(50.5% 0.213 27.518);
+}
+
 @media (--small-phone-and-down) {
   .fields {
     grid-template-columns: 1fr;
+  }
+
+  .hint {
+    grid-column: 1;
   }
 }
 

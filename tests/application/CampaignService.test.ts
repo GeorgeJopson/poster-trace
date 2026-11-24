@@ -1,27 +1,47 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { NotAuthenticatedError } from "@application/errors/NotAuthenticatedError";
+import { ScanTargetCopyError } from "@application/errors/ScanTargetCopyError";
 import { CampaignService } from "@application/services/CampaignService";
 import { PosterDesignService } from "@application/services/PosterDesignService";
 import { CampaignId } from "@domain/campaign/CampaignId";
+import { PosterId } from "@domain/poster/PosterId";
 import { NotFoundError } from "@domain/shared/NotFoundError";
 import { ValidationError } from "@domain/shared/ValidationError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
+import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
+import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 
 const fields = { name: "Campaign", target: "https://example.com/" };
 
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
+let campaignPosters: InMemoryCampaignPosterLookup;
+let scanTargets: InMemoryScanTargetCopy;
 let service: CampaignService;
 
 beforeEach(() => {
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
-  service = new CampaignService(sessions, campaigns);
+  campaignPosters = new InMemoryCampaignPosterLookup();
+  scanTargets = new InMemoryScanTargetCopy();
+  service = new CampaignService(
+    sessions,
+    campaigns,
+    campaignPosters,
+    scanTargets,
+  );
 });
+
+/** Adds `count` posters to the campaign, returning their ids. */
+function addPosters(campaignId: string, count: number): PosterId[] {
+  const ids = Array.from({ length: count }, () => PosterId.generate());
+  campaignPosters.add(CampaignId.parse(campaignId)!, ...ids);
+  return ids;
+}
 
 describe("createCampaign", () => {
   it("creates a campaign for the signed-in user", async () => {
@@ -138,6 +158,56 @@ describe("updateCampaign", () => {
     await expect(
       service.updateCampaign(CampaignId.generate(), fields),
     ).rejects.toThrow(NotFoundError);
+  });
+
+  it("copies a changed target to every poster of the campaign, for the scan redirect", async () => {
+    const { id } = await service.createCampaign(fields);
+    const ids = [...addPosters(id, 2), ...addPosters(id, 1)];
+    const other = await service.createCampaign(fields);
+    const otherIds = addPosters(other.id, 1);
+
+    await service.updateCampaign(id, {
+      ...fields,
+      target: "https://example.com/new",
+    });
+
+    expect(Object.fromEntries(scanTargets.targets)).toEqual(
+      Object.fromEntries(
+        ids.map((posterId) => [posterId, "https://example.com/new"]),
+      ),
+    );
+    expect(scanTargets.targets.has(otherIds[0])).toBe(false);
+  });
+
+  it("repairs a copy a failure left behind when the campaign is saved again", async () => {
+    const { id } = await service.createCampaign(fields);
+    const [posterId] = addPosters(id, 1);
+    const changed = { ...fields, target: "https://example.com/new" };
+    scanTargets.fail = true;
+    await expect(service.updateCampaign(id, changed)).rejects.toThrow();
+
+    scanTargets.fail = false;
+    await service.updateCampaign(id, changed);
+
+    expect(scanTargets.targets.get(posterId)).toBe("https://example.com/new");
+  });
+
+  it("throws ScanTargetCopyError if the copy fails, having saved the campaign", async () => {
+    const { id } = await service.createCampaign(fields);
+    addPosters(id, 1);
+    scanTargets.fail = true;
+
+    await expect(
+      service.updateCampaign(id, {
+        name: "Renamed",
+        target: "https://example.com/new",
+      }),
+    ).rejects.toThrow(ScanTargetCopyError);
+
+    expect(await service.getMyCampaign(id)).toMatchObject({
+      name: "Renamed",
+      target: "https://example.com/new",
+    });
   });
 
   it("rejects an invalid target without saving", async () => {

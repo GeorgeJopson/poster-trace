@@ -10,7 +10,9 @@ import { UserId } from "@domain/user/UserId";
 import { makePdf } from "../support/pdfs";
 import { FakeAccountGateway } from "./fakes/FakeAccountGateway";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
+import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
+import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 import { InMemoryUserRepository } from "./fakes/InMemoryUserRepository";
 
 let sessions: FakeSessionProvider;
@@ -33,7 +35,12 @@ beforeEach(() => {
 
 /** Gives the signed-in user a campaign with `count` designs. */
 async function addDesigns(count: number) {
-  const campaignService = new CampaignService(sessions, campaigns);
+  const campaignService = new CampaignService(
+    sessions,
+    campaigns,
+    new InMemoryCampaignPosterLookup(),
+    new InMemoryScanTargetCopy(),
+  );
   const designService = new PosterDesignService(sessions, campaigns);
   const { id } = await campaignService.createCampaign({
     name: "Campaign",

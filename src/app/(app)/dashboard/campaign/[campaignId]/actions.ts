@@ -9,19 +9,40 @@ import {
 } from "@di/container";
 import { routeNames } from "@/routeNames";
 import type { PosterDto } from "@application/dto/PosterDto";
+import { ScanTargetCopyError } from "@application/errors/ScanTargetCopyError";
 import { ValidationError } from "@domain/shared/ValidationError";
 import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 import { MAX_POSTERS_PER_REQUEST } from "./limits";
 
-export async function updateCampaign(campaignId: string, formData: FormData) {
+/**
+ * Why the campaign's changes weren't all applied, if they weren't. Returned
+ * rather than thrown, because Next.js hides a thrown error's message in
+ * production.
+ */
+export type UpdateCampaignResult = { error?: string };
+
+export async function updateCampaign(
+  campaignId: string,
+  formData: FormData,
+): Promise<UpdateCampaignResult> {
   return withSignInRedirect(async () => {
     const name = String(formData.get("name") ?? "");
     const target = String(formData.get("target") ?? "");
 
-    await getCampaignService().updateCampaign(campaignId, { name, target });
-
-    revalidatePath(routeNames.campaign(campaignId));
+    try {
+      await getCampaignService().updateCampaign(campaignId, { name, target });
+    } catch (error) {
+      // The changes were saved, but scans may still go to the old target
+      // until the owner saves again. Anything else is rethrown, so a
+      // redirect to log in still happens.
+      if (!(error instanceof ScanTargetCopyError)) throw error;
+      console.error(error);
+      return { error: error.message };
+    } finally {
+      revalidatePath(routeNames.campaign(campaignId));
+    }
+    return {};
   });
 }
 

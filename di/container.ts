@@ -1,7 +1,9 @@
 import "server-only";
 
 import type { AccountGateway } from "@application/ports/AccountGateway";
+import type { CampaignPosterLookup } from "@application/ports/CampaignPosterLookup";
 import type { PosterAnalyticsLookup } from "@application/ports/PosterAnalyticsLookup";
+import type { ScanTargetCopy } from "@application/ports/ScanTargetCopy";
 import type { SessionProvider } from "@application/ports/SessionProvider";
 import { AccountService } from "@application/services/AccountService";
 import { AnalyticsService } from "@application/services/AnalyticsService";
@@ -16,11 +18,13 @@ import { BetterAuthAccountGateway } from "@infrastructure/auth/BetterAuthAccount
 import { BetterAuthSessionProvider } from "@infrastructure/auth/BetterAuthSessionProvider";
 import { auth } from "@infrastructure/auth/betterAuth";
 import { getDb } from "@infrastructure/db/client";
+import { DrizzleCampaignPosterLookup } from "@infrastructure/repositories/DrizzleCampaignPosterLookup";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 import { DrizzlePosterAnalyticsLookup } from "@infrastructure/repositories/DrizzlePosterAnalyticsLookup";
 import { DrizzleUserRepository } from "@infrastructure/repositories/DrizzleUserRepository";
 import { NetlifyBlobStore } from "@infrastructure/storage/NetlifyBlobStore";
+import { NetlifyScanTargetCopy } from "@infrastructure/storage/NetlifyScanTargetCopy";
 
 // The composition root: the only place in the app that wires infrastructure
 // to the interfaces the application uses. Each getter builds its object on
@@ -61,6 +65,16 @@ function getPosterAnalyticsLookup() {
   return (posterAnalyticsLookup ??= new DrizzlePosterAnalyticsLookup(getDb()));
 }
 
+let campaignPosterLookup: CampaignPosterLookup | undefined;
+function getCampaignPosterLookup() {
+  return (campaignPosterLookup ??= new DrizzleCampaignPosterLookup(getDb()));
+}
+
+let scanTargetCopy: ScanTargetCopy | undefined;
+function getScanTargetCopy() {
+  return (scanTargetCopy ??= NetlifyScanTargetCopy.forThisContext());
+}
+
 /**
  * Where QR codes point. A poster generated on a deploy preview or branch
  * deploy only exists in that deploy's database branch, so its QR code points
@@ -86,6 +100,8 @@ export function getCampaignService() {
   return (campaignService ??= new CampaignService(
     getSessionProvider(),
     getCampaignRepository(),
+    getCampaignPosterLookup(),
+    getScanTargetCopy(),
   ));
 }
 
@@ -103,6 +119,7 @@ export function getPosterService() {
     getSessionProvider(),
     getCampaignRepository(),
     getPosterRepository(),
+    getScanTargetCopy(),
     getPosterTraceUrl(),
   ));
 }

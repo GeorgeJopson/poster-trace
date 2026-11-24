@@ -36,7 +36,7 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 ## Presentation
 
-- **Every service call from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`.** The layout guard isn't enough, because layouts don't re-render on client navigation and Server Actions don't run through them. The image route handler is an exception: it maps `NotAuthenticatedError` to a 404. Scans don't go through Next at all; the redirect is an edge function (see ADR-0019).
+- **Every service call from a page, layout, `@pageNav` slot or Server Action goes through `withSignInRedirect`.** The layout guard isn't enough, because layouts don't re-render on client navigation and Server Actions don't run through them. The image route handler is an exception: it maps `NotAuthenticatedError` to a 404. Scans don't go through Next at all; the redirect is a Netlify Function (see ADR-0019, ADR-0020).
 - **Services come from `@di/container` getters.** Client Components never call services; they get DTOs through props, or call Server Actions.
 - **Forms validate through `@application/validation`**, not by calling domain factories. They may read domain constants such as `CampaignTarget.MAX_LENGTH` and `QrPlacement.RANGES`.
 - **Client Components reach auth through `@clientApplication`.**

@@ -10,7 +10,9 @@ import { ValidationError } from "@domain/shared/ValidationError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
+import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
+import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
 
@@ -31,7 +33,12 @@ beforeEach(async () => {
   a4Pdf ??= await makePdf(1);
   sessions = new FakeSessionProvider("alice");
   campaigns = new InMemoryCampaignRepository();
-  campaignService = new CampaignService(sessions, campaigns);
+  campaignService = new CampaignService(
+    sessions,
+    campaigns,
+    new InMemoryCampaignPosterLookup(),
+    new InMemoryScanTargetCopy(),
+  );
   service = new PosterDesignService(sessions, campaigns);
   ({ id: campaignId } = await campaignService.createCampaign({
     name: "Campaign",

@@ -1,5 +1,7 @@
 # The scan redirect is a Netlify Edge Function, outside Next and the layers
 
+Partly superseded by ADR-0020: the redirect is now a Node Netlify Function (`netlify/functions/redirect.mts`) kept warm by a scheduled ping, and it reads each poster's target from a copy in Netlify Blobs before the database. That reverses the rejections below of a standalone Node function and of a scheduled ping. The rest still holds, with "the edge function" read as the redirect function.
+
 This supersedes ADR-0017, ADR-0015's decision to record scans in Next's `after()`, and ADR-0014's decisions that the target is read through `ScanTargetLookup` and checked with `CampaignTarget.create`. `/redirect/{posterId}` is served by `netlify/edge-functions/redirect.ts`, not by a Next route. On a cold scan, about 3.4 s of 4.2 s went on Netlify starting the Next server function before 5 ms of redirect code ran, as measured on 2026-11-22 with the instrumentation on the `perf/redirect-timing` branch. An edge function starts in tens of ms, so a cold scan now waits mostly on the database. Recording scans best-effort after the redirect (ADR-0015) is unchanged.
 
 ## Decisions

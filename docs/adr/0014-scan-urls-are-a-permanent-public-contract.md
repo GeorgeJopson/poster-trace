@@ -1,6 +1,6 @@
 # Scan URLs are a permanent public contract
 
-Partly superseded by ADR-0019: the redirect is a Netlify Edge Function that reads the target with its own query, without `ScanTargetLookup` or `CampaignTarget.create`. A malformed or unknown poster id now gets a "poster not found" page with a `404`, not plain text.
+Partly superseded by ADR-0019: the redirect is a Netlify Edge Function that reads the target with its own query, without `ScanTargetLookup` or `CampaignTarget.create`. A malformed or unknown poster id now gets a "poster not found" page with a `404`, not plain text. ADR-0020 then moved the redirect to a Node Netlify Function that reads the target from a copy in Netlify Blobs first.
 
 Every poster's QR code encodes `{POSTER_TRACE_URL}/redirect/{posterId}`, and printed posters can't be changed. So that path and how it behaves can never change. A scan of an existing poster gets a `307` to its campaign's current target with `Cache-Control: no-store`. A malformed or unknown poster id gets a `404`. The redirect works whether or not the poster is registered.
 

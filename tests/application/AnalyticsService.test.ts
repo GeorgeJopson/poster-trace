@@ -13,7 +13,9 @@ import { NotFoundError } from "@domain/shared/NotFoundError";
 
 import { makePdf } from "../support/pdfs";
 import { FakeSessionProvider } from "./fakes/FakeSessionProvider";
+import { InMemoryCampaignPosterLookup } from "./fakes/InMemoryCampaignPosterLookup";
 import { InMemoryCampaignRepository } from "./fakes/InMemoryCampaignRepository";
+import { InMemoryScanTargetCopy } from "./fakes/InMemoryScanTargetCopy";
 import { InMemoryPosterAnalyticsLookup } from "./fakes/InMemoryPosterAnalyticsLookup";
 
 const { TOP_POSTER_COUNT } = AnalyticsService;
@@ -80,7 +82,12 @@ beforeEach(() => {
   campaigns = new InMemoryCampaignRepository();
   posterAnalytics = new InMemoryPosterAnalyticsLookup();
   campaignOfDesign = new Map();
-  campaignService = new CampaignService(sessions, campaigns);
+  campaignService = new CampaignService(
+    sessions,
+    campaigns,
+    new InMemoryCampaignPosterLookup(),
+    new InMemoryScanTargetCopy(),
+  );
   service = new AnalyticsService(sessions, campaigns, posterAnalytics);
 });
 

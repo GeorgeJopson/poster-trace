@@ -21,6 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.1",
     "@netlify/blobs": "^11.1.4",
     "@netlify/database": "^2.0.1",
     "@radix-ui/react-dialog": "^1.2.0",
@@ -45,7 +46,6 @@
   },
   "devDependencies": {
     "@csstools/postcss-global-data": "^4.0.0",
-    "@netlify/edge-functions": "^4.0.4",
     "@playwright/test": "^1.64.1",
     "@react-email/ui": "6.11.8",
     "@types/node": "^26.5.0",
