@@ -330,6 +330,9 @@ async function main() {
     { posterId: posterA1.id, scannedAt: daysAgo(1, 20) },
 
     { posterId: posterA2.id, scannedAt: daysAgo(10, 11) },
+    // The same day as a poster A1 scan, so scans over time shows a day with
+    // two scans of one design.
+    { posterId: posterA2.id, scannedAt: daysAgo(4, 10) },
     { posterId: posterA2.id, scannedAt: daysAgo(3, 17) },
 
     { posterId: posterB1.id, scannedAt: daysAgo(7, 15) },
