@@ -127,7 +127,7 @@ export default function StackedAreaChart({
               dataKey={seriesKey(index)}
               name={label}
               stackId="series"
-              type="monotone"
+              type="bump"
               stroke={SERIES_COLORS[index]}
               fill={SERIES_COLORS[index]}
               fillOpacity={0.6}
