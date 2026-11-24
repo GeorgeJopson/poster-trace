@@ -8,3 +8,7 @@
   font-size: var(--font-size-important-body);
   font-weight: normal;
 }
+
+.note {
+  color: var(--color-text-muted);
+}

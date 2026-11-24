@@ -46,4 +46,4 @@ Rules for review. Lint already enforces which layer may import which (`eslint.co
 
 - **Test at the layer boundaries**, in `tests/<layer>/`. Construct the class under test directly with fakes for its constructor arguments. Tests never use `di/`.
 - **Presentation is covered by end-to-end tests** in `tests/e2e/`. Find elements by role and label, not by CSS classes.
-- **Pure helpers in `src/utils/`** with logic worth checking on its own (e.g. `drawPosterPdf`) may also get unit tests in `tests/presentation/`.
+- **Pure helpers**, in `src/utils/` or beside the component that uses them, with logic worth checking on its own (e.g. `drawPosterPdf`, `scanSeries`) may also get unit tests in `tests/presentation/`.

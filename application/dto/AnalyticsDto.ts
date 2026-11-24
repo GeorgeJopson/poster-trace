@@ -1,19 +1,22 @@
-/**
- * A poster design's position in its campaign, counting from 0, in campaign
- * order (oldest first).
- */
-export type DesignPosition = number;
-
 /** A number of posters. */
 export type PosterCount = number;
 
 /**
- * One poster design's share of the scan distribution: `posterCounts[n]` is
- * how many of its posters have `n` scans.
+ * A campaign's scans on each day since it began. A day is a calendar day in
+ * UTC (see ADR-0021).
  */
-export type DesignScanDistributionDto = {
-  position: DesignPosition;
-  posterCounts: PosterCount[];
+export type ScansOverTimeDto = {
+  /**
+   * Each day from the one the campaign began through today, as
+   * `YYYY-MM-DD`, in order.
+   */
+  days: string[];
+  /**
+   * Every design's scans on each of `days`, indexed by the design's position
+   * in the campaign, counting from 0 in campaign order (oldest first). Days
+   * without scans count 0.
+   */
+  dailyScansByDesign: number[][];
 };
 
 /** A poster with one of a campaign's highest scan counts. */
@@ -54,12 +57,7 @@ export type CampaignAnalyticsDto =
   | { kind: "noPosters" }
   | {
       kind: "posters";
-      /**
-       * Every design of the campaign, in campaign order. Every
-       * `posterCounts` has the same length, one more than the highest scan
-       * count, and a design with no posters has all zeros.
-       */
-      scanDistribution: DesignScanDistributionDto[];
+      scansOverTime: ScansOverTimeDto;
       /**
        * Up to `AnalyticsService.TOP_POSTER_COUNT` posters with the most
        * scans, most first. Posters with no scans are left out, so it's empty

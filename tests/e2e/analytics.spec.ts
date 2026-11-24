@@ -23,7 +23,7 @@ test("shows the campaign's scans once its posters are scanned", async ({
   const topPosters = page.getByRole("region", { name: "Top posters" });
   await expect(topPosters.getByText("No scans yet.")).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "Scan distribution" }),
+    page.getByRole("region", { name: "Scans over time" }).getByRole("figure"),
   ).toBeVisible();
 
   // `request` shares no cookies with `page`, so the scanner isn't signed in.

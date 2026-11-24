@@ -19,6 +19,25 @@ export type PosterSummary = {
 };
 
 /**
+ * How many scans of one design's posters happened on one day, a calendar
+ * day in UTC (see ADR-0021).
+ */
+export type DailyScanCount = {
+  designId: PosterDesignId;
+  /** The day, as `YYYY-MM-DD`. */
+  day: string;
+  /** At least 1. */
+  scanCount: number;
+};
+
+/** When a campaign was created, and its scans counted by day. */
+export type CampaignDailyScans = {
+  createdAt: Date;
+  /** Only days with scans, in no particular order. */
+  dailyScans: DailyScanCount[];
+};
+
+/**
  * Reads what a campaign's analytics show about its posters. A read-only
  * query, so stored scans are counted in the database rather than loaded
  * (see ADR-0015, ADR-0017).
@@ -31,4 +50,11 @@ export interface PosterAnalyticsLookup {
    * check that first.
    */
   summarisePosters(campaignId: CampaignId): Promise<PosterSummary[]>;
+
+  /**
+   * When the campaign was created, and its posters' scans counted by design
+   * and day. `null` for a campaign that doesn't exist. Doesn't check
+   * who owns the campaign: callers must check that first.
+   */
+  countDailyScans(campaignId: CampaignId): Promise<CampaignDailyScans | null>;
 }

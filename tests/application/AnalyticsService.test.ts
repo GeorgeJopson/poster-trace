@@ -20,6 +20,8 @@ import { InMemoryPosterAnalyticsLookup } from "./fakes/InMemoryPosterAnalyticsLo
 
 const { TOP_POSTER_COUNT } = AnalyticsService;
 const qrPlacement = { x: 10, y: 20, size: 15, rotation: 45 };
+const createdAt = new Date("2026-11-02T09:41:07.000Z");
+let now: Date;
 
 let sessions: FakeSessionProvider;
 let campaigns: InMemoryCampaignRepository;
@@ -35,6 +37,7 @@ async function addCampaign(designCount: number) {
     name: "Campaign",
     target: "https://example.com/",
   });
+  posterAnalytics.setCreatedAt(CampaignId.from(id), createdAt);
   const designs = new PosterDesignService(sessions, campaigns);
   for (let i = 0; i < designCount; i++) {
     await designs.createPosterDesign(id, {
@@ -88,7 +91,13 @@ beforeEach(() => {
     new InMemoryCampaignPosterLookup(),
     new InMemoryScanTargetCopy(),
   );
-  service = new AnalyticsService(sessions, campaigns, posterAnalytics);
+  now = new Date("2026-11-05T15:00:00.000Z");
+  service = new AnalyticsService(
+    sessions,
+    campaigns,
+    posterAnalytics,
+    () => now,
+  );
 });
 
 describe("getCampaignAnalytics", () => {
@@ -99,21 +108,60 @@ describe("getCampaignAnalytics", () => {
     });
   });
 
-  it("counts each design's posters by scan count, in campaign order, with every count up to the highest", async () => {
+  it("gives each UTC day from the campaign's start day through today, with each design's scans on each day", async () => {
     const { campaignId, designIds } = await addCampaign(3);
-    const [first, second] = designIds;
-    await addPoster(first, 0);
-    await addPoster(first, 0);
-    await addPoster(first, 2);
-    await addPoster(second, 1);
+    const [first, , third] = designIds;
+    await addPoster(first, 3);
+    const id = CampaignId.from(campaignId);
+    posterAnalytics.addDailyScans(id, {
+      designId: PosterDesignId.from(first),
+      day: "2026-11-03",
+      scanCount: 2,
+    });
+    posterAnalytics.addDailyScans(id, {
+      designId: PosterDesignId.from(third),
+      day: "2026-11-05",
+      scanCount: 1,
+    });
 
     expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
       kind: "posters",
-      scanDistribution: [
-        { position: 0, posterCounts: [2, 0, 1] },
-        { position: 1, posterCounts: [0, 1, 0] },
-        { position: 2, posterCounts: [0, 0, 0] },
-      ],
+      scansOverTime: {
+        days: ["2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05"],
+        dailyScansByDesign: [
+          [0, 2, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 1],
+        ],
+      },
+    });
+  });
+
+  it("leaves out scans dated after today", async () => {
+    const { campaignId, designIds } = await addCampaign(1);
+    await addPoster(designIds[0], 1);
+    posterAnalytics.addDailyScans(CampaignId.from(campaignId), {
+      designId: PosterDesignId.from(designIds[0]),
+      day: "2026-11-06",
+      scanCount: 1,
+    });
+
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      scansOverTime: { dailyScansByDesign: [[0, 0, 0, 0]] },
+    });
+  });
+
+  it("splits days at midnight UTC", async () => {
+    const { campaignId, designIds } = await addCampaign(1);
+    await addPoster(designIds[0], 0);
+    posterAnalytics.setCreatedAt(
+      CampaignId.from(campaignId),
+      new Date("2026-11-02T23:59:59.999Z"),
+    );
+    now = new Date("2026-11-03T00:00:00.000Z");
+
+    expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
+      scansOverTime: { days: ["2026-11-02", "2026-11-03"] },
     });
   });
 
@@ -192,7 +240,10 @@ describe("getCampaignAnalytics", () => {
 
     expect(await service.getCampaignAnalytics(campaignId)).toEqual({
       kind: "posters",
-      scanDistribution: [{ position: 0, posterCounts: [1] }],
+      scansOverTime: {
+        days: ["2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05"],
+        dailyScansByDesign: [[0, 0, 0, 0]],
+      },
       topPosters: [],
       scanMap: {
         posters: [],
@@ -213,9 +264,14 @@ describe("getCampaignAnalytics", () => {
       location: at(51.6, -0.1),
       scanCount: 4,
     });
+    posterAnalytics.addDailyScans(CampaignId.from(campaignId), {
+      designId: PosterDesignId.generate(),
+      day: "2026-11-03",
+      scanCount: 4,
+    });
 
     expect(await service.getCampaignAnalytics(campaignId)).toMatchObject({
-      scanDistribution: [{ position: 0, posterCounts: [0, 1] }],
+      scansOverTime: { dailyScansByDesign: [[0, 0, 0, 0]] },
       topPosters: [{ posterName: "Station", scanCount: 1 }],
       scanMap: { maxScanCount: 1, unmappedPosterCount: 0, posterCount: 1 },
     });

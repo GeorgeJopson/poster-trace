@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { Campaign } from "@domain/campaign/Campaign";
@@ -10,7 +11,7 @@ import { Poster } from "@domain/poster/Poster";
 import { PosterName } from "@domain/poster/PosterName";
 import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 import { UserId } from "@domain/user/UserId";
-import { scan } from "@infrastructure/db/schema";
+import { campaign as campaignTable, scan } from "@infrastructure/db/schema";
 import { DrizzleCampaignRepository } from "@infrastructure/repositories/DrizzleCampaignRepository";
 import { DrizzlePosterRepository } from "@infrastructure/repositories/DrizzlePosterRepository";
 import { DrizzlePosterAnalyticsLookup } from "@infrastructure/repositories/DrizzlePosterAnalyticsLookup";
@@ -207,5 +208,72 @@ describe("summarisePosters", () => {
     const { designIds } = await addCampaign(1);
     await addPoster(designIds[0], 1);
     expect(await lookup.summarisePosters(CampaignId.generate())).toEqual([]);
+  });
+});
+
+/** Stores a poster of the design scanned at each of `times`. */
+async function addScannedPoster(designId: PosterDesignId, times: string[]) {
+  const [poster] = Poster.generate(designId, 1);
+  await posters.save([poster]);
+  if (times.length > 0) {
+    await db.insert(scan).values(
+      times.map((time) => ({
+        id: crypto.randomUUID(),
+        posterId: poster.id,
+        scannedAt: new Date(time),
+      })),
+    );
+  }
+}
+
+describe("countDailyScans", () => {
+  it("gives when the campaign was created", async () => {
+    const { campaignId } = await addCampaign(1);
+    const createdAt = new Date("2026-11-02T09:41:07.000Z");
+    await db
+      .update(campaignTable)
+      .set({ createdAt })
+      .where(eq(campaignTable.id, campaignId));
+
+    expect(await lookup.countDailyScans(campaignId)).toEqual({
+      createdAt,
+      dailyScans: [],
+    });
+  });
+
+  it("counts each design's scans by UTC day", async () => {
+    const {
+      campaignId,
+      designIds: [first, second],
+    } = await addCampaign(2);
+    await addScannedPoster(first, [
+      "2026-11-03T00:00:00.000Z",
+      "2026-11-03T23:59:59.999Z",
+      "2026-11-04T00:00:00.000Z",
+    ]);
+    await addScannedPoster(first, ["2026-11-03T12:30:00.000Z"]);
+    await addScannedPoster(second, ["2026-11-03T10:05:00.000Z"]);
+
+    const result = await lookup.countDailyScans(campaignId);
+    expect(result?.dailyScans).toHaveLength(3);
+    expect(result?.dailyScans).toEqual(
+      expect.arrayContaining([
+        { designId: first, day: "2026-11-03", scanCount: 3 },
+        { designId: first, day: "2026-11-04", scanCount: 1 },
+        { designId: second, day: "2026-11-03", scanCount: 1 },
+      ]),
+    );
+  });
+
+  it("ignores other campaigns' scans", async () => {
+    const { campaignId } = await addCampaign(1);
+    const other = await addCampaign(1);
+    await addScannedPoster(other.designIds[0], ["2026-11-03T10:00:00.000Z"]);
+
+    expect((await lookup.countDailyScans(campaignId))?.dailyScans).toEqual([]);
+  });
+
+  it("is null for a campaign that doesn't exist", async () => {
+    expect(await lookup.countDailyScans(CampaignId.generate())).toBeNull();
   });
 });

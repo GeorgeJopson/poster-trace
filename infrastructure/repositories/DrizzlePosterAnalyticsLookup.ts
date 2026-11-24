@@ -1,8 +1,9 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 
-import type {
-  PosterAnalyticsLookup,
-  PosterSummary,
+import {
+  type CampaignDailyScans,
+  type PosterAnalyticsLookup,
+  type PosterSummary,
 } from "@application/ports/PosterAnalyticsLookup";
 import type { CampaignId } from "@domain/campaign/CampaignId";
 import { PosterDesignId } from "@domain/campaign/design/PosterDesignId";
@@ -12,6 +13,7 @@ import { RegistrationLocation } from "@domain/poster/RegistrationLocation";
 
 import type { Db } from "../db/client";
 import {
+  campaign as campaignTable,
   poster as posterTable,
   posterDesign as posterDesignTable,
   registration as registrationTable,
@@ -65,5 +67,42 @@ export class DrizzlePosterAnalyticsLookup implements PosterAnalyticsLookup {
             }),
       scanCount: row.scanCount,
     }));
+  }
+
+  async countDailyScans(
+    campaignId: CampaignId,
+  ): Promise<CampaignDailyScans | null> {
+    const [campaign] = await this.db
+      .select({ createdAt: campaignTable.createdAt })
+      .from(campaignTable)
+      .where(eq(campaignTable.id, campaignId));
+    if (!campaign) return null;
+
+    // Counted in the database without loading any scans (see ADR-0015).
+    // Times are stored in UTC, so a scan's day is the date of its stored
+    // time (see ADR-0021).
+    const day = sql<string>`to_char(${scanTable.scannedAt}, 'YYYY-MM-DD')`;
+    const rows = await this.db
+      .select({
+        designId: posterTable.posterDesignId,
+        day,
+        scanCount: count(),
+      })
+      .from(scanTable)
+      .innerJoin(posterTable, eq(posterTable.id, scanTable.posterId))
+      .innerJoin(
+        posterDesignTable,
+        eq(posterDesignTable.id, posterTable.posterDesignId),
+      )
+      .where(eq(posterDesignTable.campaignId, campaignId))
+      .groupBy(posterTable.posterDesignId, day);
+    return {
+      createdAt: campaign.createdAt,
+      dailyScans: rows.map((row) => ({
+        designId: PosterDesignId.from(row.designId),
+        day: row.day,
+        scanCount: row.scanCount,
+      })),
+    };
   }
 }

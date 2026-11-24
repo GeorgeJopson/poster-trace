@@ -8,8 +8,8 @@ import { routeNames } from "@/routeNames";
 import { withSignInRedirect } from "@/utils/withSignInRedirect";
 
 import { getCampaign } from "../getCampaign";
-import ScanDistribution from "./_components/ScanDistribution";
 import ScanMap from "./_components/ScanMap";
+import ScansOverTime from "./_components/ScansOverTime";
 import TopPosters from "./_components/TopPosters";
 import styles from "./Analytics.module.css";
 
@@ -48,7 +48,7 @@ export default async function AnalyticsPage({
         ) : (
           <>
             <ScanMap scanMap={analytics.scanMap} />
-            <ScanDistribution distribution={analytics.scanDistribution} />
+            <ScansOverTime scansOverTime={analytics.scansOverTime} />
             <TopPosters posters={analytics.topPosters} />
           </>
         )}
