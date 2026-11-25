@@ -6,7 +6,7 @@
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid oklch(85% 0 0);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .tab {
