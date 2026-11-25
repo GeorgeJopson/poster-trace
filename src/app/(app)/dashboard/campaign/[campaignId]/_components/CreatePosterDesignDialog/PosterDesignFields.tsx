@@ -7,15 +7,15 @@ import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 import styles from "./PosterDesignFields.module.css";
 
 /** The QR placement values set with a slider. */
-type SliderValue = "size" | "rotation";
+export type SliderField = "size" | "rotation";
 
 type QrSliderFieldProps = {
-  name: SliderValue;
+  name: SliderField;
   label: string;
   value: number;
   unit: string;
   disabled?: boolean;
-  onChange: (name: SliderValue, value: number) => void;
+  onChange: (name: SliderField, value: number) => void;
 };
 
 function QrSliderField({
@@ -58,7 +58,7 @@ type PosterDesignFieldsProps = {
   /** The QR code's size can only be set once there's an image to see it on. */
   hasImage: boolean;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onQrChange: (name: SliderValue, value: number) => void;
+  onQrChange: (name: SliderField, value: number) => void;
 };
 
 export default function PosterDesignFields({

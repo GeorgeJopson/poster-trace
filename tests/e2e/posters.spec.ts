@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { PDFDocument } from "pdf-lib";
 
 import { savedQrPlacements } from "./database";
@@ -164,13 +164,13 @@ async function readPreviewQrCode(page: Page): Promise<DecodedQrCode | null> {
 /** The QR placement the form would submit, as numbers. */
 async function submittedPlacement(page: Page) {
   const dialog = posterDesignDialog(page);
-  const value = async (selector: string) =>
-    Number(await dialog.locator(selector).inputValue());
+  const value = async (field: Locator) => Number(await field.inputValue());
   return {
-    x: await value('input[name="x"]'),
-    y: await value('input[name="y"]'),
-    size: await value('input[name="size"]'),
-    rotation: await value('input[name="rotation"]'),
+    // The position is set on the preview, so its inputs are hidden.
+    x: await value(dialog.locator('input[name="x"]')),
+    y: await value(dialog.locator('input[name="y"]')),
+    size: await value(dialog.getByLabel("QR size")),
+    rotation: await value(dialog.getByLabel("QR rotation")),
   };
 }
 

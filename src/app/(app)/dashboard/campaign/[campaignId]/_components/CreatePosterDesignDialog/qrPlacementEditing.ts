@@ -31,6 +31,9 @@ export function isDefaultQrPlacement(placement: QrPlacementDto): boolean {
  */
 export type ImagePoint = { x: number; y: number };
 
+/** The axes a QR code's position is given on. */
+type Axis = "x" | "y";
+
 /** Where the pointer grabbed the QR code, relative to its `x` and `y`. */
 export type Grab = { offsetX: number; offsetY: number };
 
@@ -67,7 +70,7 @@ export function dragQrCode(point: ImagePoint, grab: Grab): ImagePoint {
 
 export type NudgeDirection = "up" | "down" | "left" | "right";
 
-const NUDGES: Record<NudgeDirection, { axis: "x" | "y"; by: number }> = {
+const NUDGES: Record<NudgeDirection, { axis: Axis; by: number }> = {
   up: { axis: "y", by: -1 },
   down: { axis: "y", by: 1 },
   left: { axis: "x", by: -1 },
@@ -100,7 +103,7 @@ export function canNudgeQrCode(
  * `value` kept within the axis's range and rounded to its step, so it's a
  * value the server accepts.
  */
-function toPosition(axis: "x" | "y", value: number): number {
+function toPosition(axis: Axis, value: number): number {
   const { min, max, step } = QrPlacement.RANGES[axis];
   // Divides by a whole number of steps per unit (10), not multiplies by the
   // step (0.1), which isn't exact in binary.

@@ -10,15 +10,15 @@
   gap: 4px;
 }
 
-/* The icon points right, so the other directions turn it. */
-.left img {
+/* The icon points right, so the other directions turn their (round) button. */
+.left {
   transform: rotate(180deg);
 }
 
-.up img {
+.up {
   transform: rotate(-90deg);
 }
 
-.down img {
+.down {
   transform: rotate(90deg);
 }

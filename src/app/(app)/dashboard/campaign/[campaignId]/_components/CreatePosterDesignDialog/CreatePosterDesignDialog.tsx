@@ -15,7 +15,7 @@ import { createPosterDesign } from "../../actions";
 import { useCampaignId, useSampleScanUrl } from "../CampaignContext";
 
 import styles from "./CreatePosterDesignDialog.module.css";
-import PosterDesignFields from "./PosterDesignFields";
+import PosterDesignFields, { type SliderField } from "./PosterDesignFields";
 import {
   DEFAULT_QR_PLACEMENT,
   dragQrCode,
@@ -117,7 +117,7 @@ export default function CreatePosterDesignDialog() {
     });
   }
 
-  function handleQrChange(key: "size" | "rotation", value: number) {
+  function handleQrChange(key: SliderField, value: number) {
     setQrPlacement((current) => ({ ...current, [key]: value }));
   }
 
@@ -127,14 +127,18 @@ export default function CreatePosterDesignDialog() {
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLCanvasElement>) {
     const direction = ARROW_KEYS[event.key];
-    if (!direction) return;
+    // Only the plain arrow keys are bound.
+    const modified =
+      event.shiftKey || event.ctrlKey || event.altKey || event.metaKey;
+    if (!direction || modified) return;
     // Arrow keys would otherwise scroll.
     event.preventDefault();
     handleNudge(direction);
   }
 
   function handlePointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
-    if (!image) return;
+    // Only a main-button press, or the first touch, drags.
+    if (!image || !event.isPrimary || event.button !== 0) return;
     const grab = grabQrCode(pointOnImage(event), qrPlacement, image);
     if (!grab) return;
     // Captured, so the drag carries on when the pointer leaves the preview.
