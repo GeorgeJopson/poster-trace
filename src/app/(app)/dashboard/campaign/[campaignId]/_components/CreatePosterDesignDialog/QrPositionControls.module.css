@@ -1,0 +1,24 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nudges {
+  display: flex;
+  gap: 4px;
+}
+
+/* The icon points right, so the other directions turn it. */
+.left img {
+  transform: rotate(180deg);
+}
+
+.up img {
+  transform: rotate(-90deg);
+}
+
+.down img {
+  transform: rotate(90deg);
+}

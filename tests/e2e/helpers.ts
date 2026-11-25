@@ -89,8 +89,6 @@ export async function addPosterDesign(page: Page, file?: PickedFile) {
   // The size slider is enabled once the image has loaded.
   const size = dialog.getByLabel("QR size");
   await expect(size).toBeEnabled();
-  await dialog.getByLabel("QR X position").fill("40");
-  await dialog.getByLabel("QR Y position").fill("60");
   await size.fill("20");
   await dialog.getByLabel("QR rotation").fill("15");
 

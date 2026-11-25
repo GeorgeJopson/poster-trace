@@ -11,10 +11,15 @@
   display: contents;
 }
 
+/* Not stretched to the dialog's width, so the canvas keeps the image's
+   proportions and a point on it is the same point on the image, which
+   dragging the QR code relies on. */
 .canvas {
+  align-self: center;
   max-width: 100%;
   max-height: 40vh;
-  object-fit: contain;
+  /* The QR code is dragged on it, so touches mustn't scroll the page. */
+  touch-action: none;
 }
 
 .submitButtonWrapper {

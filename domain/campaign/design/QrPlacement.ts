@@ -16,9 +16,8 @@ export type QrPlacementFields = {
  */
 export class QrPlacement {
   /**
-   * Allowed range for each value. On a portrait image, the QR code must also
-   * fit the image's height, which only the form knows, so the form lowers
-   * `size`'s upper limit to match.
+   * Allowed range for each value. These are the only limits on a QR
+   * placement, so a QR code may run past its image's right or bottom edge.
    */
   static readonly RANGES = {
     x: { min: 0, max: 100, step: 0.1 },
