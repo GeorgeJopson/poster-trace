@@ -24,7 +24,13 @@ export default defineConfig({
           // npm test: everything that runs without a database. End-to-end
           // tests run with Playwright (npm run test:e2e).
           name: "unit",
-          exclude: [...configDefaults.exclude, "tests/e2e/**", DB_TESTS],
+          // .claude/ holds Claude Code's worktrees, each a copy of the repo.
+          exclude: [
+            ...configDefaults.exclude,
+            ".claude/**",
+            "tests/e2e/**",
+            DB_TESTS,
+          ],
         },
       },
       {

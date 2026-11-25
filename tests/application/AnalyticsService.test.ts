@@ -55,7 +55,7 @@ async function addCampaign(designCount: number) {
 
 /** A location at the given point. */
 function at(latitude: number, longitude: number) {
-  return RegistrationLocation.create({ latitude, longitude, accuracy: 20 });
+  return RegistrationLocation.create({ latitude, longitude });
 }
 
 /**

@@ -1,4 +1,9 @@
-import { expect, type BrowserContext, type Page } from "@playwright/test";
+import {
+  expect,
+  type BrowserContext,
+  type Page,
+  type Route,
+} from "@playwright/test";
 
 import { A4_SIZE, makePdf } from "../support/pdfs";
 
@@ -122,18 +127,32 @@ export async function generatePosters(page: Page, count: number) {
   // The download discards the action's response body, so it's read while
   // passing the response through.
   let body = "";
-  await page.route("**/*", async (route) => {
+  const readBody = async (route: Route) => {
     if (route.request().method() !== "POST") return route.fallback();
     const response = await route.fetch();
     body += await response.text();
     await route.fulfill({ response });
-  });
+  };
+  await page.route("**/*", readBody);
   const download = page.waitForEvent("download");
   await dialog.getByRole("button", { name: "Generate" }).click();
   await download;
-  await page.unrouteAll();
+  // Only this route, so a test's other routes (e.g. blockCarto) stay.
+  await page.unroute("**/*", readBody);
 
   const paths = [...new Set(body.match(/\/redirect\/[0-9a-f-]{36}/g) ?? [])];
   expect(paths).toHaveLength(count);
   return paths;
+}
+
+/**
+ * Keeps CARTO out of a test that shows a map: no key or tile quota used, and
+ * no dependence on CARTO being up.
+ */
+export async function blockCarto(page: Page) {
+  // The style is on basemaps.cartocdn.com; tiles, glyphs and sprites are on
+  // its subdomains.
+  await page.route(/^https:\/\/([\w-]+\.)*basemaps\.cartocdn\.com\//, (route) =>
+    route.abort(),
+  );
 }

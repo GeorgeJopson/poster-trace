@@ -192,13 +192,11 @@ export const registration = pgTable(
     registeredAt: timestamp().notNull(),
     latitude: doublePrecision(),
     longitude: doublePrecision(),
-    // In metres.
-    accuracy: doublePrecision(),
   },
   (table) => [
     check(
       "registration_location_all_or_none",
-      sql`(${table.latitude} IS NULL) = (${table.longitude} IS NULL) AND (${table.latitude} IS NULL) = (${table.accuracy} IS NULL)`,
+      sql`(${table.latitude} IS NULL) = (${table.longitude} IS NULL)`,
     ),
   ],
 );

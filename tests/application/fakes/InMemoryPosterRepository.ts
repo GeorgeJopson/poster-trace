@@ -15,7 +15,7 @@ export class InMemoryPosterRepository implements PosterRepository {
     posterId: PosterId;
     posterName: string;
     registeredAt: Date;
-    location: { latitude: number; longitude: number; accuracy: number } | null;
+    location: { latitude: number; longitude: number } | null;
   }[] = [];
 
   /** Whether the poster is stored, like the tables' foreign keys check. */
@@ -40,7 +40,6 @@ export class InMemoryPosterRepository implements PosterRepository {
         location: location && {
           latitude: location.latitude,
           longitude: location.longitude,
-          accuracy: location.accuracy,
         },
       };
       const index = this.registrations.findIndex(

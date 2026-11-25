@@ -43,7 +43,6 @@ export class DrizzlePosterRepository implements PosterRepository {
                 registeredAt: registration.registeredAt,
                 latitude: registration.location?.latitude ?? null,
                 longitude: registration.location?.longitude ?? null,
-                accuracy: registration.location?.accuracy ?? null,
               },
             ]
           : [],
@@ -59,7 +58,6 @@ export class DrizzlePosterRepository implements PosterRepository {
             registeredAt: sql`excluded.registered_at`,
             latitude: sql`excluded.latitude`,
             longitude: sql`excluded.longitude`,
-            accuracy: sql`excluded.accuracy`,
           },
         });
     });
@@ -84,13 +82,13 @@ export class DrizzlePosterRepository implements PosterRepository {
 
     let registration: Registration | null = null;
     if (row.registration) {
-      const { posterName, registeredAt, latitude, longitude, accuracy } =
+      const { posterName, registeredAt, latitude, longitude } =
         row.registration;
       // Through the validating factories (ADR-0006). The table's check keeps
       // the location columns all set or all null.
       const location =
-        latitude !== null && longitude !== null && accuracy !== null
-          ? RegistrationLocation.create({ latitude, longitude, accuracy })
+        latitude !== null && longitude !== null
+          ? RegistrationLocation.create({ latitude, longitude })
           : null;
       registration = {
         posterName: PosterName.create(posterName),

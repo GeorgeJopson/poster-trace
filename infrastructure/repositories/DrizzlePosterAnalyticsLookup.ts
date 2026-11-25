@@ -37,7 +37,6 @@ export class DrizzlePosterAnalyticsLookup implements PosterAnalyticsLookup {
         posterName: registrationTable.posterName,
         latitude: registrationTable.latitude,
         longitude: registrationTable.longitude,
-        accuracy: registrationTable.accuracy,
         scanCount: count(scanTable.id),
       })
       .from(posterTable)
@@ -58,12 +57,11 @@ export class DrizzlePosterAnalyticsLookup implements PosterAnalyticsLookup {
       posterName:
         row.posterName === null ? null : PosterName.create(row.posterName),
       location:
-        row.latitude === null || row.longitude === null || row.accuracy === null
+        row.latitude === null || row.longitude === null
           ? null
           : RegistrationLocation.create({
               latitude: row.latitude,
               longitude: row.longitude,
-              accuracy: row.accuracy,
             }),
       scanCount: row.scanCount,
     }));

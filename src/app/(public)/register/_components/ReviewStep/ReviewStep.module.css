@@ -1,0 +1,28 @@
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+}
+
+.term {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.value {
+  margin: 0 0 8px;
+}
+
+.error {
+  color: var(--color-error);
+  text-align: left;
+}
