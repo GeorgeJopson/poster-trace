@@ -62,11 +62,11 @@ describe("dragQrCode", () => {
     expect(dragQrCode({ x: 50, y: 40 }, grab)).toEqual({ x: 45, y: 37 });
   });
 
-  it("rounds the position to one decimal place, QR placement's step", () => {
+  it("rounds the position to the nearest 0.05, QR placement's step", () => {
     const grab = { offsetX: 0.01, offsetY: 0 };
     expect(dragQrCode({ x: 33.333, y: 66.666 }, grab)).toEqual({
       x: 33.3,
-      y: 66.7,
+      y: 66.65,
     });
   });
 
@@ -79,15 +79,15 @@ describe("dragQrCode", () => {
 describe("nudgeQrCode", () => {
   const placement = { x: 75, y: 82.3, size: 20, rotation: 0 };
 
-  it("moves the QR code exactly 1% in the direction given", () => {
-    expect(nudgeQrCode(placement, "up")).toEqual({ ...placement, y: 81.3 });
-    expect(nudgeQrCode(placement, "down")).toEqual({ ...placement, y: 83.3 });
-    expect(nudgeQrCode(placement, "left")).toEqual({ ...placement, x: 74 });
-    expect(nudgeQrCode(placement, "right")).toEqual({ ...placement, x: 76 });
+  it("moves the QR code exactly 0.25% in the direction given", () => {
+    expect(nudgeQrCode(placement, "up")).toEqual({ ...placement, y: 82.05 });
+    expect(nudgeQrCode(placement, "down")).toEqual({ ...placement, y: 82.55 });
+    expect(nudgeQrCode(placement, "left")).toEqual({ ...placement, x: 74.75 });
+    expect(nudgeQrCode(placement, "right")).toEqual({ ...placement, x: 75.25 });
   });
 
   it("stops at QR placement's limits", () => {
-    const nearEdges = { ...placement, x: 99.5, y: 0.4 };
+    const nearEdges = { ...placement, x: 99.9, y: 0.1 };
     expect(nudgeQrCode(nearEdges, "right")).toEqual({ ...nearEdges, x: 100 });
     expect(nudgeQrCode(nearEdges, "up")).toEqual({ ...nearEdges, y: 0 });
   });
@@ -118,7 +118,7 @@ describe("DEFAULT_QR_PLACEMENT", () => {
     const side = (size / 100) * a4.width;
     expect(rotation).toBe(0);
     expect((x / 100) * a4.width + side).toBeCloseTo(210 - 10.5);
-    // To within y's step: 0.1% of the height is 0.3mm.
+    // To within y's step: 0.05% of the height is 0.15mm.
     expect((y / 100) * a4.height + side).toBeCloseTo(297 - 10.5, 0);
   });
 

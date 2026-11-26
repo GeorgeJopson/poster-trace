@@ -71,14 +71,14 @@ export function dragQrCode(point: ImagePoint, grab: Grab): ImagePoint {
 export type NudgeDirection = "up" | "down" | "left" | "right";
 
 const NUDGES: Record<NudgeDirection, { axis: Axis; by: number }> = {
-  up: { axis: "y", by: -1 },
-  down: { axis: "y", by: 1 },
-  left: { axis: "x", by: -1 },
-  right: { axis: "x", by: 1 },
+  up: { axis: "y", by: -0.25 },
+  down: { axis: "y", by: 0.25 },
+  left: { axis: "x", by: -0.25 },
+  right: { axis: "x", by: 0.25 },
 };
 
 /**
- * The placement with the QR code moved 1% of the image's width or height in
+ * The placement with the QR code moved 0.25% of the image's width or height in
  * `direction`, stopping at its limit.
  */
 export function nudgeQrCode(
@@ -105,8 +105,8 @@ export function canNudgeQrCode(
  */
 function toPosition(axis: Axis, value: number): number {
   const { min, max, step } = QrPlacement.RANGES[axis];
-  // Divides by a whole number of steps per unit (10), not multiplies by the
-  // step (0.1), which isn't exact in binary.
+  // Divides by a whole number of steps per unit (20), not multiplies by the
+  // step (0.05), which isn't exact in binary.
   const stepsPerUnit = 1 / step;
   const rounded = Math.round(value * stepsPerUnit) / stepsPerUnit;
   return Math.min(max, Math.max(min, rounded));

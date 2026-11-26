@@ -293,25 +293,25 @@ test.describe("placing the QR code", () => {
         });
     });
 
-    test("moves 1% at a time with the nudge buttons", async ({ page }) => {
+    test("moves 0.25% at a time with the nudge buttons", async ({ page }) => {
       await nudgeButton(page, "right").click();
       await nudgeButton(page, "right").click();
       await nudgeButton(page, "up").click();
       expect(await submittedPlacement(page)).toMatchObject({
-        x: 67,
-        y: 74.3,
+        x: 65.5,
+        y: 75.05,
       });
 
       await nudgeButton(page, "left").click();
       await nudgeButton(page, "down").click();
       await nudgeButton(page, "down").click();
       expect(await submittedPlacement(page)).toMatchObject({
-        x: 66,
-        y: 76.3,
+        x: 65.25,
+        y: 75.55,
       });
     });
 
-    test("moves 1% at a time with the arrow keys, without scrolling", async ({
+    test("moves 0.25% at a time with the arrow keys, without scrolling", async ({
       page,
     }) => {
       // Whether the page's own handling of each arrow key was prevented, as
@@ -331,8 +331,8 @@ test.describe("placing the QR code", () => {
       await page.keyboard.press("ArrowUp");
 
       expect(await submittedPlacement(page)).toMatchObject({
-        x: 63,
-        y: 74.3,
+        x: 64.5,
+        y: 75.05,
       });
       expect(
         await page.evaluate(
@@ -460,7 +460,7 @@ test.describe("placing the QR code", () => {
 
       const campaignId = new URL(page.url()).pathname.split("/").at(-1)!;
       expect(await savedQrPlacements(campaignId)).toEqual([
-        { x: 66, y: 75.3, size: 15, rotation: 30 },
+        { x: 65.25, y: 75.3, size: 15, rotation: 30 },
       ]);
     });
   });

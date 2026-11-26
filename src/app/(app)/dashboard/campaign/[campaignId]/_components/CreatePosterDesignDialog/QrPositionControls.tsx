@@ -25,7 +25,7 @@ type QrPositionControlsProps = {
   children: React.ReactNode;
 };
 
-/** Buttons around the preview that move the QR code 1% at a time, and put it
+/** Buttons around the preview that move the QR code 0.25% at a time, and put it
  * back where it started. */
 export default function QrPositionControls({
   qrPlacement,
