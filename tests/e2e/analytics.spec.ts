@@ -2,6 +2,7 @@ import { registerPoster } from "./database";
 import { expect, test } from "./fixtures";
 import {
   addPosterDesign,
+  blockCarto,
   createCampaign,
   generatePosters,
   signUp,
@@ -45,14 +46,7 @@ test("shows the campaign's scans once its posters are scanned", async ({
 test.describe("scan map", () => {
   // Keep CARTO out of tests: no key or tile quota used, and no dependence on
   // CARTO being up.
-  test.beforeEach(async ({ page }) => {
-    // The style is on basemaps.cartocdn.com; tiles, glyphs and sprites are
-    // on its subdomains.
-    await page.route(
-      /^https:\/\/([\w-]+\.)*basemaps\.cartocdn\.com\//,
-      (route) => route.abort(),
-    );
-  });
+  test.beforeEach(({ page }) => blockCarto(page));
 
   test("maps the located posters and says how many aren't on the map", async ({
     page,

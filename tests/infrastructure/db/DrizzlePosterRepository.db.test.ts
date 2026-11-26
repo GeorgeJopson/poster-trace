@@ -28,7 +28,7 @@ beforeEach(async () => {
 });
 
 const registeredAt = new Date("2026-11-09T12:34:56.789Z");
-const locationValues = { latitude: 51.501, longitude: -0.142, accuracy: 12.5 };
+const locationValues = { latitude: 51.501, longitude: -0.142 };
 const location = RegistrationLocation.create(locationValues);
 const gentleSwamp = PosterName.create("Gentle Swamp");
 
@@ -123,7 +123,6 @@ describe("save", () => {
         registeredAt,
         latitude: null,
         longitude: null,
-        accuracy: null,
       },
     ]);
   });

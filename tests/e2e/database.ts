@@ -33,6 +33,6 @@ export async function registerPoster(
     posterId: scanPath.split("/").at(-1)!,
     posterName,
     registeredAt: new Date(),
-    ...(location && { ...location, accuracy: 10 }),
+    ...location,
   });
 }

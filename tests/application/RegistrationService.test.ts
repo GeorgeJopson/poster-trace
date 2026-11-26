@@ -11,7 +11,7 @@ import { ValidationError } from "@domain/shared/ValidationError";
 import { InMemoryPosterRepository } from "./fakes/InMemoryPosterRepository";
 
 const now = new Date("2026-11-09T12:00:00Z");
-const location = { latitude: 51.5, longitude: -0.12, accuracy: 8 };
+const location = { latitude: 51.5, longitude: -0.12 };
 
 let posters: InMemoryPosterRepository;
 let service: RegistrationService;

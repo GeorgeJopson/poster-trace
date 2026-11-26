@@ -178,7 +178,6 @@ describe("summarisePosters", () => {
     const location = RegistrationLocation.create({
       latitude: 51.5072,
       longitude: -0.1276,
-      accuracy: 12,
     });
     const located = await addPoster(design, 2, "Corner café", location);
     const unlocated = await addPoster(design, 1, "Station");

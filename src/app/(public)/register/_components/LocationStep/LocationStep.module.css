@@ -1,16 +1,15 @@
-.wrapper {
+.step {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 12px;
 }
 
-.label {
+.hint {
   text-align: left;
 }
 
-.captured {
+.actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -18,6 +17,11 @@
 }
 
 .error {
+  color: var(--color-error);
   font-size: 0.875rem;
   text-align: left;
+}
+
+.next {
+  margin-top: 8px;
 }

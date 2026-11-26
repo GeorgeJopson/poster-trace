@@ -278,7 +278,7 @@ async function main() {
     posterId: string,
     posterName: string,
     registeredAt: Date,
-    location: { latitude: number; longitude: number; accuracy: number } | null,
+    location: { latitude: number; longitude: number } | null,
   ) => {
     const checkedLocation = location && RegistrationLocation.create(location);
     await db.insert(registration).values({
@@ -287,33 +287,27 @@ async function main() {
       registeredAt,
       latitude: checkedLocation?.latitude ?? null,
       longitude: checkedLocation?.longitude ?? null,
-      accuracy: checkedLocation?.accuracy ?? null,
     });
   };
   await insertRegistration(posterA1.id, "Central Hall", daysAgo(15, 10), {
     latitude: 53.94693,
     longitude: -1.05256,
-    accuracy: 8,
   });
   await insertRegistration(posterA2.id, "Library entrance", daysAgo(15, 11), {
     latitude: 53.94868,
     longitude: -1.05177,
-    accuracy: 12,
   });
   await insertRegistration(posterA3.id, "Ron Cooke Hub", daysAgo(13, 14), {
     latitude: 53.94867,
     longitude: -1.03063,
-    accuracy: 15,
   });
   await insertRegistration(posterB1.id, "Vanbrugh College", daysAgo(8, 9), {
     latitude: 53.94651,
     longitude: -1.05453,
-    accuracy: 10,
   });
   await insertRegistration(posterC1.id, "Derwent College", daysAgo(15, 16), {
     latitude: 53.94786,
     longitude: -1.04903,
-    accuracy: 20,
   });
   // Registered without a location.
   await insertRegistration(

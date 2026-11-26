@@ -1,0 +1,45 @@
+.wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab {
+  flex: 1;
+  padding: 8px 4px;
+  font: inherit;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  /* Overlaps the list's border, so the active tab's line replaces it. */
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+
+.tab[data-state="active"] {
+  color: inherit;
+  font-weight: bold;
+  border-bottom-color: var(--color-green-600);
+}
+
+.tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-green-600);
+  outline-offset: -2px;
+}
+
+.nameStep {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}

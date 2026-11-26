@@ -10,9 +10,8 @@ export type CreatePosterDesignInput = {
   qrPlacement: QrPlacementDto;
 };
 
-/** Where a poster is, as the browser reported it. Accuracy is in metres. */
+/** Where the person registering a poster says it is. */
 export type RegistrationLocationInput = {
   latitude: number;
   longitude: number;
-  accuracy: number;
 };

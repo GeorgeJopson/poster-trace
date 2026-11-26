@@ -59,8 +59,12 @@ A memorable name given to a poster when it's registered, so people can tell it a
 _Avoid_: Label, title, nickname
 
 **Location**:
-Where a poster is, optionally given when it's registered. A poster is **located** when its registration has a location.
-_Avoid_: Position, coordinates, GPS
+Where the person registering a poster says it is, optionally given when it's registered. A poster is **located** when its registration has a location.
+_Avoid_: Position, coordinates, GPS, fix
+
+**Fix**:
+Where the browser says the person registering a poster is. It's only a starting point for the poster's location, which they can move from it.
+_Avoid_: Location (when you mean the browser's reading), GPS, position
 
 **Scan**:
 One reading of a poster's QR code, recorded at the time it happened. Every scan of a poster counts, whether or not the poster is registered, and repeat scans by the same person count again. A few scans may go unrecorded; the scanner still reaches the target.
