@@ -188,11 +188,11 @@ async function dragOnPreview(page: Page, from: PreviewPoint, to: PreviewPoint) {
   await page.mouse.up();
 }
 
-// The default placement, x 75%, y 82.3%, size 20% of the width, fills x 75% to
-// 95% of the preview's width and y 82.3% to 96.4% of its height, centred at
-// (85%, 89.4%).
-const DEFAULT_PLACEMENT = { x: 75, y: 82.3, size: 20, rotation: 0 };
-const DEFAULT_CENTRE = { x: 0.85, y: 0.894 };
+// The default placement, x 65%, y 75.3%, size 30% of the width, fills x 65% to
+// 95% of the preview's width and y 75.3% to 96.5% of its height, centred at
+// (80%, 85.9%).
+const DEFAULT_PLACEMENT = { x: 65, y: 75.3, size: 30, rotation: 0 };
+const DEFAULT_CENTRE = { x: 0.8, y: 0.859 };
 
 test.describe("the design preview's QR code", () => {
   test.beforeEach(async ({ page }) => {
@@ -214,12 +214,12 @@ test.describe("the design preview's QR code", () => {
   }) => {
     await posterDesignDialog(page).getByLabel("QR size").fill("15");
 
-    // 75% across and 82.3% down, the default position.
+    // 65% across and 75.3% down, the default position.
     await expect
       .poll(async () => (await readPreviewQrCode(page))?.topLeft)
       .toEqual({
-        x: expect.closeTo(0.75, 2),
-        y: expect.closeTo(0.823, 2),
+        x: expect.closeTo(0.65, 2),
+        y: expect.closeTo(0.753, 2),
       });
   });
 
@@ -227,12 +227,12 @@ test.describe("the design preview's QR code", () => {
     await posterDesignDialog(page).getByLabel("QR rotation").fill("90");
 
     // A quarter turn clockwise about its centre takes its top-left corner to
-    // the top-right: 75% + 20% across, and still 82.3% down.
+    // the top-right: 65% + 30% across, and still 75.3% down.
     await expect
       .poll(async () => (await readPreviewQrCode(page))?.topLeft)
       .toEqual({
         x: expect.closeTo(0.95, 2),
-        y: expect.closeTo(0.823, 2),
+        y: expect.closeTo(0.753, 2),
       });
   });
 });
@@ -288,8 +288,8 @@ test.describe("placing the QR code", () => {
       await expect
         .poll(async () => (await readPreviewQrCode(page))?.topLeft)
         .toEqual({
-          x: expect.closeTo(0.75, 2),
-          y: expect.closeTo(0.823, 2),
+          x: expect.closeTo(0.65, 2),
+          y: expect.closeTo(0.753, 2),
         });
     });
 
@@ -297,12 +297,18 @@ test.describe("placing the QR code", () => {
       await nudgeButton(page, "right").click();
       await nudgeButton(page, "right").click();
       await nudgeButton(page, "up").click();
-      expect(await submittedPlacement(page)).toMatchObject({ x: 77, y: 81.3 });
+      expect(await submittedPlacement(page)).toMatchObject({
+        x: 67,
+        y: 74.3,
+      });
 
       await nudgeButton(page, "left").click();
       await nudgeButton(page, "down").click();
       await nudgeButton(page, "down").click();
-      expect(await submittedPlacement(page)).toMatchObject({ x: 76, y: 83.3 });
+      expect(await submittedPlacement(page)).toMatchObject({
+        x: 66,
+        y: 76.3,
+      });
     });
 
     test("moves 1% at a time with the arrow keys, without scrolling", async ({
@@ -324,7 +330,10 @@ test.describe("placing the QR code", () => {
       }
       await page.keyboard.press("ArrowUp");
 
-      expect(await submittedPlacement(page)).toMatchObject({ x: 73, y: 81.3 });
+      expect(await submittedPlacement(page)).toMatchObject({
+        x: 63,
+        y: 74.3,
+      });
       expect(
         await page.evaluate(
           () => (window as unknown as { prevented: boolean[] }).prevented,
@@ -342,8 +351,8 @@ test.describe("placing the QR code", () => {
       });
 
       const placement = await submittedPlacement(page);
-      expect(placement.x).toBeCloseTo(25, 0);
-      expect(placement.y).toBeCloseTo(42.3, 0);
+      expect(placement.x).toBeCloseTo(15, 0);
+      expect(placement.y).toBeCloseTo(35.3, 0);
       await expect
         .poll(async () => (await readPreviewQrCode(page))?.topLeft)
         .toEqual({
@@ -354,26 +363,26 @@ test.describe("placing the QR code", () => {
 
     test("only drags when the press is on the code", async ({ page }) => {
       // Just above the code's top-left corner, then to the middle.
-      await dragOnPreview(page, { x: 0.76, y: 0.815 }, { x: 0.5, y: 0.5 });
+      await dragOnPreview(page, { x: 0.66, y: 0.745 }, { x: 0.5, y: 0.5 });
 
       expect(await submittedPlacement(page)).toEqual(DEFAULT_PLACEMENT);
     });
 
     test("drags a rotated code where it's drawn", async ({ page }) => {
       await posterDesignDialog(page).getByLabel("QR rotation").fill("45");
-      // Turned 45°, the code's corners point up, down, left and right, 14.1%
+      // Turned 45°, the code's corners point up, down, left and right, 21.2%
       // of the width from its centre, so it no longer covers its unrotated
-      // top-left corner (10% left and up), but does reach 12% above its
+      // top-left corner (15% left and up), but does reach 18% above its
       // centre, outside the unrotated square.
       const box = (await preview(page).boundingBox())!;
-      const up = (0.12 * box.width) / box.height;
+      const up = (0.18 * box.width) / box.height;
 
       await dragOnPreview(
         page,
-        { x: 0.76, y: DEFAULT_CENTRE.y - (0.09 * box.width) / box.height },
+        { x: 0.665, y: DEFAULT_CENTRE.y - (0.135 * box.width) / box.height },
         { x: 0.5, y: 0.5 },
       );
-      expect(await submittedPlacement(page)).toMatchObject({ x: 75, y: 82.3 });
+      expect(await submittedPlacement(page)).toMatchObject({ x: 65, y: 75.3 });
 
       await dragOnPreview(
         page,
@@ -381,8 +390,8 @@ test.describe("placing the QR code", () => {
         { x: DEFAULT_CENTRE.x - 0.5, y: DEFAULT_CENTRE.y - up },
       );
       const placement = await submittedPlacement(page);
-      expect(placement.x).toBeCloseTo(25, 0);
-      expect(placement.y).toBeCloseTo(82.3, 0);
+      expect(placement.x).toBeCloseTo(15, 0);
+      expect(placement.y).toBeCloseTo(75.3, 0);
     });
 
     test("keeps dragging outside the preview, stopping at the limits", async ({
@@ -411,7 +420,7 @@ test.describe("placing the QR code", () => {
       await expect(resetButton(page)).toBeDisabled();
 
       await nudgeButton(page, "left").click();
-      await dialog.getByLabel("QR size").fill("30");
+      await dialog.getByLabel("QR size").fill("40");
       await dialog.getByLabel("QR rotation").fill("90");
       await expect(resetButton(page)).toBeEnabled();
 
@@ -425,7 +434,7 @@ test.describe("placing the QR code", () => {
     }) => {
       const dialog = posterDesignDialog(page);
       await nudgeButton(page, "up").click();
-      await dialog.getByLabel("QR size").fill("30");
+      await dialog.getByLabel("QR size").fill("40");
 
       await dialog.getByLabel(DESIGN_FILE_LABEL).setInputFiles(await pdfFile());
 
@@ -451,7 +460,7 @@ test.describe("placing the QR code", () => {
 
       const campaignId = new URL(page.url()).pathname.split("/").at(-1)!;
       expect(await savedQrPlacements(campaignId)).toEqual([
-        { x: 76, y: 82.3, size: 15, rotation: 30 },
+        { x: 66, y: 75.3, size: 15, rotation: 30 },
       ]);
     });
   });

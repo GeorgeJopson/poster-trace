@@ -4,15 +4,15 @@ import { qrSquare, type PageSize } from "@/utils/poster-render/QrCode";
 
 /**
  * Where a new poster design's QR code starts, and where Reset returns it: in
- * the bottom-right corner, 20% of the page's width wide, with a margin of 5%
+ * the bottom-right corner, 30% of the page's width wide, with a margin of 5%
  * of the page's width from the right and bottom edges. A portrait A4 page is
- * √2 times as tall as it's wide, so that's y = 100 − (20 + 5) ÷ √2 ≈ 82.3. A
+ * √2 times as tall as it's wide, so that's y = 100 − (30 + 5) ÷ √2 ≈ 75.3. A
  * page of another shape would need its own y.
  */
 export const DEFAULT_QR_PLACEMENT: Readonly<QrPlacementDto> = {
-  x: 75,
-  y: 82.3,
-  size: 20,
+  x: 65,
+  y: 75.3,
+  size: 30,
   rotation: 0,
 };
 

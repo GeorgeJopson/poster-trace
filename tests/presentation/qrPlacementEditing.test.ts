@@ -122,8 +122,8 @@ describe("DEFAULT_QR_PLACEMENT", () => {
     expect((y / 100) * a4.height + side).toBeCloseTo(297 - 10.5, 0);
   });
 
-  it("is 20% of the page's width, so it can be seen", () => {
-    expect(DEFAULT_QR_PLACEMENT.size).toBe(20);
+  it("is 30% of the page's width, so it can be seen", () => {
+    expect(DEFAULT_QR_PLACEMENT.size).toBe(30);
   });
 });
 
