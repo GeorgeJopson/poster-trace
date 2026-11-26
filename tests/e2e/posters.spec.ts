@@ -165,10 +165,13 @@ async function readPreviewQrCode(page: Page): Promise<DecodedQrCode | null> {
 async function submittedPlacement(page: Page) {
   const dialog = posterDesignDialog(page);
   const value = async (field: Locator) => Number(await field.inputValue());
+  // The position is set on the preview, which describes where the code is.
+  const descriptionId = await preview(page).getAttribute("aria-describedby");
+  const position = await dialog.locator(`#${descriptionId}`).textContent();
+  const [, x, y] = position!.match(/^(.+)% across, (.+)% down$/)!;
   return {
-    // The position is set on the preview, so its inputs are hidden.
-    x: await value(dialog.locator('input[name="x"]')),
-    y: await value(dialog.locator('input[name="y"]')),
+    x: Number(x),
+    y: Number(y),
     size: await value(dialog.getByLabel("QR size")),
     rotation: await value(dialog.getByLabel("QR rotation")),
   };

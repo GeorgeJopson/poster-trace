@@ -111,6 +111,10 @@ export default function CreatePosterDesignDialog() {
   }
 
   function handleSubmit(formData: FormData) {
+    // The placement lives in state, set on the preview and sliders, not in form fields.
+    for (const [key, value] of Object.entries(qrPlacement)) {
+      formData.set(key, String(value));
+    }
     startTransition(async () => {
       await createPosterDesign(campaignId, formData);
       setOpen(false);
@@ -196,6 +200,7 @@ export default function CreatePosterDesignDialog() {
             // An application, so screen readers pass its arrow keys through.
             role="application"
             aria-label="QR code position"
+            aria-describedby="qrPosition"
             tabIndex={0}
             onKeyDown={handleKeyDown}
             onPointerDown={handlePointerDown}
@@ -205,6 +210,10 @@ export default function CreatePosterDesignDialog() {
             onLostPointerCapture={endDrag}
           />
         </QrPositionControls>
+        {/* Hidden, but still read out as the preview's description. */}
+        <span id="qrPosition" hidden>
+          {`${qrPlacement.x}% across, ${qrPlacement.y}% down`}
+        </span>
 
         <div className={styles.submitButtonWrapper}>
           <Button

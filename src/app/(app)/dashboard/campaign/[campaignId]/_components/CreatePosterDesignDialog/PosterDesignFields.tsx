@@ -35,7 +35,6 @@ function QrSliderField({
         <input
           className={styles.slider}
           id={name}
-          name={name}
           type="range"
           min={QrPlacement.RANGES[name].min}
           max={QrPlacement.RANGES[name].max}
@@ -81,10 +80,6 @@ export default function PosterDesignFields({
         required
         onChange={onFileChange}
       />
-
-      {/* The position is set on the preview, by dragging or nudging. */}
-      <input type="hidden" name="x" value={qrPlacement.x} />
-      <input type="hidden" name="y" value={qrPlacement.y} />
 
       <QrSliderField
         name="size"
