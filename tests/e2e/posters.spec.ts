@@ -251,12 +251,29 @@ test.describe("placing the QR code", () => {
     await page.getByRole("button", { name: "New Poster Design" }).click();
     const dialog = posterDesignDialog(page);
 
+    // The editor (the preview and its buttons) only shows once there's a design.
+    await expect(preview(page)).toBeHidden();
     for (const direction of ["up", "down", "left", "right"]) {
-      await expect(nudgeButton(page, direction)).toBeDisabled();
+      await expect(nudgeButton(page, direction)).toBeHidden();
     }
-    await expect(resetButton(page)).toBeDisabled();
+    await expect(resetButton(page)).toBeHidden();
     await expect(dialog.getByLabel("QR size")).toBeDisabled();
     await expect(dialog.getByLabel("QR rotation")).toBeEnabled();
+  });
+
+  test("grows the dialog to show the design as big as the screen allows", async ({
+    page,
+  }) => {
+    await openWithDesign(page);
+    const viewport = page.viewportSize()!;
+
+    await expect(preview(page)).toBeVisible();
+    const dialogBox = (await posterDesignDialog(page).boundingBox())!;
+    expect(dialogBox.height).toBeCloseTo(viewport.height * 0.95, 0);
+
+    // The design is A4, so the preview keeps its proportions.
+    const previewBox = (await preview(page).boundingBox())!;
+    expect(previewBox.height / previewBox.width).toBeCloseTo(Math.SQRT2, 1);
   });
 
   test.describe("with a design picked", () => {

@@ -29,6 +29,19 @@
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Fills the screen's height, and is as wide as its content (but no wider than
+   the screen), so the content can lay itself out at its largest. */
+.expanded {
+  top: 2.5dvh;
+  height: 95dvh;
+  max-height: none;
+  box-sizing: border-box;
+  width: fit-content;
+  /* Never narrower than it is unexpanded (500px wide plus its padding). */
+  min-width: min(550px, 90vw + 50px, 95vw);
+  max-width: 95vw;
+}
+
 .header {
   display: flex;
   align-items: flex-start;

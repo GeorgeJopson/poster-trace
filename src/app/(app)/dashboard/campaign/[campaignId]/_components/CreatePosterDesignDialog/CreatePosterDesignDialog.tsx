@@ -162,6 +162,8 @@ export default function CreatePosterDesignDialog() {
       open={open}
       onOpenChange={handleOpenChange}
       title="Create new poster design"
+      // Once there's a design, it's shown as big as the screen allows.
+      expanded={image !== null}
       trigger={
         <NewItemButton
           label="New Poster Design"
@@ -177,28 +179,32 @@ export default function CreatePosterDesignDialog() {
           onQrChange={handleQrChange}
         />
 
-        <canvas
-          ref={canvasRef}
-          className={styles.canvas}
-          hidden={!image}
-          // An application, so screen readers pass its arrow keys through.
-          role="application"
-          aria-label="QR code position"
-          tabIndex={0}
-          onKeyDown={handleKeyDown}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onLostPointerCapture={endDrag}
-        />
-
         <QrPositionControls
           qrPlacement={qrPlacement}
           hasImage={image !== null}
           onNudge={handleNudge}
           onReset={() => setQrPlacement(DEFAULT_QR_PLACEMENT)}
-        />
+        >
+          <canvas
+            ref={canvasRef}
+            className={styles.canvas}
+            style={
+              {
+                "--aspect-ratio": image ? image.width / image.height : 1,
+              } as React.CSSProperties
+            }
+            // An application, so screen readers pass its arrow keys through.
+            role="application"
+            aria-label="QR code position"
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
+            onLostPointerCapture={endDrag}
+          />
+        </QrPositionControls>
 
         <div className={styles.submitButtonWrapper}>
           <Button
