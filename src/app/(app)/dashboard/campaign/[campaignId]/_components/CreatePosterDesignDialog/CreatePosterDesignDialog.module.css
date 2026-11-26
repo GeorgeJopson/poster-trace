@@ -11,10 +11,17 @@
   display: contents;
 }
 
+/* As tall as the space it's given (--preview-height), unless that would make
+   it wider than the screen allows (less the dialog's padding and the nudge
+   buttons either side). It keeps the image's proportions (--aspect-ratio),
+   so a point on it is the same point on the image, which dragging the QR
+   code relies on. */
 .canvas {
-  max-width: 100%;
-  max-height: 40vh;
-  object-fit: contain;
+  display: block;
+  width: min(var(--preview-height, 0px) * var(--aspect-ratio), 95vw - 140px);
+  aspect-ratio: var(--aspect-ratio);
+  /* The QR code is dragged on it, so touches mustn't scroll the page. */
+  touch-action: none;
 }
 
 .submitButtonWrapper {

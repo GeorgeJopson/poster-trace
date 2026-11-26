@@ -39,8 +39,8 @@ describe("QrPlacement", () => {
   });
 
   it("exposes each value's range", () => {
-    expect(QrPlacement.RANGES.x).toEqual({ min: 0, max: 100, step: 0.1 });
-    expect(QrPlacement.RANGES.y).toEqual({ min: 0, max: 100, step: 0.1 });
+    expect(QrPlacement.RANGES.x).toEqual({ min: 0, max: 100, step: 0.05 });
+    expect(QrPlacement.RANGES.y).toEqual({ min: 0, max: 100, step: 0.05 });
     expect(QrPlacement.RANGES.size).toEqual({ min: 0, max: 100, step: 0.1 });
     expect(QrPlacement.RANGES.rotation).toEqual({ min: 0, max: 360, step: 1 });
   });

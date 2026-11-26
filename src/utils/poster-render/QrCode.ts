@@ -64,14 +64,34 @@ export class QrCode {
    * zone. It's rotated about its centre.
    */
   place(placement: QrPlacementDto, page: PageSize): PlacedQrCode {
-    const size = (placement.size / 100) * page.width;
-    return {
-      centreX: (placement.x / 100) * page.width + size / 2,
-      centreY: (placement.y / 100) * page.height + size / 2,
-      rotation: placement.rotation,
-      scale: size / this.moduleCount,
-    };
+    const { side, ...square } = qrSquare(placement, page);
+    return { ...square, scale: side / this.moduleCount };
   }
+}
+
+/** The square a QR code fills on a page, in the page's units. */
+export type QrSquare = {
+  centreX: number;
+  centreY: number;
+  /** The square's width and height, without a quiet zone. */
+  side: number;
+  /** Degrees clockwise about its centre. */
+  rotation: number;
+};
+
+/**
+ * The square a QR code with `placement` fills on `page`, whatever URL it
+ * encodes. `QrCode.place` draws within it, so anything else that needs to
+ * know where the code is (such as hit-testing it) matches what's drawn.
+ */
+export function qrSquare(placement: QrPlacementDto, page: PageSize): QrSquare {
+  const side = (placement.size / 100) * page.width;
+  return {
+    centreX: (placement.x / 100) * page.width + side / 2,
+    centreY: (placement.y / 100) * page.height + side / 2,
+    side,
+    rotation: placement.rotation,
+  };
 }
 
 type QrModules = ReturnType<typeof QRCode.create>["modules"];

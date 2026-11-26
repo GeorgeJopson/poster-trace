@@ -14,6 +14,11 @@
   transition: background-color 150ms ease;
 }
 
-.iconButton:hover {
+.iconButton:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--color-green-950) 20%, transparent);
+}
+
+.iconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
 }

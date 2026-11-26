@@ -1,25 +1,21 @@
 import React from "react";
 
+import type { QrPlacementDto } from "@application/dto/PosterDesignDto";
 import { PosterDesignImageRules } from "@domain/campaign/design/PosterDesignImageRules";
 import { QrPlacement } from "@domain/campaign/design/QrPlacement";
 
 import styles from "./PosterDesignFields.module.css";
 
-/** The QR inputs' values, named as in QrPlacement. */
-export type QrValues = {
-  x: string;
-  y: string;
-  size: string;
-  rotation: string;
-};
+/** The QR placement values set with a slider. */
+export type SliderField = "size" | "rotation";
 
 type QrSliderFieldProps = {
-  name: keyof QrValues;
+  name: SliderField;
   label: string;
-  value: string;
+  value: number;
   unit: string;
   disabled?: boolean;
-  onChange: (name: keyof QrValues, value: string) => void;
+  onChange: (name: SliderField, value: number) => void;
 };
 
 function QrSliderField({
@@ -39,17 +35,16 @@ function QrSliderField({
         <input
           className={styles.slider}
           id={name}
-          name={name}
           type="range"
           min={QrPlacement.RANGES[name].min}
           max={QrPlacement.RANGES[name].max}
           step={QrPlacement.RANGES[name].step}
           value={value}
           disabled={disabled}
-          onChange={(event) => onChange(name, event.target.value)}
+          onChange={(event) => onChange(name, parseFloat(event.target.value))}
         />
         <output className={styles.sliderValue} htmlFor={name}>
-          {parseFloat(value).toFixed(1)}
+          {value.toFixed(1)}
           {unit}
         </output>
       </div>
@@ -58,15 +53,15 @@ function QrSliderField({
 }
 
 type PosterDesignFieldsProps = {
-  qrValues: QrValues;
+  qrPlacement: QrPlacementDto;
   /** The QR code's size can only be set once there's an image to see it on. */
   hasImage: boolean;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onQrChange: (name: keyof QrValues, value: string) => void;
+  onQrChange: (name: SliderField, value: number) => void;
 };
 
 export default function PosterDesignFields({
-  qrValues,
+  qrPlacement,
   hasImage,
   onFileChange,
   onQrChange,
@@ -87,23 +82,9 @@ export default function PosterDesignFields({
       />
 
       <QrSliderField
-        name="x"
-        label="QR X position"
-        value={qrValues.x}
-        unit="%"
-        onChange={onQrChange}
-      />
-      <QrSliderField
-        name="y"
-        label="QR Y position"
-        value={qrValues.y}
-        unit="%"
-        onChange={onQrChange}
-      />
-      <QrSliderField
         name="size"
         label="QR size"
-        value={qrValues.size}
+        value={qrPlacement.size}
         unit="%"
         disabled={!hasImage}
         onChange={onQrChange}
@@ -111,7 +92,7 @@ export default function PosterDesignFields({
       <QrSliderField
         name="rotation"
         label="QR rotation"
-        value={qrValues.rotation}
+        value={qrPlacement.rotation}
         unit="°"
         onChange={onQrChange}
       />
